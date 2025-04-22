@@ -17,6 +17,7 @@ import DashboardCard10 from '../partials/dashboard/DashboardCard10';
 import DashboardCard11 from '../partials/dashboard/DashboardCard11';
 import DashboardCard12 from '../partials/dashboard/DashboardCard12';
 import DashboardCard13 from '../partials/dashboard/DashboardCard13';
+import { getCssVariable } from '../utils/Utils';
 
 function Dashboard() {
 
@@ -52,7 +53,13 @@ function Dashboard() {
                 {/* Datepicker built with React Day Picker */}
                 <Datepicker align="right" />
                 {/* Add view button */}
-                <button className="btn bg-gray-900 text-gray-100 hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-800 dark:hover:bg-white">
+                <button 
+                className="btn text-white hover:brightness-110"
+                style={{ 
+                  backgroundColor: getCssVariable('--tertiary'),
+                  ':hover': { backgroundColor: getCssVariable('--tertiary-dark') }
+                }}
+                >
                   <svg className="fill-current shrink-0 xs:hidden" width="16" height="16" viewBox="0 0 16 16">
                     <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
                   </svg>

@@ -17,12 +17,12 @@ function DashboardCard06() {
         backgroundColor: [
           getCssVariable('--primary'),
           getCssVariable('--secondary'),
-          getCssVariable('--tertiary'),
+          getCssVariable('--type4'),
         ],
         hoverBackgroundColor: [
           getCssVariable('--primary-dark'),
           getCssVariable('--secondary-dark'),
-          getCssVariable('--tertiary-dark'),
+          getCssVariable('--type4-dark'),
         ],
         borderWidth: 0,
       },
