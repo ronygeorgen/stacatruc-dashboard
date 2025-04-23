@@ -4,7 +4,7 @@ function Modal({ isOpen, onClose, data }) {
   if (!isOpen || !data) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}>
+    <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }} onClick={onClose} >
       {/* Modal panel */}
       <div 
         className="bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-auto"
@@ -140,7 +140,7 @@ function Modal({ isOpen, onClose, data }) {
         <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700/60 flex justify-end">
           <button
             onClick={onClose}
-            className="btn-sm bg-primary text-white hover:bg-primary-dark"
+            className="btn-sm bg-primary text-black dark:text-white cursor-pointer hover:bg-primary-dark"
           >
             Close
           </button>
