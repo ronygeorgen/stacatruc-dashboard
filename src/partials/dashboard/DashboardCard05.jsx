@@ -1,92 +1,76 @@
-import React, { useState, useEffect } from 'react';
-import Tooltip from '../../components/Tooltip';
+import * as React from "react"
+import { Link } from 'react-router-dom';
+import LineChart from '../../charts/LineChart01';
 import { chartAreaGradient } from '../../charts/ChartjsConfig';
-import RealtimeChart from '../../charts/RealtimeChart';
+import EditMenu from '../../components/DropdownEditMenu';
+import OpportunityTable from "../../components/OpportunityTable";
+import CardDetailModal from "../../components/CardDetailModal";
+import { closedOpportunities } from '../../utils/DummyData';
 
 // Import utilities
 import { adjustColorOpacity, getCssVariable } from '../../utils/Utils';
 
 function DashboardCard05() {
 
-  // IMPORTANT:
-  // Code below is for demo purpose only, and it's not covered by support.
-  // If you need to replace dummy data with real data,
-  // refer to Chart.js documentation: https://www.chartjs.org/docs/latest
-
-  // Fake real-time data
-  const [counter, setCounter] = useState(0);
-  const [increment, setIncrement] = useState(0);
-  const [range, setRange] = useState(35);
-  
-  // Dummy data to be looped
-  const data = [
-    57.81, 57.75, 55.48, 54.28, 53.14, 52.25, 51.04, 52.49, 55.49, 56.87,
-    53.73, 56.42, 58.06, 55.62, 58.16, 55.22, 58.67, 60.18, 61.31, 63.25,
-    65.91, 64.44, 65.97, 62.27, 60.96, 59.34, 55.07, 59.85, 53.79, 51.92,
-    50.95, 49.65, 48.09, 49.81, 47.85, 49.52, 50.21, 52.22, 54.42, 53.42,
-    50.91, 58.52, 53.37, 57.58, 59.09, 59.36, 58.71, 59.42, 55.93, 57.71,
-    50.62, 56.28, 57.37, 53.08, 55.94, 55.82, 53.94, 52.65, 50.25,
-  ];
-
-  const [slicedData, setSlicedData] = useState(data.slice(0, range));
-
-  // Generate fake dates from now to back in time
-  const generateDates = () => {
-    const now = new Date();
-    const dates = [];
-    data.forEach((v, i) => {
-      dates.push(new Date(now - 2000 - i * 2000));
-    });
-    return dates;
-  };
-
-  const [slicedLabels, setSlicedLabels] = useState(generateDates().slice(0, range).reverse());
-
-  // Fake update every 2 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCounter(counter + 1);
-    }, 2000);
-    return () => clearInterval(interval)
-  }, [counter]);
-
-  // Loop through data array and update
-  useEffect(() => {
-    setIncrement(increment + 1);
-    if (increment + range < data.length) {
-      setSlicedData(([x, ...slicedData]) => [...slicedData, data[increment + range]]);
-    } else {
-      setIncrement(0);
-      setRange(0);
-    }
-    setSlicedLabels(([x, ...slicedLabels]) => [...slicedLabels, new Date()]);
-    return () => setIncrement(0)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [counter]);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const chartData = {
-    labels: slicedLabels,
+    labels: [
+      '12-01-2022', '01-01-2023', '02-01-2023',
+      '03-01-2023', '04-01-2023', '05-01-2023',
+      '06-01-2023', '07-01-2023', '08-01-2023',
+      '09-01-2023', '10-01-2023', '11-01-2023',
+      '12-01-2023', '01-01-2024', '02-01-2024',
+      '03-01-2024', '04-01-2024', '05-01-2024',
+      '06-01-2024', '07-01-2024', '08-01-2024',
+      '09-01-2024', '10-01-2024', '11-01-2024',
+      '12-01-2024', '01-01-2025',
+    ],
     datasets: [
       // Indigo line
       {
-        data: slicedData,
+        data: [
+          540, 466, 540, 466, 385, 432, 334,
+          334, 289, 289, 200, 289, 222, 289,
+          289, 403, 554, 304, 289, 270, 134,
+          270, 829, 344, 388, 364,
+        ],
         fill: true,
         backgroundColor: function(context) {
           const chart = context.chart;
           const {ctx, chartArea} = chart;
           return chartAreaGradient(ctx, chartArea, [
-            { stop: 0, color: adjustColorOpacity(getCssVariable('--color-violet-500'), 0) },
-            { stop: 1, color: adjustColorOpacity(getCssVariable('--color-violet-500'), 0.2) }
+            { stop: 0, color: adjustColorOpacity(getCssVariable('--primary'), 0) },
+            { stop: 1, color: adjustColorOpacity(getCssVariable('--primary'), 0.2) }
           ]);
         },       
-        borderColor: getCssVariable('--color-violet-500'),
+        borderColor: getCssVariable('--primary'),
         borderWidth: 2,
         pointRadius: 0,
         pointHoverRadius: 3,
-        pointBackgroundColor: getCssVariable('--color-violet-500'),
-        pointHoverBackgroundColor: getCssVariable('--color-violet-500'),
+        pointBackgroundColor: getCssVariable('--primary'),
+        pointHoverBackgroundColor: getCssVariable('--primary'),
         pointBorderWidth: 0,
         pointHoverBorderWidth: 0,          
+        clip: 20,
+        tension: 0.2,
+      },
+      // Gray line
+      {
+        data: [
+          689, 562, 477, 477, 477, 477, 458,
+          314, 430, 378, 430, 498, 642, 350,
+          145, 145, 354, 260, 188, 188, 300,
+          300, 282, 364, 660, 554,
+        ],
+        borderColor: adjustColorOpacity(getCssVariable('--color-gray-500'), 0.25),
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 3,
+        pointBackgroundColor: adjustColorOpacity(getCssVariable('--color-gray-500'), 0.25),
+        pointHoverBackgroundColor: adjustColorOpacity(getCssVariable('--color-gray-500'), 0.25),
+        pointBorderWidth: 0,
+        pointHoverBorderWidth: 0,
         clip: 20,
         tension: 0.2,
       },
@@ -94,17 +78,31 @@ function DashboardCard05() {
   };
 
   return (
-    <div className="flex flex-col col-span-full sm:col-span-6 bg-white dark:bg-gray-800 shadow-xs rounded-xl">
-      <header className="px-5 py-4 border-b border-gray-100 dark:border-gray-700/60 flex items-center">
-        <h2 className="font-semibold text-gray-800 dark:text-gray-100">Real Time Value</h2>
-        <Tooltip className="ml-2">
-          <div className="text-xs text-center whitespace-nowrap">Built with <a className="underline" href="https://www.chartjs.org/" target="_blank" rel="noreferrer">Chart.js</a></div>
-        </Tooltip>
-      </header>
+    <>
+    <div className="cursor-pointer flex flex-col col-span-full sm:col-span-6 xl:col-span-3 bg-white dark:bg-gray-800 shadow-xs rounded-xl pb-5" onClick={() => setIsModalOpen(true)}>
+      <div className="px-5 pt-5">
+        <header className="flex justify-between items-start mb-2">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">Closed Opportunity Total</h2>
+          
+        </header>
+        <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase mb-1">Sales</div>
+        <div className="flex items-start">
+          <div className="text-3xl font-bold text-gray-800 dark:text-gray-100 mr-2">$9,962</div>
+          <div className="text-sm font-medium text-green-700 px-1.5 bg-green-500/20 rounded-full">+49%</div>
+        </div>
+      </div>
       {/* Chart built with Chart.js 3 */}
-      {/* Change the height attribute to adjust the chart height */}
-      <RealtimeChart data={chartData} width={595} height={248} />
+
     </div>
+    {/* Modal */}
+    <CardDetailModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)}
+        title="Closed Opportunity Total Details"
+      >
+        <OpportunityTable opportunities={closedOpportunities} />
+      </CardDetailModal>
+    </>
   );
 }
 

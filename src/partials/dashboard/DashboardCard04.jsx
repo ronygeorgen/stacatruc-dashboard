@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import BarChart from '../../charts/BarChart01';
-import Modal from '../../components/Modal';
+import Modal from '../../components/ChartModal';
 import { getCssVariable } from '../../utils/Utils';
 
 function DashboardCard04() {

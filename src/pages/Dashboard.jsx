@@ -27,7 +27,7 @@ function Dashboard() {
     <div className="flex h-screen overflow-hidden">
 
       {/* Sidebar */}
-      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      {/* <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} /> */}
 
       {/* Content area */}
       <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
@@ -53,7 +53,7 @@ function Dashboard() {
                 {/* Datepicker built with React Day Picker */}
                 <Datepicker align="right" />
                 {/* Add view button */}
-                <button 
+                {/* <button 
                 className="btn text-white hover:brightness-110"
                 style={{ 
                   backgroundColor: getCssVariable('--tertiary'),
@@ -64,7 +64,7 @@ function Dashboard() {
                     <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
                   </svg>
                   <span className="max-xs:sr-only">Add View</span>
-                </button>                
+                </button>                 */}
               </div>
 
             </div>
@@ -78,6 +78,7 @@ function Dashboard() {
               <DashboardCard02 />
               {/* Line chart (Acme Professional) */}
               <DashboardCard03 />
+              <DashboardCard05 />
               {/* Bar chart (Direct vs Indirect) */}
               <DashboardCard04 />
               {/* Line chart (Real Time Value) */}

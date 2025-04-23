@@ -100,7 +100,7 @@ function DropdownFilter({ align }) {
                   className="form-checkbox"
                 />
                 <span className="text-sm font-medium ml-2">
-                  Direct VS Indirect
+                  Owner - Assigned User
                 </span>
               </label>
             </li>
@@ -112,11 +112,11 @@ function DropdownFilter({ align }) {
                   className="form-checkbox"
                 />
                 <span className="text-sm font-medium ml-2">
-                  Real Time Value
+                Opportunity owner
                 </span>
               </label>
             </li>
-            <li className="py-1 px-3">
+            {/* <li className="py-1 px-3">
               <label className="flex items-center">
                 <input
                   ref={Checkrefs.Topcahnnels}
@@ -157,7 +157,7 @@ function DropdownFilter({ align }) {
                 />
                 <span className="text-sm font-medium ml-2">Total Spent</span>
               </label>
-            </li>
+            </li> */}
           </ul>
           <div className="py-2 px-3 border-t border-gray-200 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-700/20">
             <ul className="flex items-center justify-between">
