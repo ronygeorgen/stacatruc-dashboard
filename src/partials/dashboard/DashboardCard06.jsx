@@ -1,13 +1,24 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import DoughnutChart from '../../charts/DoughnutChart';
+import ChartModal from '../../components/ChartModal';
 import { isWithinInterval, parseISO } from 'date-fns';
 import { useFiscalPeriod } from "../../contexts/FiscalPeriodContext";
 
 // Import utilities
 import { getCssVariable } from '../../utils/Utils';
-import { openOpportunities, closedOpportunities, totalAmountOpportunities, amountClosedOpportunities } from '../../utils/DummyData';
+import { 
+  openOpportunities, 
+  closedOpportunities, 
+  totalAmountOpportunities, 
+  amountClosedOpportunities 
+} from '../../utils/DummyData';
 
 function DashboardCard06() {
+  // Add state for modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProbability, setSelectedProbability] = useState(null);
+  const [modalTitle, setModalTitle] = useState('');
+
   // Get fiscal period context
   const { dateRange, periodLabel } = useFiscalPeriod();
   
@@ -284,6 +295,35 @@ function DashboardCard06() {
     ? displayData.datasets[0].data.reduce((sum, count) => sum + count, 0)
     : summary;
 
+  // Get all opportunities data to use for filtering
+  const allOpportunities = useMemo(() => {
+    return [
+      ...openOpportunities,
+      ...closedOpportunities,
+      ...totalAmountOpportunities,
+      ...amountClosedOpportunities
+    ];
+  }, []);
+
+  // Handle chart segment click
+  const handleSegmentClick = (index, label) => {
+    // Extract probability value from label (e.g., "25% Probability" -> "25%")
+    const probabilityValue = label.split(' ')[0];
+    setSelectedProbability(probabilityValue);
+    setModalTitle(`Opportunities with ${label}`);
+    setIsModalOpen(true);
+  };
+
+  // Filter opportunities for the selected probability
+  const selectedOpportunities = useMemo(() => {
+    if (!selectedProbability) return [];
+    
+    return allOpportunities.filter(opportunity => 
+      opportunity.probability === selectedProbability &&
+      opportunity.stage !== "Closed Lost"
+    );
+  }, [selectedProbability, allOpportunities]);
+
   return (
     <div className="flex flex-col col-span-full sm:col-span-4 xl:col-span-4 bg-white dark:bg-gray-800 shadow-xs rounded-xl">
       <header className="px-5 py-4 border-b border-gray-100 dark:border-gray-700/60 flex justify-between items-center">
@@ -294,7 +334,20 @@ function DashboardCard06() {
         </div>
       </header>
       {/* Chart built with Chart.js 3 */}
-      <DoughnutChart data={displayData} width={389} height={260} />
+      <DoughnutChart 
+        data={displayData} 
+        width={389} 
+        height={260} 
+        onSegmentClick={handleSegmentClick}
+      />
+      
+      {/* Modal for displaying opportunity details */}
+      <ChartModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={modalTitle}
+        opportunities={selectedOpportunities}
+      />
     </div>
   );
 }

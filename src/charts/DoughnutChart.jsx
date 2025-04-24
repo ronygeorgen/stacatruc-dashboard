@@ -12,7 +12,8 @@ Chart.register(DoughnutController, ArcElement, TimeScale, Tooltip);
 function DoughnutChart({
   data,
   width,
-  height
+  height,
+  onSegmentClick // Add new prop for click handler
 }) {
 
   const [chart, setChart] = useState(null)
@@ -53,6 +54,12 @@ function DoughnutChart({
         },
         maintainAspectRatio: false,
         resizeDelay: 200,
+        onClick: (event, elements) => {
+          if (elements.length > 0 && onSegmentClick) {
+            const index = elements[0].index;
+            onSegmentClick(index, data.labels[index]);
+          }
+        },
       },
       plugins: [
         {
