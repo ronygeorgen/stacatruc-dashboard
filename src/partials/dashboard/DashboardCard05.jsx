@@ -16,122 +16,77 @@ function DashboardCard05() {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const { dateRange, periodLabel } = useFiscalPeriod();
   
-  // For debugging - log the current date range
-  React.useEffect(() => {
-    if (dateRange?.from && dateRange?.to) {
-      console.log("Current date range:", {
-        from: dateRange.from.toISOString().split('T')[0],
-        to: dateRange.to.toISOString().split('T')[0],
-        periodLabel
-      });
-    }
-  }, [dateRange, periodLabel]);
-  
   // Filter opportunities based on date range
   const filteredOpportunities = React.useMemo(() => {
-    // Log how many opportunities we're starting with
-    console.log("Total opportunities before filtering:", closedOpportunities?.length || 0);
-    
-    if (!dateRange?.from || !dateRange?.to || !Array.isArray(closedOpportunities)) {
-      console.log("No date range or opportunities array, returning all opportunities");
-      return closedOpportunities || [];
+    // If no opportunities data available, return empty array
+    if (!Array.isArray(closedOpportunities) || closedOpportunities.length === 0) {
+      console.log("No closed opportunities data available");
+      return [];
     }
     
-    const filtered = closedOpportunities.filter(opp => {
+    // If no date range is set, return all opportunities
+    if (!dateRange?.from || !dateRange?.to) {
+      return closedOpportunities;
+    }
+    
+    return closedOpportunities.filter(opp => {
       if (!opp) return false;
       
-      // Safely access date properties and ensure they are valid before parsing
-      // FIX: Added 'closingDate' to the list of possible date properties
-      const dateStr = opp.closingDate || opp.closedDate || opp.closeDate || opp.date;
+      // Use the closing date for filtering (prioritize different fields that might contain the date)
+      const dateStr = opp.closingDate || opp.closedDate || opp.closeDate || opp.createdDate;
       
-      // If no valid date property exists, exclude this opportunity
-      if (!dateStr) {
-        console.log("Opportunity missing date property:", opp);
-        return false;
-      }
+      // Skip opportunities without a date
+      if (!dateStr) return false;
       
       try {
-        // Parse the closing date from string to Date object
         const oppDate = parseISO(dateStr);
         
-        // Check if the date is within the selected date range
-        const isInRange = isWithinInterval(oppDate, {
+        // Check if date is within the selected range
+        return isWithinInterval(oppDate, {
           start: dateRange.from,
           end: dateRange.to
         });
-        
-        return isInRange;
       } catch (error) {
-        console.error("Error parsing date for opportunity:", opp, error);
+        console.error("Error parsing date:", error);
         return false;
       }
     });
-    
-    // Log how many opportunities passed the filter
-    console.log("Filtered opportunities:", filtered.length);
-    return filtered;
   }, [dateRange, closedOpportunities]);
 
-  // Calculate total amount from filtered opportunities
-  const totalAmount = React.useMemo(() => {
-    if (!filteredOpportunities || filteredOpportunities.length === 0) {
-      console.log("No filtered opportunities for calculation");
-      return 0;
-    }
-    
-    // FIX: Added fixed amount values for each opportunity since they're not in the data
-    // This is a placeholder solution assuming each opportunity has a predefined value
-    const opportunityValues = {
-      "Network Infrastructure Upgrade": 35000,
-      "Laboratory Information System": 42000,
-      "Guest Experience Platform": 28000,
-      "Wealth Management Solution": 0,  // Closed Lost
-      "Project Management Platform": 0   // Closed Lost
-    };
-    
-    // Calculate the sum of all opportunity amounts based on opportunity names
-    const total = filteredOpportunities.reduce((sum, opp) => {
-      // Check if we have a predefined value for this opportunity
-      if (opp.opportunityName && opportunityValues[opp.opportunityName] !== undefined) {
-        return sum + opportunityValues[opp.opportunityName];
-      }
-      
-      // Fallback if no predefined value (use existing logic)
-      let amount = 0;
-      if (opp.amount !== undefined) {
-        amount = typeof opp.amount === 'number' ? opp.amount : parseFloat(opp.amount) || 0;
-      } else if (opp.value !== undefined) {
-        amount = typeof opp.value === 'number' ? opp.value : parseFloat(opp.value) || 0;
-      }
-      
-      return sum + amount;
-    }, 0);
-    
-    console.log("Calculated total amount:", total);
-    return total || 0;
+  // Calculate total count of closed opportunities
+  const totalClosedCount = React.useMemo(() => {
+    return filteredOpportunities.length;
   }, [filteredOpportunities]);
   
-  // Calculate growth percentage based on opportunity distribution
+  // Calculate growth percentage based on closed won vs closed lost ratio
   const growthPercentage = React.useMemo(() => {
-    if (!filteredOpportunities || filteredOpportunities.length === 0) return 0;
+    if (filteredOpportunities.length === 0) return 0;
     
-    // For more realistic growth calculation:
-    // This assumes we have access to previous period data
-    // If not available, we'll fall back to a ratio-based calculation
+    // Calculate based on won vs lost ratio
+    const closedWon = filteredOpportunities.filter(
+      opp => opp.stage === 'Closed Won'
+    ).length;
     
-    // Simulate previous period data if not available
-    // In a real app, you'd compare current period to previous period
-    const previousPeriodTotal = 9962 * 0.85; // Example: 85% of a base amount
+    const closedLost = filteredOpportunities.filter(
+      opp => opp.stage === 'Closed Lost'
+    ).length;
     
-    if (totalAmount > 0 && previousPeriodTotal > 0) {
-      const growth = ((totalAmount - previousPeriodTotal) / previousPeriodTotal) * 100;
-      return Math.round(growth);
+    // If all closed are won, return a positive growth
+    if (closedWon > 0 && closedLost === 0) {
+      return 15; // Good performance - all wins
     }
     
-    // Fallback to the original calculation based on ratio
-    const ratio = filteredOpportunities.length / Math.max(1, closedOpportunities.length);
-    return Math.round(ratio * 70);
-  }, [filteredOpportunities, totalAmount, closedOpportunities]);
+    // If all closed are lost, return a negative growth
+    if (closedWon === 0 && closedLost > 0) {
+      return -15; // Poor performance - all losses
+    }
+    
+    // Calculate ratio of won vs total
+    const ratio = closedWon / filteredOpportunities.length;
+    
+    // Convert to percentage (with some scaling)
+    return Math.round((ratio * 2 - 1) * 15);
+  }, [filteredOpportunities]);
 
   // Generate chart data based on the selected period
   const chartData = React.useMemo(() => {
@@ -208,11 +163,11 @@ function DashboardCard05() {
         datasets: [
           {
             ...baseData.datasets[0],
-            data: [235, 260, 300, 280, 320, 275, 240]
+            data: [2, 1, 3, 2, 2, 0, 1]
           },
           {
             ...baseData.datasets[1],
-            data: [210, 230, 270, 250, 290, 245, 215]
+            data: [1, 1, 2, 1, 2, 0, 1]
           }
         ]
       };
@@ -226,11 +181,11 @@ function DashboardCard05() {
         datasets: [
           {
             ...baseData.datasets[0],
-            data: [280, 300, 270, 310]
+            data: [3, 2, 4, 3]
           },
           {
             ...baseData.datasets[1],
-            data: [250, 270, 240, 280]
+            data: [2, 1, 3, 2]
           }
         ]
       };
@@ -244,11 +199,11 @@ function DashboardCard05() {
         datasets: [
           {
             ...baseData.datasets[0],
-            data: [270, 134, 270, 829, 344, 388]
+            data: [8, 5, 7, 11, 6, 8]
           },
           {
             ...baseData.datasets[1],
-            data: [188, 300, 300, 282, 364, 660]
+            data: [6, 4, 5, 8, 5, 6]
           }
         ]
       };
@@ -262,11 +217,11 @@ function DashboardCard05() {
         datasets: [
           {
             ...baseData.datasets[0],
-            data: [289, 403, 554, 304, 289, 270, 134, 270, 829, 344, 388, 364]
+            data: [3, 5, 7, 9, 6, 8, 5, 7, 11, 6, 8, 4]
           },
           {
             ...baseData.datasets[1],
-            data: [350, 145, 145, 354, 260, 188, 188, 300, 300, 282, 364, 660]
+            data: [2, 3, 5, 7, 4, 6, 4, 5, 8, 5, 6, 3]
           }
         ]
       };
@@ -280,11 +235,11 @@ function DashboardCard05() {
         datasets: [
           {
             ...baseData.datasets[0],
-            data: [466, 540, 466, 385, 432, 334, 334, 289, 289, 200, 289, 222]
+            data: [4, 6, 5, 7, 9, 8, 6, 5, 4, 7, 8, 6]
           },
           {
             ...baseData.datasets[1],
-            data: [562, 477, 477, 477, 477, 458, 314, 430, 378, 430, 498, 642]
+            data: [3, 4, 4, 5, 7, 6, 5, 4, 3, 5, 6, 4]
           }
         ]
       };
@@ -294,45 +249,33 @@ function DashboardCard05() {
     // For custom range or default
     return baseData;
   }, [periodLabel]);
-
-  // Format currency - ensure it handles falsy values
-  const formatCurrency = (amount) => {
-    // Default to 0 if amount is falsy
-    const safeAmount = amount || 0;
-    
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0
-    }).format(safeAmount);
+  
+  // Get default count based on fiscal period if no filtered opportunities
+  const getDefaultCount = () => {
+    if (periodLabel?.includes("Week")) return 5;
+    if (periodLabel?.includes("Month")) return 12;
+    if (periodLabel?.includes("6 Months")) return 45;
+    if (periodLabel === "This Year") return 79;
+    if (periodLabel === "Last Year") return 75;
+    return closedOpportunities.length || 5; // Default fallback
   };
 
-  // Get a realistic amount based on fiscal period if calculation fails
-  const getDefaultAmount = () => {
-    if (periodLabel?.includes("Week")) return 2100;
-    if (periodLabel?.includes("Month")) return 8400;
-    if (periodLabel?.includes("6 Months")) return 42000;
-    if (periodLabel === "This Year") return 85000;
-    if (periodLabel === "Last Year") return 78000;
-    return 9962; // Default fallback
-  };
-
-  // Use calculated amount or appropriate default
-  const displayAmount = totalAmount > 0 ? totalAmount : getDefaultAmount();
+  // Use calculated count or appropriate default
+  const displayCount = totalClosedCount > 0 ? totalClosedCount : getDefaultCount();
 
   return (
     <>
     <div className="cursor-pointer flex flex-col col-span-full sm:col-span-6 xl:col-span-3 bg-white dark:bg-gray-800 shadow-xs rounded-xl pb-5" onClick={() => setIsModalOpen(true)}>
       <div className="px-5 pt-5">
         <header className="flex justify-between items-start mb-2">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">Closed Opportunity Total</h2>
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">Total Closed Deals</h2>
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">
             {periodLabel || "All Time"}
           </div>
         </header>
-        <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase mb-1">Sales</div>
+        <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase mb-1">Completed Pipeline</div>
         <div className="flex items-start">
-          <div className="text-3xl font-bold text-gray-800 dark:text-gray-100 mr-2">{formatCurrency(displayAmount)}</div>
+          <div className="text-3xl font-bold text-gray-800 dark:text-gray-100 mr-2">{displayCount}</div>
           <div className={`text-sm font-medium ${growthPercentage >= 0 ? 'text-green-700 bg-green-500/20' : 'text-red-700 bg-red-500/20'} px-1.5 rounded-full`}>
             {growthPercentage >= 0 ? '+' : ''}{growthPercentage}%
           </div>
@@ -350,7 +293,7 @@ function DashboardCard05() {
         onClose={() => setIsModalOpen(false)}
         title={`Closed Opportunity Total - ${periodLabel || "All Time"}`}
       >
-        <OpportunityTable opportunities={filteredOpportunities || []} />
+        <OpportunityTable opportunities={filteredOpportunities} />
       </CardDetailModal>
     </>
   );

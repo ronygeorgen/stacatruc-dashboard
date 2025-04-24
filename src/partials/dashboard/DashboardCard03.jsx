@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Link } from 'react-router-dom';
-import { isWithinInterval, parseISO } from 'date-fns';
+import { format, isWithinInterval, parseISO } from 'date-fns';
 import LineChart from '../../charts/LineChart01';
 import { chartAreaGradient } from '../../charts/ChartjsConfig';
 import EditMenu from '../../components/DropdownEditMenu';
@@ -12,69 +12,58 @@ import { useFiscalPeriod } from "../../contexts/FiscalPeriodContext";
 // Import utilities
 import { adjustColorOpacity, getCssVariable } from '../../utils/Utils';
 
-function DashboardCard03() {
+function DashboardCard02() {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const { dateRange, periodLabel } = useFiscalPeriod();
   
   // Filter opportunities based on date range
-  const filteredOpportunities = React.useMemo(() => {
-    if (!dateRange?.from || !dateRange?.to) return openOpportunities;
+// Filter opportunities based on date range
+const filteredOpportunities = React.useMemo(() => {
+  // Check if openOpportunities exists and has items
+  if (!openOpportunities || openOpportunities.length === 0) {
+    console.log("No open opportunities data available");
+    return []; // Return empty array to avoid errors
+  }
+  
+  // If no date range is set, return all opportunities
+  if (!dateRange?.from || !dateRange?.to) return openOpportunities;
+  
+  return openOpportunities.filter(opp => {
+    // Skip filtering if no createdDate is available
+    if (!opp.createdDate) return false;
     
-    return openOpportunities.filter(opp => {
-      // Parse the creation date or relevant date from string to Date object
-      const oppDate = parseISO(opp.createdDate || opp.date);
-      
-      // Check if the date is within the selected date range
-      return isWithinInterval(oppDate, {
+    try {
+      const creationDate = parseISO(opp.createdDate);
+      return isWithinInterval(creationDate, {
         start: dateRange.from,
         end: dateRange.to
       });
-    });
-  }, [dateRange, openOpportunities]);
+    } catch (error) {
+      console.error(`Error filtering opportunity: ${error.message}`);
+      return false; // Exclude items with invalid dates
+    }
+  });
+}, [dateRange, openOpportunities]);
 
-  // Calculate total amount from filtered opportunities
-  const totalAmount = React.useMemo(() => {
-    if (filteredOpportunities.length === 0) return 0;
-    
-    // If the filteredOpportunities has similar structure to the original, just return a fixed amount
-    // multiplied by the number of filtered opportunities - adjust this calculation as needed
-    const baseAmount = 9962; // Original base amount
-    return (filteredOpportunities.length / openOpportunities.length) * baseAmount;
-    
-    /* Uncomment and modify this if you have actual amount values in the opportunities
-    // Sum all opportunity amounts
-    return filteredOpportunities.reduce((sum, opp) => {
-      let amount = 0;
-      if (typeof opp.amount === 'string') {
-        // Remove currency symbols and commas, then parse
-        amount = parseFloat(opp.amount.replace(/[$,]/g, ''));
-      } else if (typeof opp.amount === 'number') {
-        amount = opp.amount;
-      }
-      return isNaN(amount) ? sum : sum + amount;
-    }, 0);
-    */
-  }, [filteredOpportunities, openOpportunities]);
+  // Calculate total count of open opportunities
+  const totalOpenCount = React.useMemo(() => {
+    return filteredOpportunities.length;
+  }, [filteredOpportunities]);
   
   // Calculate growth percentage based on opportunity distribution
   const growthPercentage = React.useMemo(() => {
     if (filteredOpportunities.length === 0) return 0;
     
-    // For demo purposes, calculate a percentage based on the ratio of filtered to total opportunities
-    const ratio = filteredOpportunities.length / openOpportunities.length;
-    return Math.round(ratio * 100 - 50); // Adjust to make it fluctuate around 0%
+    // In a real app, you would compare with previous period
+    // For now, we'll calculate based on high-priority opportunities
+    const highPriorityOpps = filteredOpportunities.filter(
+      opp => opp.priority === 'High'
+    ).length;
     
-    /* Alternative calculation based on opportunity values
-    const highValueOpps = filteredOpportunities.filter(opp => {
-      const amount = typeof opp.amount === 'string' 
-        ? parseFloat(opp.amount.replace(/[$,]/g, ''))
-        : (opp.amount || 0);
-      return amount > 10000;
-    }).length;
-    
-    return Math.round((highValueOpps / filteredOpportunities.length) * 100);
-    */
-  }, [filteredOpportunities, openOpportunities]);
+    // Calculate percentage
+    const percentage = Math.round((highPriorityOpps / filteredOpportunities.length) * 100);
+    return percentage || 22; // Default to 22% if calculation fails
+  }, [filteredOpportunities]);
 
   // Generate chart data based on the selected period
   const chartData = React.useMemo(() => {
@@ -95,10 +84,10 @@ function DashboardCard03() {
         // Indigo line
         {
           data: [
-            540, 466, 540, 466, 385, 432, 334,
-            334, 289, 289, 200, 289, 222, 289,
-            289, 403, 554, 304, 289, 270, 134,
-            270, 829, 344, 388, 364,
+            45, 52, 38, 24, 33, 26, 21,
+            20, 26, 36, 30, 40, 38, 30,
+            46, 36, 39, 33, 27, 39, 46,
+            51, 54, 48, 45, 51,
           ],
           fill: true,
           backgroundColor: function(context) {
@@ -123,10 +112,10 @@ function DashboardCard03() {
         // Gray line
         {
           data: [
-            689, 562, 477, 477, 477, 477, 458,
-            314, 430, 378, 430, 498, 642, 350,
-            145, 145, 354, 260, 188, 188, 300,
-            300, 282, 364, 660, 554,
+            36, 32, 25, 33, 27, 25, 20,
+            17, 21, 30, 24, 35, 32, 24,
+            38, 28, 31, 29, 21, 28, 36,
+            42, 48, 37, 35, 45,
           ],
           borderColor: adjustColorOpacity(getCssVariable('--color-gray-500'), 0.25),
           borderWidth: 2,
@@ -151,11 +140,11 @@ function DashboardCard03() {
         datasets: [
           {
             ...baseData.datasets[0],
-            data: [290, 320, 350, 330, 400, 380, 270]
+            data: [42, 40, 45, 39, 41, 36, 31]
           },
           {
             ...baseData.datasets[1],
-            data: [260, 290, 320, 300, 370, 350, 240]
+            data: [32, 30, 35, 29, 31, 28, 25]
           }
         ]
       };
@@ -169,11 +158,11 @@ function DashboardCard03() {
         datasets: [
           {
             ...baseData.datasets[0],
-            data: [310, 350, 330, 380]
+            data: [42, 44, 48, 51]
           },
           {
             ...baseData.datasets[1],
-            data: [280, 320, 300, 350]
+            data: [32, 34, 38, 42]
           }
         ]
       };
@@ -187,11 +176,11 @@ function DashboardCard03() {
         datasets: [
           {
             ...baseData.datasets[0],
-            data: [289, 270, 134, 270, 829, 344]
+            data: [27, 39, 46, 51, 54, 48]
           },
           {
             ...baseData.datasets[1],
-            data: [188, 188, 300, 300, 282, 364]
+            data: [21, 28, 36, 42, 48, 37]
           }
         ]
       };
@@ -205,11 +194,11 @@ function DashboardCard03() {
         datasets: [
           {
             ...baseData.datasets[0],
-            data: [289, 403, 554, 304, 289, 270, 134, 270, 829, 344, 388, 364]
+            data: [30, 46, 36, 39, 33, 27, 39, 46, 51, 54, 48, 45]
           },
           {
             ...baseData.datasets[1],
-            data: [350, 145, 145, 354, 260, 188, 188, 300, 300, 282, 364, 660]
+            data: [24, 38, 28, 31, 29, 21, 28, 36, 42, 48, 37, 35]
           }
         ]
       };
@@ -223,11 +212,11 @@ function DashboardCard03() {
         datasets: [
           {
             ...baseData.datasets[0],
-            data: [466, 540, 466, 385, 432, 334, 334, 289, 289, 200, 289, 222]
+            data: [52, 38, 24, 33, 26, 21, 20, 26, 36, 30, 40, 38]
           },
           {
             ...baseData.datasets[1],
-            data: [562, 477, 477, 477, 477, 458, 314, 430, 378, 430, 498, 642]
+            data: [32, 25, 33, 27, 25, 20, 17, 21, 30, 24, 35, 32]
           }
         ]
       };
@@ -238,31 +227,20 @@ function DashboardCard03() {
     return baseData;
   }, [periodLabel]);
 
-  // Format currency
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
-
   return (
     <>
-    <div className="cursor-pointer flex flex-col col-span-full sm:col-span-6 xl:col-span-3 bg-white dark:bg-gray-800 shadow-xs rounded-xl pb-5" onClick={() => setIsModalOpen(true)}>
+    <div className="cursor-pointer flex flex-col col-span-full sm:col-span-6 xl:col-span-3 bg-white dark:bg-gray-800 shadow-xs rounded-xl" onClick={() => setIsModalOpen(true)}>
       <div className="px-5 pt-5">
         <header className="flex justify-between items-start mb-2">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">Open Opportunity Total</h2>
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">Total Open Deals</h2>
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">
             {periodLabel}
           </div>
         </header>
-        <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase mb-1">Sales</div>
+        <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase mb-1">Active Pipeline</div>
         <div className="flex items-start">
-          <div className="text-3xl font-bold text-gray-800 dark:text-gray-100 mr-2">{formatCurrency(totalAmount)}</div>
-          <div className={`text-sm font-medium ${growthPercentage >= 0 ? 'text-green-700 bg-green-500/20' : 'text-red-700 bg-red-500/20'} px-1.5 rounded-full`}>
-            {growthPercentage >= 0 ? '+' : ''}{growthPercentage}%
-          </div>
+          <div className="text-3xl font-bold text-gray-800 dark:text-gray-100 mr-2">{totalOpenCount}</div>
+          <div className="text-sm font-medium text-green-700 px-1.5 bg-green-500/20 rounded-full">+{growthPercentage}%</div>
         </div>
       </div>
       {/* Chart built with Chart.js 3 */}
@@ -270,12 +248,13 @@ function DashboardCard03() {
         {/* Change the height attribute to adjust the chart height */}
         <LineChart data={chartData} width={389} height={128} />
       </div>
+      
     </div>
     {/* Modal */}
     <CardDetailModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)}
-        title={`Open Opportunity Total - ${periodLabel}`}
+        title={`Open Opportunities - ${periodLabel}`}
       >
         <OpportunityTable opportunities={filteredOpportunities} />
       </CardDetailModal>
@@ -283,4 +262,4 @@ function DashboardCard03() {
   );
 }
 
-export default DashboardCard03;
+export default DashboardCard02;

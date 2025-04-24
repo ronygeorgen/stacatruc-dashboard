@@ -11,6 +11,8 @@ import DashboardCard04 from '../partials/dashboard/DashboardCard04';
 import DashboardCard05 from '../partials/dashboard/DashboardCard05';
 import DashboardCard06 from '../partials/dashboard/DashboardCard06';
 import LeaderboardCard from '../charts/LeaderboardCard';
+import SourceCard from '../charts/SourceCard';
+import ProductsCard from '../charts/ProductsCard';
 import DashboardCard07 from '../partials/dashboard/DashboardCard07';
 import DashboardCard08 from '../partials/dashboard/DashboardCard08';
 import DashboardCard09 from '../partials/dashboard/DashboardCard09';
@@ -75,10 +77,10 @@ function Dashboard() {
 
               {/* Line chart (Acme Plus) */}
               <DashboardCard01 />
+              <DashboardCard03 />
               {/* Line chart (Acme Advanced) */}
               <DashboardCard02 />
               {/* Line chart (Acme Professional) */}
-              <DashboardCard03 />
               <DashboardCard05 />
               {/* Bar chart (Direct vs Indirect) */}
               {/* <DashboardCard04 /> */}
@@ -88,6 +90,8 @@ function Dashboard() {
               <DashboardCard06 />
               {/* Leader board card */}
               <LeaderboardCard />
+              <SourceCard/>
+              <ProductsCard/>
               {/* Table (Top Channels) */}
               {/* <DashboardCard07 />  */}
               {/* Line chart (Sales Over Time) */}

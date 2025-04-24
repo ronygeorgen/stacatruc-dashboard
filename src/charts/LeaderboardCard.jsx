@@ -71,14 +71,14 @@ function UserDetailModal({ isOpen, onClose, user, opportunities }) {
   if (!isOpen || !user) return null;
   
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
+    <div className="fixed inset-0 flex items-center justify-center z-50 ">
       {/* Semi-transparent overlay */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm "></div>
       
       {/* Modal container */}
       <div 
         ref={modalRef} 
-        className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col z-10"
+        className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col z-10"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
@@ -293,7 +293,7 @@ function LeaderboardCard() {
 
   return (
     <>
-      <div className="flex flex-col col-span-full sm:col-span-8 lg:col-span-8 xl:col-span-8 bg-white dark:bg-gray-800 shadow-xs rounded-xl">
+      <div className="flex flex-col col-span-full sm:col-span-8 lg:col-span-8 xl:col-span-8 bg-white dark:bg-gray-800 shadow-xs  rounded-xl">
         <header className="px-5 py-4 border-b border-gray-100 dark:border-gray-700/60 flex justify-between items-center">
           <h2 className="font-semibold text-gray-800 dark:text-gray-100">Sales Leaderboard</h2>
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center">

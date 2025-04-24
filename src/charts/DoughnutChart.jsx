@@ -9,6 +9,56 @@ import 'chartjs-adapter-moment';
 
 Chart.register(DoughnutController, ArcElement, TimeScale, Tooltip);
 
+// Stacatruc color palette
+const stacatrucColors = {
+  green: '#36A501',
+  darkGrey: '#474747',
+  lightGrey: '#E4E4E4',
+  medGrey: '#707070',
+  clarkGreen: '#BCD230',
+  blue: '#3985AE',
+};
+
+// Chart colors with dark mode variants
+const chartColorScheme = {
+  light: [
+    stacatrucColors.green,
+    stacatrucColors.blue,
+    stacatrucColors.clarkGreen,
+    stacatrucColors.darkGrey,
+    stacatrucColors.medGrey,
+    stacatrucColors.lightGrey,
+  ],
+  dark: [
+    stacatrucColors.green,
+    stacatrucColors.blue,
+    stacatrucColors.clarkGreen,
+    stacatrucColors.lightGrey, // Lighter grey for better visibility in dark mode
+    stacatrucColors.medGrey,
+    stacatrucColors.darkGrey,
+  ]
+};
+
+// Custom tooltip colors that match the Stacatruc theme
+const stacatrucTooltipColors = {
+  titleColor: {
+    light: stacatrucColors.darkGrey,
+    dark: stacatrucColors.lightGrey,
+  },
+  bodyColor: {
+    light: stacatrucColors.medGrey,
+    dark: stacatrucColors.lightGrey,
+  },
+  backgroundColor: {
+    light: '#FFFFFF',
+    dark: stacatrucColors.darkGrey,
+  },
+  borderColor: {
+    light: stacatrucColors.lightGrey,
+    dark: stacatrucColors.medGrey,
+  },
+};
+
 function DoughnutChart({
   data,
   width,
@@ -16,19 +66,37 @@ function DoughnutChart({
   onSegmentClick // Add new prop for click handler
 }) {
 
-  const [chart, setChart] = useState(null)
+  const [chart, setChart] = useState(null);
   const canvas = useRef(null);
   const legend = useRef(null);
   const { currentTheme } = useThemeProvider();
   const darkMode = currentTheme === 'dark';
-  const { tooltipTitleColor, tooltipBodyColor, tooltipBgColor, tooltipBorderColor } = chartColors; 
+
+  // Prepare the chart data with Stacatruc colors
+  const prepareChartData = (sourceData) => {
+    if (!sourceData) return null;
+    
+    const colors = darkMode ? chartColorScheme.dark : chartColorScheme.light;
+    
+    return {
+      ...sourceData,
+      datasets: sourceData.datasets.map(dataset => ({
+        ...dataset,
+        backgroundColor: colors,
+        hoverBackgroundColor: colors, // Same colors for hover state
+        borderWidth: 0,
+      }))
+    };
+  };
 
   useEffect(() => {
     const ctx = canvas.current;
-    // eslint-disable-next-line no-unused-vars
+    // Create chart with Stacatruc colors
+    const chartData = prepareChartData(data);
+    
     const newChart = new Chart(ctx, {
       type: 'doughnut',
-      data: data,
+      data: chartData,
       options: {
         cutout: '80%',
         layout: {
@@ -39,10 +107,20 @@ function DoughnutChart({
             display: false,
           },
           tooltip: {
-            titleColor: darkMode ? tooltipTitleColor.dark : tooltipTitleColor.light,
-            bodyColor: darkMode ? tooltipBodyColor.dark : tooltipBodyColor.light,
-            backgroundColor: darkMode ? tooltipBgColor.dark : tooltipBgColor.light,
-            borderColor: darkMode ? tooltipBorderColor.dark : tooltipBorderColor.light,
+            titleColor: darkMode ? stacatrucTooltipColors.titleColor.dark : stacatrucTooltipColors.titleColor.light,
+            bodyColor: darkMode ? stacatrucTooltipColors.bodyColor.dark : stacatrucTooltipColors.bodyColor.light,
+            backgroundColor: darkMode ? stacatrucTooltipColors.backgroundColor.dark : stacatrucTooltipColors.backgroundColor.light,
+            borderColor: darkMode ? stacatrucTooltipColors.borderColor.dark : stacatrucTooltipColors.borderColor.light,
+            callbacks: {
+              // Show only the label, hide the percentage calculation
+              title: function(tooltipItems) {
+                return tooltipItems[0].label;
+              },
+              // Return empty string to hide the body part completely
+              label: function(context) {
+                return '';
+              }
+            },
           },
         },
         interaction: {
@@ -113,31 +191,46 @@ function DoughnutChart({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Add this new useEffect to update chart when data changes
+  // Update chart when data changes
   useEffect(() => {
-    if (!chart) return;
+    if (!chart || !data) return;
     
-    // Update chart data when the data prop changes
-    chart.data = data;
+    const colors = darkMode ? chartColorScheme.dark : chartColorScheme.light;
+    
+    // Update dataset colors
+    chart.data.datasets.forEach(dataset => {
+      dataset.backgroundColor = colors;
+      dataset.hoverBackgroundColor = colors;
+    });
+    
+    // Update data values if they changed
+    chart.data.labels = data.labels;
+    chart.data.datasets.forEach((dataset, i) => {
+      dataset.data = data.datasets[i].data;
+    });
+    
     chart.update();
-  }, [data, chart]);
+  }, [data, chart, darkMode]);
 
+  // Update tooltip colors when theme changes
   useEffect(() => {
     if (!chart) return;
 
-    if (darkMode) {
-      chart.options.plugins.tooltip.titleColor = tooltipTitleColor.dark;
-      chart.options.plugins.tooltip.bodyColor = tooltipBodyColor.dark;
-      chart.options.plugins.tooltip.backgroundColor = tooltipBgColor.dark;
-      chart.options.plugins.tooltip.borderColor = tooltipBorderColor.dark;
-    } else {
-      chart.options.plugins.tooltip.titleColor = tooltipTitleColor.light;
-      chart.options.plugins.tooltip.bodyColor = tooltipBodyColor.light;
-      chart.options.plugins.tooltip.backgroundColor = tooltipBgColor.light;
-      chart.options.plugins.tooltip.borderColor = tooltipBorderColor.light;
-    }
+    // Update tooltip styles
+    chart.options.plugins.tooltip.titleColor = darkMode ? stacatrucTooltipColors.titleColor.dark : stacatrucTooltipColors.titleColor.light;
+    chart.options.plugins.tooltip.bodyColor = darkMode ? stacatrucTooltipColors.bodyColor.dark : stacatrucTooltipColors.bodyColor.light;
+    chart.options.plugins.tooltip.backgroundColor = darkMode ? stacatrucTooltipColors.backgroundColor.dark : stacatrucTooltipColors.backgroundColor.light;
+    chart.options.plugins.tooltip.borderColor = darkMode ? stacatrucTooltipColors.borderColor.dark : stacatrucTooltipColors.borderColor.light;
+    
+    // Update chart colors for dark/light mode
+    const colors = darkMode ? chartColorScheme.dark : chartColorScheme.light;
+    chart.data.datasets.forEach(dataset => {
+      dataset.backgroundColor = colors;
+      dataset.hoverBackgroundColor = colors;
+    });
+    
     chart.update('none');
-  }, [currentTheme]);
+  }, [currentTheme, chart]);
 
   return (
     <div className="grow flex flex-col justify-center">

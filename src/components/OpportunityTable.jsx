@@ -122,16 +122,18 @@ function OpportunityTable({ opportunities }) {
               <th className="sticky left-40 z-30 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-40">
                 Customer Name
               </th>
+              <th className="sticky left-80 z-30 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-44">
+                Opportunity Name
+              </th>
 
               {/* Scrollable columns */}
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Contact Details</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Opportunity Name</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stage</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Next Steps</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Probability</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Age (days)</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Closing Date</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Created Date</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Next Steps</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Closing Date</th>
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -148,13 +150,22 @@ function OpportunityTable({ opportunities }) {
                   <td className={`sticky left-40 z-10 px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 ${fixedBg} border-r border-gray-200 dark:border-gray-700`}>
                     {opportunity.customerName}
                   </td>
+                  <td className={`sticky left-80 z-10 px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 ${fixedBg} border-r border-gray-200 dark:border-gray-700`}>
+                    {opportunity.opportunityName}
+                  </td>
 
                   {/* Scrollable cells */}
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{opportunity.contact}</td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{opportunity.opportunityName}</td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{opportunity.stage}</td>
+                  <td className="px-4 py-3 whitespace-wrap text-sm text-gray-900 dark:text-gray-100 max-w-xs">
+                    <div className="flex items-center">
+                      <span className="mr-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-medium px-2 py-1 rounded">
+                        {opportunity.nextStep}
+                      </span>
+                    </div>
+                  </td>
                   <td className="px-4 py-3 whitespace-nowrap">
-                    <span
+                    <span 
                       className={`px-2 py-1 text-xs font-medium rounded-full ${
                         opportunity.probability === '90%' ? 'bg-green-500/20 text-green-700 dark:text-green-300' :
                         opportunity.probability === '75%' ? 'bg-blue-500/20 text-blue-700 dark:text-blue-300' :
@@ -166,15 +177,9 @@ function OpportunityTable({ opportunities }) {
                     </span>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{opportunity.age}</td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{opportunity.closingDate}</td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{opportunity.createdDate}</td>
-                  <td className="px-4 py-3 whitespace-wrap text-sm text-gray-900 dark:text-gray-100 max-w-xs">
-                    <div className="flex items-center">
-                      <span className="mr-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-medium px-2 py-1 rounded">
-                        {opportunity.nextStep}
-                      </span>
-                    </div>
-                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{opportunity.closingDate}</td>
+                  
                 </tr>
               );
             })}
