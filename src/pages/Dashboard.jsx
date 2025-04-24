@@ -10,6 +10,7 @@ import DashboardCard03 from '../partials/dashboard/DashboardCard03';
 import DashboardCard04 from '../partials/dashboard/DashboardCard04';
 import DashboardCard05 from '../partials/dashboard/DashboardCard05';
 import DashboardCard06 from '../partials/dashboard/DashboardCard06';
+import LeaderboardCard from '../charts/LeaderboardCard';
 import DashboardCard07 from '../partials/dashboard/DashboardCard07';
 import DashboardCard08 from '../partials/dashboard/DashboardCard08';
 import DashboardCard09 from '../partials/dashboard/DashboardCard09';
@@ -80,11 +81,13 @@ function Dashboard() {
               <DashboardCard03 />
               <DashboardCard05 />
               {/* Bar chart (Direct vs Indirect) */}
-              <DashboardCard04 />
+              {/* <DashboardCard04 /> */}
               {/* Line chart (Real Time Value) */}
               {/* <DashboardCard05 /> */}
               {/* Doughnut chart (Top Countries) */}
               <DashboardCard06 />
+              {/* Leader board card */}
+              <LeaderboardCard />
               {/* Table (Top Channels) */}
               {/* <DashboardCard07 />  */}
               {/* Line chart (Sales Over Time) */}

@@ -106,6 +106,15 @@ function DoughnutChart({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Add this new useEffect to update chart when data changes
+  useEffect(() => {
+    if (!chart) return;
+    
+    // Update chart data when the data prop changes
+    chart.data = data;
+    chart.update();
+  }, [data, chart]);
+
   useEffect(() => {
     if (!chart) return;
 

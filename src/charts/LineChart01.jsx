@@ -3,30 +3,53 @@ import { useThemeProvider } from '../utils/ThemeContext';
 
 import { chartColors } from './ChartjsConfig';
 import {
-  Chart, LineController, LineElement, Filler, PointElement, LinearScale, TimeScale, Tooltip,
+  Chart, LineController, LineElement, Filler, PointElement, LinearScale, TimeScale, CategoryScale, Tooltip,
 } from 'chart.js';
 import 'chartjs-adapter-moment';
 
 // Import utilities
 import { formatValue } from '../utils/Utils';
 
-Chart.register(LineController, LineElement, Filler, PointElement, LinearScale, TimeScale, Tooltip);
+Chart.register(LineController, LineElement, Filler, PointElement, LinearScale, TimeScale, CategoryScale, Tooltip);
 
 function LineChart01({
   data,
   width,
   height
 }) {
-
   const [chart, setChart] = useState(null)
   const canvas = useRef(null);
   const { currentTheme } = useThemeProvider();
   const darkMode = currentTheme === 'dark';
-  const { tooltipBodyColor, tooltipBgColor, tooltipBorderColor } = chartColors; 
+  const { tooltipBodyColor, tooltipBgColor, tooltipBorderColor } = chartColors;
+  
+  // Determine if labels are dates or categories (like month names)
+  const isTimeScale = data && data.labels && data.labels.length > 0 && 
+                     /^\d{2}-\d{2}-\d{4}$/.test(data.labels[0]);
 
   useEffect(() => {
     const ctx = canvas.current;
-    // eslint-disable-next-line no-unused-vars
+    
+    // Configure the options based on label type
+    const scaleOptions = isTimeScale ? 
+      {
+        x: {
+          type: 'time',
+          time: {
+            parser: 'MM-DD-YYYY',
+            unit: 'month',
+          },
+          display: false,
+        }
+      } : 
+      {
+        x: {
+          type: 'category',
+          display: false,
+        }
+      };
+    
+    // Create chart with appropriate config
     const newChart = new Chart(ctx, {
       type: 'line',
       data: data,
@@ -39,14 +62,7 @@ function LineChart01({
             display: false,
             beginAtZero: true,
           },
-          x: {
-            type: 'time',
-            time: {
-              parser: 'MM-DD-YYYY',
-              unit: 'month',
-            },
-            display: false,
-          },
+          ...scaleOptions
         },
         plugins: {
           tooltip: {
@@ -70,11 +86,42 @@ function LineChart01({
         resizeDelay: 200,
       },
     });
+    
     setChart(newChart);
     return () => newChart.destroy();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); // Empty dependency array for initial setup
 
+  // Update chart when data changes
+  useEffect(() => {
+    if (!chart) return;
+    
+    // Determine if new labels are dates or categories
+    const newIsTimeScale = data && data.labels && data.labels.length > 0 && 
+                          /^\d{2}-\d{2}-\d{4}$/.test(data.labels[0]);
+    
+    // Update scale type if needed
+    if (newIsTimeScale) {
+      chart.options.scales.x = {
+        type: 'time',
+        time: {
+          parser: 'MM-DD-YYYY',
+          unit: 'month',
+        },
+        display: false,
+      };
+    } else {
+      chart.options.scales.x = {
+        type: 'category',
+        display: false,
+      };
+    }
+    
+    // Update chart data
+    chart.data = data;
+    chart.update();
+  }, [data]);
+
+  // Update theme
   useEffect(() => {
     if (!chart) return;
 

@@ -27,6 +27,14 @@
   --tertiary-dark: #c27d24;
   --type4: #bad233;
   --type4-dark: #8c9f27;
+
+  /* New color variables for probability chart */
+  --error: #e53e3e;
+  --error-dark: #c53030;
+  --warning: #f6ad55;
+  --warning-dark: #dd6b20;
+  --success: #48bb78;
+  --success-dark: #38a169;
   
   --color-gray-50: #f9fafb;
   --color-gray-100: #f3f4f6;
