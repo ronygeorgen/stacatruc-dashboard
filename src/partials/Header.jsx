@@ -5,6 +5,7 @@ import Notifications from '../components/DropdownNotifications';
 import Help from '../components/DropdownHelp';
 import UserMenu from '../components/DropdownProfile';
 import ThemeToggle from '../components/ThemeToggle';
+import logo from '/logo-stacatruc.png';
 
 function Header({
   sidebarOpen,
@@ -20,7 +21,15 @@ function Header({
         <div className={`flex items-center justify-between h-16 ${variant === 'v2' || variant === 'v3' ? '' : 'lg:border-b border-gray-200 dark:border-gray-700/60'}`}>
 
           {/* Header: Left side */}
-          <div className="flex">
+          <div className="flex items-center">
+            {/* Logo */}
+            <div className="mr-4">
+              <img 
+                src={logo}
+                alt="Stacatruc Logo" 
+                className="h-12 w-auto"
+              />
+            </div>
 
             {/* Hamburger button */}
             <button
