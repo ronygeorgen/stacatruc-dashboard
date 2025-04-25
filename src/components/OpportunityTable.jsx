@@ -125,6 +125,7 @@ function OpportunityTable({ opportunities }) {
           <table className="w-full table-fixed divide-y divide-gray-200 dark:divide-gray-700">
             {/* Right table header */}
             <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0 z-10">
+              
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[250px] whitespace-nowrap">Contact Details</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Stage</th>

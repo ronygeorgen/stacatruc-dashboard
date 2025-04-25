@@ -232,7 +232,7 @@ function PieChart({
   }, [currentTheme, chart]);
 
   return (
-    <div className="grow flex flex-col justify-center">
+    <div className="grow flex flex-col justify-center cursor-pointer">
       <div>
         <canvas ref={canvas} width={width} height={height}></canvas>
       </div>
