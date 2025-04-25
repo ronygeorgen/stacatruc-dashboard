@@ -78,7 +78,7 @@ function UserDetailModal({ isOpen, onClose, user, opportunities }) {
       {/* Modal container */}
       <div 
         ref={modalRef} 
-        className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col z-10"
+        className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-[88rem] max-h-[90vh] overflow-hidden flex flex-col z-10"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">

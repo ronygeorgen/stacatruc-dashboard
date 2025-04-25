@@ -9,7 +9,7 @@ function ChartModal({ isOpen, onClose, title, opportunities }) {
     <div className="fixed inset-0 flex items-center justify-center z-50 " style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }} onClick={onClose} >
       {/* Modal panel */}
       <div 
-        className="bg-white dark:bg-gray-800 shadow-lg  w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-xl"
+        className="bg-white dark:bg-gray-800 shadow-lg  w-full max-w-[88rem] max-h-[90vh] overflow-hidden rounded-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="max-h-[90vh] overflow-auto">

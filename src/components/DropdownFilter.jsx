@@ -173,6 +173,29 @@ function DropdownFilters() {
     { id: "owner5", label: "Lisa Garcia" }
   ];
 
+  // Opportunity Sources options
+  const opportunitySourceOptions = [
+    { id: "inbound-call", label: "In Bound Call" },
+    { id: "inbound-email", label: "In Bound Email" },
+    { id: "best-quote", label: "Best Quote" },
+    { id: "cold-call", label: "Cold Call" },
+    { id: "referral", label: "Referral" },
+    { id: "engineer-lead", label: "Engineer Lead" },
+    { id: "existing-customer", label: "Existing Customer" }
+  ];
+
+  // Product Sales options
+  const productSalesOptions = [
+    { id: "fuel", label: "Fuel" },
+    { id: "truck-insurance", label: "Cover Truck Insurance" },
+    { id: "davis-derby", label: "Davis Derby" },
+    { id: "plant-insurance", label: "Hire in Plant Insurance" },
+    { id: "hpt-ppt", label: "HPT and PPT" },
+    { id: "vaps", label: "VAPS" },
+    { id: "racking", label: "Racking" },
+    { id: "roller-doors", label: "Roller Shutter Doors" }
+  ];
+
   return (
     <div className="flex flex-wrap items-center space-x-2">
       <SingleDropdownFilter 
@@ -182,6 +205,15 @@ function DropdownFilters() {
       <SingleDropdownFilter 
         title="Opportunity Owner" 
         filterOptions={opportunityOwnerOptions} 
+        align="right"
+      />
+      <SingleDropdownFilter 
+        title="Opportunity Source" 
+        filterOptions={opportunitySourceOptions} 
+      />
+      <SingleDropdownFilter 
+        title="Product Sales" 
+        filterOptions={productSalesOptions} 
         align="right"
       />
     </div>
