@@ -184,6 +184,15 @@ function LineChart01({
           display: false,
         }
       };
+
+      // Format value as Euro currency
+      const formatEuroValue = (value) => {
+        return new Intl.NumberFormat('de-DE', {
+          style: 'currency',
+          currency: 'EUR',
+          maximumFractionDigits: 0
+        }).format(value);
+      };
     
     // Set tooltip color based on theme
     const titleColor = darkMode ? '#fff' : '#000';  // Use explicit colors
@@ -222,7 +231,7 @@ function LineChart01({
               label: (context) => {
                 // Format the tooltip value
                 const datasetLabel = context.dataset.label || '';
-                const value = formatValue(context.parsed.y);
+                const value = formatEuroValue(context.parsed.y);
                 return `${datasetLabel}: ${value}`;
               },
             },

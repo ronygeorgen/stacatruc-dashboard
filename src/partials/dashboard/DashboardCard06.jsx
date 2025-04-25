@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import DoughnutChart from '../../charts/DoughnutChart';
+import DoughnutChart from '../../charts/PieChart';
 import ChartModal from '../../components/ChartModal';
 import { isWithinInterval, parseISO } from 'date-fns';
 import { useFiscalPeriod } from "../../contexts/FiscalPeriodContext";

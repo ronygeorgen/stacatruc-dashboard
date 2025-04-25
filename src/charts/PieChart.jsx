@@ -3,11 +3,11 @@ import { useThemeProvider } from '../utils/ThemeContext';
 
 import { chartColors } from './ChartjsConfig';
 import {
-  Chart, DoughnutController, ArcElement, TimeScale, Tooltip,
+  Chart, PieController, ArcElement, TimeScale, Tooltip,
 } from 'chart.js';
 import 'chartjs-adapter-moment';
 
-Chart.register(DoughnutController, ArcElement, TimeScale, Tooltip);
+Chart.register(PieController, ArcElement, TimeScale, Tooltip);
 
 // Stacatruc color palette
 const stacatrucColors = {
@@ -59,7 +59,7 @@ const stacatrucTooltipColors = {
   },
 };
 
-function DoughnutChart({
+function PieChart({
   data,
   width,
   height,
@@ -95,10 +95,9 @@ function DoughnutChart({
     const chartData = prepareChartData(data);
     
     const newChart = new Chart(ctx, {
-      type: 'doughnut',
+      type: 'pie',
       data: chartData,
       options: {
-        cutout: '80%',
         layout: {
           padding: 24,
         },
@@ -244,4 +243,4 @@ function DoughnutChart({
   );
 }
 
-export default DoughnutChart;
+export default PieChart;
