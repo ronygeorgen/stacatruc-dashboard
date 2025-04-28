@@ -1,7 +1,5 @@
 import { axiosInstance, BASE_URL } from "./api";
 
-export function setupResponseInterceptor() {
-  console.log('Setting up request interceptor');
 
 axiosInstance.interceptors.response.use(
     (response) => response,
@@ -32,4 +30,3 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
   );
-}
