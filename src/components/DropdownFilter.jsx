@@ -169,30 +169,12 @@ function DropdownFilters() {
 
   useEffect(() => {
     console.log('Current status:', status);
-    
-    // Only fetch if we haven't already fetched and the status is idle or failed
-    if (!hasFetchedRef.current) {
-      console.log('Dispatching fetchUsers');
+     
       dispatch(fetchUsers());
       hasFetchedRef.current = true;
-    }
+    
   }, [dispatch]);
 
-
-  useEffect(() => {
-    console.log('assignedUserOptions:', assignedUserOptions);
-    console.log('status:', status);
-    console.log('error:', error);
-  }, [assignedUserOptions, status, error]);
-
-  // Sample data for assigned users
-  // const assignedUserOptions = [
-  //   { id: "user1", label: "John Smith" },
-  //   { id: "user2", label: "Alice Johnson" },
-  //   { id: "user3", label: "Robert Brown" },
-  //   { id: "user4", label: "Sarah Williams" },
-  //   { id: "user5", label: "Mike Davis" }
-  // ];
 
   // Sample data for opportunity owners
   const opportunityOwnerOptions = [
