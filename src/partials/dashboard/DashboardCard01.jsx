@@ -16,14 +16,14 @@ function DashboardCard01() {
   const { dateRange, periodLabel, selectedPeriodIndex } = useFiscalPeriod();
   
   // For debugging purposes
-  React.useEffect(() => {
-    if (dateRange?.from && dateRange?.to) {
-      console.log('Date range:', {
-        from: dateRange.from.toISOString(),
-        to: dateRange.to.toISOString()
-      });
-    }
-  }, [dateRange]);
+  // React.useEffect(() => {
+  //   if (dateRange?.from && dateRange?.to) {
+  //     console.log('Date range:', {
+  //       from: dateRange.from.toISOString(),
+  //       to: dateRange.to.toISOString()
+  //     });
+  //   }
+  // }, [dateRange]);
   
   // Helper function to safely parse dates
   const safeParseDate = (dateString) => {
@@ -31,7 +31,7 @@ function DashboardCard01() {
       const parsed = parseISO(dateString);
       return isValid(parsed) ? parsed : null;
     } catch (e) {
-      console.error("Error parsing date:", dateString, e);
+      // console.error("Error parsing date:", dateString, e);
       return null;
     }
   };
@@ -39,7 +39,7 @@ function DashboardCard01() {
   // Filter opportunities based on date range
   const filteredOpportunities = React.useMemo(() => {
     if (!dateRange?.from || !dateRange?.to) {
-      console.log("No date range provided, returning all opportunities");
+      // console.log("No date range provided, returning all opportunities");
       return totalAmountOpportunities;
     }
     
@@ -48,7 +48,7 @@ function DashboardCard01() {
       const closingDate = safeParseDate(opp.closingDate);
       
       if (!closingDate) {
-        console.warn("Invalid closing date:", opp.closingDate);
+        // console.warn("Invalid closing date:", opp.closingDate);
         return false;
       }
       
@@ -60,17 +60,17 @@ function DashboardCard01() {
       
       // Log for debugging
       if (selectedPeriodIndex === 3 || selectedPeriodIndex === 4) { // This Month or Last Month
-        console.log(`Opportunity ${opp.id}: ${closingDate.toISOString()} is within range: ${isWithin}`);
+        // console.log(`Opportunity ${opp.id}: ${closingDate.toISOString()} is within range: ${isWithin}`);
       }
       
       return isWithin;
     });
     
-    console.log(`Filtered ${filtered.length} out of ${totalAmountOpportunities.length} opportunities`);
+    // console.log(`Filtered ${filtered.length} out of ${totalAmountOpportunities.length} opportunities`);
     
     // If no opportunities after filtering for This Month or Last Month, use demo data
     if (filtered.length === 0 && (selectedPeriodIndex === 3 || selectedPeriodIndex === 4)) {
-      console.log("No opportunities found for month view, using demo data");
+      // console.log("No opportunities found for month view, using demo data");
       return totalAmountOpportunities.slice(0, 5); // Use first 5 opportunities as demo
     }
     
@@ -80,7 +80,7 @@ function DashboardCard01() {
   // Calculate total amount from filtered opportunities
   const totalAmount = React.useMemo(() => {
     if (filteredOpportunities.length === 0) {
-      console.log("No filtered opportunities, returning 0");
+      // console.log("No filtered opportunities, returning 0");
       return 0;
     }
     
@@ -93,7 +93,7 @@ function DashboardCard01() {
     // In a real application, you would sum the actual amount fields
     const averageOpportunityValue = 24780 / filteredOpportunities.length;
     const total = (filteredOpportunities.length * averageOpportunityValue).toFixed(0);
-    console.log(`Calculated total amount: ${total} from ${filteredOpportunities.length} opportunities`);
+    // console.log(`Calculated total amount: ${total} from ${filteredOpportunities.length} opportunities`);
     return total;
   }, [filteredOpportunities, selectedPeriodIndex]);
   

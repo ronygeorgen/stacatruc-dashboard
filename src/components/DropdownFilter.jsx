@@ -1,8 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import Transition from "../utils/Transition";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUsers } from "../features/users/usersThunks";
+
 
 // Single dropdown filter component that can be reused
 function SingleDropdownFilter({ title, filterOptions, align }) {
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState([]);
 
@@ -11,6 +15,8 @@ function SingleDropdownFilter({ title, filterOptions, align }) {
   
   // Create refs for all checkboxes
   const checkboxRefs = useRef({});
+
+
   
   // Initialize refs for each option
   useEffect(() => {
@@ -155,14 +161,38 @@ function SingleDropdownFilter({ title, filterOptions, align }) {
 }
 
 function DropdownFilters() {
+
+  const { assignedUserOptions, status, error } = useSelector((state) => state.users);
+  const dispatch = useDispatch();
+
+  const hasFetchedRef = useRef(false);
+
+  useEffect(() => {
+    console.log('Current status:', status);
+    
+    // Only fetch if we haven't already fetched and the status is idle or failed
+    if (!hasFetchedRef.current) {
+      console.log('Dispatching fetchUsers');
+      dispatch(fetchUsers());
+      hasFetchedRef.current = true;
+    }
+  }, [dispatch]);
+
+
+  useEffect(() => {
+    console.log('assignedUserOptions:', assignedUserOptions);
+    console.log('status:', status);
+    console.log('error:', error);
+  }, [assignedUserOptions, status, error]);
+
   // Sample data for assigned users
-  const assignedUserOptions = [
-    { id: "user1", label: "John Smith" },
-    { id: "user2", label: "Alice Johnson" },
-    { id: "user3", label: "Robert Brown" },
-    { id: "user4", label: "Sarah Williams" },
-    { id: "user5", label: "Mike Davis" }
-  ];
+  // const assignedUserOptions = [
+  //   { id: "user1", label: "John Smith" },
+  //   { id: "user2", label: "Alice Johnson" },
+  //   { id: "user3", label: "Robert Brown" },
+  //   { id: "user4", label: "Sarah Williams" },
+  //   { id: "user5", label: "Mike Davis" }
+  // ];
 
   // Sample data for opportunity owners
   const opportunityOwnerOptions = [
