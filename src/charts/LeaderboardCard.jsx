@@ -240,7 +240,7 @@ function LeaderboardCard() {
                         <div className="font-semibold text-left">Sales Rep</div>
                       </th>
                       <th className="p-2 whitespace-nowrap">
-                        <div className="font-semibold text-right">Closed Value</div>
+                        <div className="font-semibold text-right">Totla Value</div>
                       </th>
                       <th className="p-2 whitespace-nowrap">
                         <div className="font-semibold text-center">Deals</div>
