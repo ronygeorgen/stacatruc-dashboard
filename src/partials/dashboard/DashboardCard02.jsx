@@ -11,6 +11,7 @@ import { useFiscalPeriod } from "../../contexts/FiscalPeriodContext";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOpportunities } from "../../features/opportunity/opportunityThunks";
 import { opportunityAPI } from "../../features/opportunity/opportunityAPI";
+import { axiosInstance } from "../../services/api";
 
 // Import utilities
 import { adjustColorOpacity, getCssVariable } from '../../utils/Utils';
@@ -23,6 +24,8 @@ function DashboardCard02() {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [totalCount, setTotalCount] = React.useState(0);
   const [pageSize] = React.useState(10);
+  const [chartData, setChartData] = React.useState(null);
+  const [chartLoading, setChartLoading] = React.useState(false);
 
   const opportunities = useSelector((state) => state.opportunities.data || []);
   const dispatch = useDispatch();
@@ -31,47 +34,107 @@ function DashboardCard02() {
   // Prevent duplicate API calls with useRef flag
   const initialLoadDone = React.useRef(false);
   
-  // Fetch opportunities when date range or fiscal period changes
-  React.useEffect(() => {
-    // Create a function to handle the data fetching
-    const fetchData = () => {
-      // Set default params
-      const params = { 
-        searchQuery: "", 
-        page: 1, 
-        pageSize: 10 
-      };
-      
-      // If a fiscal period code is selected, use that for filtering
-      if (fiscalPeriodCode) {
-        params.fiscalPeriod = fiscalPeriodCode;
-      } 
-      // Otherwise use the date range if available
-      else if (dateRange && dateRange.from) {
-        params.fromDate = format(dateRange.from, 'yyyy-MM-dd');
-        if (dateRange.to) {
-          params.toDate = format(dateRange.to, 'yyyy-MM-dd');
-        }
-      }
-      
-      // Check if this is initial load
-      if (!initialLoadDone.current) {
-        initialLoadDone.current = true;
-        // For initial load, fetch all opportunities without filters
-        dispatch(fetchOpportunities({ 
+    // Fetch opportunities and chart data
+    React.useEffect(() => {
+      // Create a function to handle the data fetching
+      const fetchData = async () => {
+        // Set default params
+        const params = { 
           searchQuery: "", 
           page: 1, 
-          pageSize: 10 
-        }));
-      } else {
-        // For subsequent loads, use filters
-        dispatch(fetchOpportunities(params));
-      }
-    };
+          pageSize: 10,
+          state: 'close' // Only focus on open opportunities
+        };
+        
+        // If a fiscal period code is selected, use that for filtering
+        if (fiscalPeriodCode) {
+          params.fiscalPeriod = fiscalPeriodCode;
+        } 
+        // Otherwise use the date range if available
+        else if (dateRange && dateRange.from) {
+          params.fromDate = format(dateRange.from, 'yyyy-MM-dd');
+          if (dateRange.to) {
+            params.toDate = format(dateRange.to, 'yyyy-MM-dd');
+          }
+        }
+        
+        // Check if this is initial load
+        if (!initialLoadDone.current) {
+          initialLoadDone.current = true;
+          // For initial load, fetch all opportunities without filters
+          dispatch(fetchOpportunities({ 
+            searchQuery: "", 
+            page: 1, 
+            pageSize: 10,
+            state: 'close'
+          }));
+        } else {
+          // For subsequent loads, use filters
+          dispatch(fetchOpportunities(params));
+        }
+  
+        // Fetch chart data with fiscal period parameter
+        try {
+          setChartLoading(true);
+          
+          let endpoint = '/opportunity_dash';
+          // Add fiscal period as query parameter if available
+          if (fiscalPeriodCode) {
+            endpoint += `?fiscal_period=${fiscalPeriodCode}`;
+          }
+          
+          const response = await axiosInstance.get(endpoint);
+          if (response.data && response.data.graph_data) {
+            const graphData = response.data.graph_data;
+            
+            // Prepare chart data from API response - only open value
+            const chartDatasets = {
+              labels: graphData.labels,
+              datasets: [
+                // Open opportunities dataset with enhanced styling
+                {
+                  data: graphData.closed,
+                  fill: true,
+                  backgroundColor: (context) => {
+                    // Create gradient fill
+                    if (!context.chart.chartArea) {
+                      return 'rgba(20, 83, 156, 0.12)';
+                    }
+                    
+                    const { ctx, chartArea } = context.chart;
+                    const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                    gradient.addColorStop(0, 'rgba(20, 83, 156, 0.01)');
+                    gradient.addColorStop(1, 'rgba(20, 83, 156, 0.15)');
+                    return gradient;
+                  },
+                  borderColor: 'rgb(20, 83, 156)',
+                  borderWidth: 2.5,
+                  tension: 0.4,
+                  pointRadius: 1,
+                  pointHoverRadius: 5,
+                  pointBackgroundColor: 'rgb(255, 255, 255)',
+                  pointBorderColor: 'rgb(20, 83, 156)',
+                  pointBorderWidth: 2,
+                  pointHoverBackgroundColor: 'rgb(20, 83, 156)',
+                  clip: 20,
+                  label: 'Closed Value'
+                }
+              ]
+            };
+            
+            setChartData(chartDatasets);
+          }
+        } catch (error) {
+          console.error('Error fetching chart data:', error);
+        } finally {
+          setChartLoading(false);
+        }
+      };
+      
+      // Call the fetch function
+      fetchData();
+    }, [dispatch, dateRange, fiscalPeriodCode]);
     
-    // Call the fetch function
-    fetchData();
-  }, [dispatch, dateRange, fiscalPeriodCode]);
 
   const fetchClosedOpportunities = React.useCallback(async (page = 1) => {
     try {
@@ -134,206 +197,7 @@ function DashboardCard02() {
     fetchClosedOpportunities(1); // Reset to first page when opening modal
   };
   
-  // Filter opportunities based on date range
-  // const filteredOpportunities = React.useMemo(() => {
-  //   if (!dateRange?.from || !dateRange?.to) return amountClosedOpportunities;
-    
-  //   return amountClosedOpportunities.filter(opp => {
-  //     // Parse the closing date from string to Date object
-  //     const closingDate = parseISO(opp.closingDate);
-      
-  //     // Check if the closing date is within the selected date range
-  //     return isWithinInterval(closingDate, {
-  //       start: dateRange.from,
-  //       end: dateRange.to
-  //     });
-  //   });
-  // }, [dateRange, amountClosedOpportunities]);
-
-  // Calculate total amount from filtered opportunities
-  // const totalAmount = React.useMemo(() => {
-  //   if (filteredOpportunities.length === 0) return 0;
-    
-  //   // In a real application, you would sum the actual amount fields
-  //   const averageOpportunityValue = 17489 / amountClosedOpportunities.length;
-  //   return (filteredOpportunities.length * averageOpportunityValue).toFixed(0);
-  // }, [filteredOpportunities]);
   
-  // Calculate growth percentage based on opportunity distribution
-  // const growthPercentage = React.useMemo(() => {
-  //   if (filteredOpportunities.length === 0) return 0;
-    
-  //   const highValueOpps = filteredOpportunities.filter(
-  //     opp => typeof opp.amount === 'string' && parseInt(opp.amount.replace(/[$,]/g, ''), 10) > 10000
-  //   ).length;
-    // 
-    // 
-    // Calculate percentage and invert to show negative growth
-  //   const percentage = -Math.round((highValueOpps / filteredOpportunities.length) * 100);
-  //   return percentage || -14; // Default to -14% if calculation fails
-  // }, [filteredOpportunities]);
-
-  // Generate chart data based on the selected period
-  // const chartData = React.useMemo(() => {
-  //   // Base chart data structure
-  //   const baseData = {
-  //     labels: [
-  //       '12-01-2022', '01-01-2023', '02-01-2023',
-  //       '03-01-2023', '04-01-2023', '05-01-2023',
-  //       '06-01-2023', '07-01-2023', '08-01-2023',
-  //       '09-01-2023', '10-01-2023', '11-01-2023',
-  //       '12-01-2023', '01-01-2024', '02-01-2024',
-  //       '03-01-2024', '04-01-2024', '05-01-2024',
-  //       '06-01-2024', '07-01-2024', '08-01-2024',
-  //       '09-01-2024', '10-01-2024', '11-01-2024',
-  //       '12-01-2024', '01-01-2025',
-  //     ],
-  //     datasets: [
-  //       // Indigo line
-  //       {
-  //         data: [
-  //           622, 622, 426, 471, 365, 365, 238,
-  //           324, 288, 206, 324, 324, 500, 409,
-  //           409, 273, 232, 273, 500, 570, 767,
-  //           808, 685, 767, 685, 685,
-  //         ],
-  //         fill: true,
-  //         backgroundColor: function(context) {
-  //           const chart = context.chart;
-  //           const {ctx, chartArea} = chart;
-  //           return chartAreaGradient(ctx, chartArea, [
-  //             { stop: 0, color: adjustColorOpacity(getCssVariable('--primary'), 0) },
-  //             { stop: 1, color: adjustColorOpacity(getCssVariable('--primary'), 0.2) }
-  //           ]);
-  //         },       
-  //         borderColor: getCssVariable('--primary'),
-  //         borderWidth: 2,
-  //         pointRadius: 0,
-  //         pointHoverRadius: 3,
-  //         pointBackgroundColor: getCssVariable('--primary'),
-  //         pointHoverBackgroundColor: getCssVariable('--primary'),
-  //         pointBorderWidth: 0,
-  //         pointHoverBorderWidth: 0,          
-  //         clip: 20,
-  //         tension: 0.2,
-  //       },
-  //       // Gray line
-  //       {
-  //         data: [
-  //           732, 610, 610, 504, 504, 504, 349,
-  //           349, 504, 342, 504, 610, 391, 192,
-  //           154, 273, 191, 191, 126, 263, 349,
-  //           252, 423, 622, 470, 532,
-  //         ],
-  //         borderColor: adjustColorOpacity(getCssVariable('--color-gray-500'), 0.25),
-  //         borderWidth: 2,
-  //         pointRadius: 0,
-  //         pointHoverRadius: 3,
-  //         pointBackgroundColor: adjustColorOpacity(getCssVariable('--color-gray-500'), 0.25),
-  //         pointHoverBackgroundColor: adjustColorOpacity(getCssVariable('--color-gray-500'), 0.25),
-  //         pointBorderWidth: 0,
-  //         pointHoverBorderWidth: 0,
-  //         clip: 20,
-  //         tension: 0.2,
-  //       },
-  //     ],
-  //   };
-    
-  //   // Adjust the chart data based on the period
-  //   if (periodLabel.includes("Week")) {
-  //     // For week views, use daily data points
-  //     const weekData = {
-  //       ...baseData,
-  //       labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-  //       datasets: [
-  //         {
-  //           ...baseData.datasets[0],
-  //           data: [310, 290, 320, 280, 325, 300, 270]
-  //         },
-  //         {
-  //           ...baseData.datasets[1],
-  //           data: [280, 250, 290, 260, 300, 270, 240]
-  //         }
-  //       ]
-  //     };
-  //     return weekData;
-  //   } 
-  //   else if (periodLabel.includes("Month")) {
-  //     // For month views, use weekly data points
-  //     const monthData = {
-  //       ...baseData,
-  //       labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-  //       datasets: [
-  //         {
-  //           ...baseData.datasets[0],
-  //           data: [300, 320, 290, 270]
-  //         },
-  //         {
-  //           ...baseData.datasets[1],
-  //           data: [270, 290, 260, 240]
-  //         }
-  //       ]
-  //     };
-  //     return monthData;
-  //   }
-  //   else if (periodLabel.includes("6 Months")) {
-  //     // For 6 months view, use monthly data points
-  //     const sixMonthData = {
-  //       ...baseData,
-  //       labels: ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
-  //       datasets: [
-  //         {
-  //           ...baseData.datasets[0],
-  //           data: [500, 570, 767, 808, 685, 767]
-  //         },
-  //         {
-  //           ...baseData.datasets[1],
-  //           data: [126, 263, 349, 252, 423, 622]
-  //         }
-  //       ]
-  //     };
-  //     return sixMonthData;
-  //   }
-  //   else if (periodLabel === "This Year") {
-  //     // For this year view, use monthly data points
-  //     const thisYearData = {
-  //       ...baseData,
-  //       labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-  //       datasets: [
-  //         {
-  //           ...baseData.datasets[0],
-  //           data: [409, 409, 273, 232, 273, 500, 570, 767, 808, 685, 767, 685]
-  //         },
-  //         {
-  //           ...baseData.datasets[1],
-  //           data: [192, 154, 273, 191, 191, 126, 263, 349, 252, 423, 622, 470]
-  //         }
-  //       ]
-  //     };
-  //     return thisYearData;
-  //   }
-  //   else if (periodLabel === "Last Year") {
-  //     // For last year view, use different monthly data points
-  //     const lastYearData = {
-  //       ...baseData,
-  //       labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-  //       datasets: [
-  //         {
-  //           ...baseData.datasets[0],
-  //           data: [622, 426, 471, 365, 365, 238, 324, 288, 206, 324, 324, 500]
-  //         },
-  //         {
-  //           ...baseData.datasets[1],
-  //           data: [610, 610, 504, 504, 504, 349, 349, 504, 342, 504, 610, 391]
-  //         }
-  //       ]
-  //     };
-  //     return lastYearData;
-  //   }
-    
-  //   // For custom range or default
-  //   return baseData;
-  // }, [periodLabel]);
 
 
    return (
@@ -342,7 +206,7 @@ function DashboardCard02() {
       <div className="px-5 pt-5">
         <header className="flex justify-between items-start mb-2">
           <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">Total Closed Value</h2>
-          <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+          <div className="text-xs font-semibold text-white px-2 py-1 bg-blue-600 rounded-full">
             {periodLabel}
           </div>
         </header>
@@ -353,10 +217,25 @@ function DashboardCard02() {
         </div>
       </div>
       {/* Chart built with Chart.js 3 */}
-      <div className="grow max-sm:max-h-[128px] xl:max-h-[128px]">
-        {/* Change the height attribute to adjust the chart height */}
-        {/* <LineChart data={chartData} width={389} height={128} /> */}
-      </div>
+            <div className="grow max-sm:max-h-[128px] xl:max-h-[128px] p-2">
+              {chartLoading ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="animate-pulse flex space-x-4">
+                    <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
+                </div>
+              ) : chartData ? (
+                <LineChart 
+                  data={chartData} 
+                  width={389} 
+                  height={128} 
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-sm text-gray-500">
+                  No chart data available
+                </div>
+              )}
+            </div>
       
     </div>
     {/* Modal */}

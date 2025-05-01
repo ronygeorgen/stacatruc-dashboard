@@ -187,9 +187,9 @@ function LineChart01({
 
       // Format value as Euro currency
       const formatEuroValue = (value) => {
-        return new Intl.NumberFormat('de-DE', {
+        return new Intl.NumberFormat('en-GB', {
           style: 'currency',
-          currency: 'EUR',
+          currency: 'GBP',
           maximumFractionDigits: 0
         }).format(value);
       };

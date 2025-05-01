@@ -1,9 +1,12 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { format } from 'date-fns';
 import PieChart from '../../charts/PieChart';
 import ChartModal from '../../components/ChartModal';
 import { axiosInstance } from "../../services/api";
 import OpportunityTable from '../../components/OpportunityTable';
 import CardDetailModal from '../../components/CardDetailModal';
+import { useFiscalPeriod } from "../../contexts/FiscalPeriodContext";
+import { useDispatch, useSelector } from 'react-redux';
 
 function DashboardCard06() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,12 +20,41 @@ function DashboardCard06() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [pageSize] = useState(10);
+  
+  // Add fiscal period context
+  const { dateRange, periodLabel, selectedPeriodIndex, fiscalPeriodCode } = useFiscalPeriod();
+  
+  // Prevent duplicate API calls with useRef flag
+  const initialLoadDone = useRef(false);
 
   useEffect(() => {
     const fetchOpportunityData = async () => {
       try {
         setLoading(true);
-        const response = await axiosInstance.get('/opportunity_dash');
+        
+        // Create a function to build query parameters
+        const buildParams = () => {
+          const params = new URLSearchParams();
+          
+          // If a fiscal period code is selected, use that for filtering
+          if (fiscalPeriodCode) {
+            params.append('fiscal_period', fiscalPeriodCode);
+          } 
+          // Otherwise use the date range if available
+          else if (dateRange && dateRange.from) {
+            params.append('created_at_min', format(dateRange.from, 'yyyy-MM-dd'));
+            if (dateRange.to) {
+              params.append('created_at_max', format(dateRange.to, 'yyyy-MM-dd'));
+            }
+          }
+          
+          return params.toString();
+        };
+        
+        const queryParams = buildParams();
+        const url = queryParams ? `/opportunity_dash?${queryParams}` : '/opportunity_dash';
+        
+        const response = await axiosInstance.get(url);
         setDashboardData(response.data);
         if (response.data?.chances) {
           setOpportunityData(response.data.chances);
@@ -35,8 +67,16 @@ function DashboardCard06() {
       }
     };
 
-    fetchOpportunityData();
-  }, []);
+    // Check if this is initial load or if the filters have changed
+    if (!initialLoadDone.current) {
+      initialLoadDone.current = true;
+      // For initial load, fetch all opportunities without filters
+      fetchOpportunityData();
+    } else {
+      // For subsequent loads, use filters
+      fetchOpportunityData();
+    }
+  }, [dateRange, fiscalPeriodCode]); // Add dependencies to re-fetch when filters change
 
   const processedChancesData = useMemo(() => {
     const result = [];
@@ -83,12 +123,25 @@ function DashboardCard06() {
     return dashboardData?.open_ops_count || 0;
   }, [dashboardData]);
 
-  const fetchFilteredOpportunities = async (probability, page = 1) => {
+  const fetchFilteredOpportunities = useCallback(async (probability, page = 1) => {
     setLoading(true);
     const chancesParam = encodeURIComponent(`${probability} chances of closing the deal`);
     
     try {
-      const response = await axiosInstance.get(`/opportunities/?chances=${chancesParam}&page=${page}`);
+      // Start with the base URL and known parameters
+      let url = `/opportunities/?chances=${chancesParam}&page=${page}&page_size=${pageSize}`;
+      
+      // Add fiscal period filter if available, otherwise use date range
+      if (fiscalPeriodCode) {
+        url += `&fiscal_period=${fiscalPeriodCode}`;
+      } else if (dateRange && dateRange.from) {
+        url += `&created_at_min=${format(dateRange.from, 'yyyy-MM-dd')}`;
+        if (dateRange.to) {
+          url += `&created_at_max=${format(dateRange.to, 'yyyy-MM-dd')}`;
+        }
+      }
+      
+      const response = await axiosInstance.get(url);
       setSelectedOpportunities(response.data.results || []);
       setTotalCount(response.data.count || 0);
       setCurrentPage(page);
@@ -98,12 +151,12 @@ function DashboardCard06() {
       setSelectedOpportunities([]);
       setLoading(false);
     }
-  };
+  }, [pageSize, fiscalPeriodCode, dateRange]);
 
   const handleSegmentClick = async (index, label) => {
     const probabilityValue = label.split(' ')[0]; // "25%"
     setSelectedProbability(probabilityValue);
-    setModalTitle(`Opportunities with ${label}`);
+    setModalTitle(`Opportunities with ${label} - ${periodLabel}`);
     setIsModalOpen(true);
     
     // Fetch the first page of opportunities with this probability
@@ -122,6 +175,7 @@ function DashboardCard06() {
         <h2 className="font-semibold text-gray-800 dark:text-gray-100">Deal Closing Probability</h2>
         <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center">
           <span className="ml-2">{totalOpportunities} Open Opportunities</span>
+          <span className="ml-2">• {periodLabel}</span>
         </div>
       </header>
 
