@@ -4,14 +4,14 @@ import { fetchUsers } from "../features/users/usersThunks";
 import SingleDropdownFilter from "./SingleDropdownFilter";
 import { fetchOpportunityOwners } from "../features/contacts/contactsThunks";
 import { fetchPipelines } from "../features/Pipeline/pipelineThunks";
-import { fetchPipelineStages } from "../features/pipelineStages/pipelineStagesThunks";
+import { fetchPipelineStages, fetchPipelineStagesByPipelines } from "../features/pipelineStages/pipelineStagesThunks";
 import { fetchOppSources } from "../features/opportunitySource/oppSourceThunks";
 
 function DropdownFilters() {
   const { assignedUserOptions, status, error } = useSelector((state) => state.users);
   const { opportunityOwnerOptions } = useSelector(state => state.contacts);
   const { items: pipelines } = useSelector(state => state.pipelines);
-  const { stages: pipelineStages } = useSelector(state => state.pipelineStages);
+  const { stages: pipelineStages, filteredStages } = useSelector(state => state.pipelineStages);
   const { sources: oppSourcesList } = useSelector(state => state.oppSources);
   
   const dispatch = useDispatch();
@@ -29,19 +29,53 @@ function DropdownFilters() {
     label: `${p.name}`
   }));
 
-   // Filter unique pipeline stages by name (keeping the first occurrence)
-   const uniquePipelineStagesMap = new Map();
+  // Create pipeline stage options based on the filtered stages or all stages if no filter is applied
+  const stagesToUse = filteredStages && filteredStages.length > 0 ? filteredStages : pipelineStages;
   
-   pipelineStages.forEach(stage => {
-     if (!uniquePipelineStagesMap.has(stage.name)) {
-       uniquePipelineStagesMap.set(stage.name, {
-         id: stage.ghl_id,
-         label: stage.name
-       });
-     }
-   });
-   
-   const pipelineStagesOptions = Array.from(uniquePipelineStagesMap.values());
+  // Filter unique pipeline stages by normalized name (keeping the first occurrence)
+  const uniquePipelineStagesMap = new Map();
+  
+  // Function to normalize stage names - removes extra spaces and standardizes spacing around special chars
+  const normalizeStageNameForComparison = (name) => {
+    if (!name) return '';
+    
+    // Trim the name first
+    let normalized = name.trim();
+    
+    // Replace multiple spaces with a single space
+    normalized = normalized.replace(/\s+/g, ' ');
+    
+    // Standardize spacing around special characters like '/' by removing spaces before/after them
+    normalized = normalized.replace(/\s*\/\s*/g, '/');
+    
+    // Could add more replacements for other special characters if needed
+    // normalized = normalized.replace(/\s*-\s*/g, '-');
+    // normalized = normalized.replace(/\s*\.\s*/g, '.');
+    
+    return normalized;
+  };
+  
+  // First ensure stages have valid name properties before processing
+  stagesToUse
+    .filter(stage => stage && stage.name) // Make sure stage and stage.name exist
+    .forEach(stage => {
+      // Get displayable name (trimmed but preserving original spacing)
+      const displayName = stage.name.trim();
+      
+      // Get normalized name for comparison/deduplication
+      const normalizedName = normalizeStageNameForComparison(stage.name);
+      
+      if (!uniquePipelineStagesMap.has(normalizedName)) {
+        uniquePipelineStagesMap.set(normalizedName, {
+          id: stage.ghl_id,
+          label: displayName // Use display name as the visible label
+        });
+      }
+    });
+  
+  // Convert Map to array and sort alphabetically by stage name
+  const pipelineStagesOptions = Array.from(uniquePipelineStagesMap.values())
+    .sort((a, b) => a.label.localeCompare(b.label));
 
   // Make sure oppSourcesList is an array and each item is a string before trying to map over it
   const opportunitySourceOptions = Array.isArray(oppSourcesList) 
@@ -55,6 +89,18 @@ function DropdownFilters() {
 
   const handleSearchOpportunityOwner = (query) => {
     dispatch(fetchOpportunityOwners(query));
+  };
+
+  // Handler for pipeline filter changes
+  const handlePipelineFilterApply = (selectedPipelineIds) => {
+    // If no pipelines selected or empty array (cleared), fetch all stages
+    if (!selectedPipelineIds || selectedPipelineIds.length === 0) {
+      // Fetch all pipeline stages to reset the filter
+      dispatch(fetchPipelineStages());
+    } else {
+      // Fetch stages filtered by the selected pipelines
+      dispatch(fetchPipelineStagesByPipelines(selectedPipelineIds));
+    }
   };
 
   // Product Sales options
@@ -74,6 +120,7 @@ function DropdownFilters() {
       <SingleDropdownFilter 
         title="Pipeline" 
         filterOptions={pipelineOptions}
+        onApplyFilters={handlePipelineFilterApply}
       />
       <SingleDropdownFilter 
         title="Pipeline stages" 

@@ -8,3 +8,12 @@ export const fetchPipelineStages = createAsyncThunk(
     return response.data;
   }
 );
+
+// New thunk to fetch pipeline stages filtered by pipeline IDs
+export const fetchPipelineStagesByPipelines = createAsyncThunk(
+  "pipelineStages/fetchByPipelines",
+  async (pipelineIds) => {
+    const response = await pipelineStagesAPI.getPipelineStagesByPipelines(pipelineIds);
+    return response.data;
+  }
+);

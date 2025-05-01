@@ -7,7 +7,8 @@ function SingleDropdownFilter({
   filterOptions,
   onSearch,
   searchable = false,
-  align
+  align,
+  onApplyFilters = null
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState([]);
@@ -28,6 +29,11 @@ function SingleDropdownFilter({
       if (ref.current) ref.current.checked = false;
     });
     setSelectedFilters([]);
+    
+    // If onApplyFilters callback exists, call it with empty array to indicate all filters cleared
+    if (onApplyFilters) {
+      onApplyFilters([]);
+    }
   };
 
   const handleApplyFilters = () => {
@@ -38,6 +44,12 @@ function SingleDropdownFilter({
       }
     });
     setSelectedFilters(selected);
+    
+    // If onApplyFilters callback exists, call it with selected filters
+    if (onApplyFilters) {
+      onApplyFilters(selected);
+    }
+    
     setDropdownOpen(false);
   };
 
