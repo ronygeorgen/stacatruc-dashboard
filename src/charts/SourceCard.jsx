@@ -57,7 +57,7 @@ function SourceCard() {
     try {
       setLoading(true);
       
-      let url = '/api2/opportunity_dash';
+      let url = '/opportunity_dash';
       let params = {};
       
       // Apply fiscal period filter if available, otherwise use date range if available
@@ -102,7 +102,7 @@ function SourceCard() {
     try {
       setModalLoading(true);
       
-      let url = '/api2/opportunities/';
+      let url = '/opportunities/';
       let params = {
         opportunity_source: source.name, // Using opportunity_source parameter as specified
         page: page,

@@ -42,7 +42,7 @@ export const opportunityAPI = {
     }
     
     // Make the API request
-    const response = await axiosInstance.get(`/api2/opportunities/?${params.toString()}`);
+    const response = await axiosInstance.get(`/opportunities/?${params.toString()}`);
     return response.data;
   },
   

@@ -22,7 +22,7 @@ function DashboardCard06() {
     const fetchOpportunityData = async () => {
       try {
         setLoading(true);
-        const response = await axiosInstance.get('api2/opportunity_dash');
+        const response = await axiosInstance.get('/opportunity_dash');
         setDashboardData(response.data);
         if (response.data?.chances) {
           setOpportunityData(response.data.chances);
@@ -88,7 +88,7 @@ function DashboardCard06() {
     const chancesParam = encodeURIComponent(`${probability} chances of closing the deal`);
     
     try {
-      const response = await axiosInstance.get(`/api2/opportunities/?chances=${chancesParam}&page=${page}`);
+      const response = await axiosInstance.get(`/opportunities/?chances=${chancesParam}&page=${page}`);
       setSelectedOpportunities(response.data.results || []);
       setTotalCount(response.data.count || 0);
       setCurrentPage(page);

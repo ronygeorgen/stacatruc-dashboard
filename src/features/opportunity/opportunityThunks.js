@@ -40,7 +40,7 @@ export const fetchOpportunities = createAsyncThunk(
         }
       });
 
-      const response = await axiosInstance.get(`/api2/opportunities/?${params.toString()}`);
+      const response = await axiosInstance.get(`/opportunities/?${params.toString()}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error?.response?.data || { message: 'Failed to fetch opportunities' });
