@@ -17,6 +17,7 @@ const stacatrucColors = {
   medGrey: '#707070',
   clarkGreen: '#BCD230',
   blue: '#3985AE',
+  white: '#FFFFFF', // Added white for 25% in dark mode
 };
 
 // Chart colors with dark mode variants
@@ -33,7 +34,7 @@ const chartColorScheme = {
     stacatrucColors.green,
     stacatrucColors.blue,
     stacatrucColors.clarkGreen,
-    stacatrucColors.lightGrey, // Lighter grey for better visibility in dark mode
+    stacatrucColors.lightGrey,
     stacatrucColors.medGrey,
     stacatrucColors.darkGrey,
   ]
@@ -72,22 +73,28 @@ function PieChart({
   const { currentTheme } = useThemeProvider();
   const darkMode = currentTheme === 'dark';
 
-  // Prepare the chart data with Stacatruc colors
-  const prepareChartData = (sourceData) => {
-    if (!sourceData) return null;
-    
-    const colors = darkMode ? chartColorScheme.dark : chartColorScheme.light;
-    
-    return {
-      ...sourceData,
-      datasets: sourceData.datasets.map(dataset => ({
-        ...dataset,
-        backgroundColor: colors,
-        hoverBackgroundColor: colors, // Same colors for hover state
-        borderWidth: 0,
-      }))
-    };
+ // Prepare the chart data with Stacatruc colors
+ const prepareChartData = (sourceData) => {
+  if (!sourceData) return null;
+  
+  // Create a custom color mapping for probability labels
+  const probabilityColorMap = {
+    '25% Probability': darkMode ? stacatrucColors.white : stacatrucColors.darkGrey, // Changed to white in dark mode
+    '50% Probability': darkMode ? stacatrucColors.clarkGreen : stacatrucColors.clarkGreen, // Warning - clark green
+    '75% Probability': darkMode ? stacatrucColors.blue : stacatrucColors.blue, // Secondary - blue
+    '90% Probability': darkMode ? stacatrucColors.green : stacatrucColors.green, // Success - green
   };
+  
+  return {
+    ...sourceData,
+    datasets: sourceData.datasets.map(dataset => ({
+      ...dataset,
+      backgroundColor: sourceData.labels.map(label => probabilityColorMap[label] || stacatrucColors.medGrey),
+      hoverBackgroundColor: sourceData.labels.map(label => probabilityColorMap[label] || stacatrucColors.medGrey),
+      borderWidth: 0,
+    }))
+  };
+};
 
   useEffect(() => {
     const ctx = canvas.current;
@@ -111,16 +118,20 @@ function PieChart({
             backgroundColor: darkMode ? stacatrucTooltipColors.backgroundColor.dark : stacatrucTooltipColors.backgroundColor.light,
             borderColor: darkMode ? stacatrucTooltipColors.borderColor.dark : stacatrucTooltipColors.borderColor.light,
             callbacks: {
-              // Show only the label, hide the percentage calculation
               title: function(tooltipItems) {
                 return tooltipItems[0].label;
               },
-              // Return empty string to hide the body part completely
               label: function(context) {
-                return '';
+                const dataset = context.chart.data.datasets[0];
+                const index = context.dataIndex;
+                const original = dataset.tooltipData?.[index];
+                if (original) {
+                  return `${original.label}: ${original.count}`;
+                }
+                return context.label || '';
               }
-            },
-          },
+            }
+          }
         },
         interaction: {
           intersect: false,
@@ -194,42 +205,24 @@ function PieChart({
   useEffect(() => {
     if (!chart || !data) return;
     
-    const colors = darkMode ? chartColorScheme.dark : chartColorScheme.light;
-    
-    // Update dataset colors
-    chart.data.datasets.forEach(dataset => {
-      dataset.backgroundColor = colors;
-      dataset.hoverBackgroundColor = colors;
-    });
+    // Create a custom color mapping for probability labels
+    const probabilityColorMap = {
+      '25% Probability': darkMode ? stacatrucColors.white : stacatrucColors.darkGrey, // Changed to white in dark mode
+      '50% Probability': darkMode ? stacatrucColors.clarkGreen : stacatrucColors.clarkGreen, // Warning - clark green
+      '75% Probability': darkMode ? stacatrucColors.blue : stacatrucColors.blue, // Secondary - blue
+      '90% Probability': darkMode ? stacatrucColors.green : stacatrucColors.green, // Success - green
+    };
     
     // Update data values if they changed
     chart.data.labels = data.labels;
     chart.data.datasets.forEach((dataset, i) => {
       dataset.data = data.datasets[i].data;
+      dataset.backgroundColor = data.labels.map(label => probabilityColorMap[label] || stacatrucColors.medGrey);
+      dataset.hoverBackgroundColor = data.labels.map(label => probabilityColorMap[label] || stacatrucColors.medGrey);
     });
     
     chart.update();
   }, [data, chart, darkMode]);
-
-  // Update tooltip colors when theme changes
-  useEffect(() => {
-    if (!chart) return;
-
-    // Update tooltip styles
-    chart.options.plugins.tooltip.titleColor = darkMode ? stacatrucTooltipColors.titleColor.dark : stacatrucTooltipColors.titleColor.light;
-    chart.options.plugins.tooltip.bodyColor = darkMode ? stacatrucTooltipColors.bodyColor.dark : stacatrucTooltipColors.bodyColor.light;
-    chart.options.plugins.tooltip.backgroundColor = darkMode ? stacatrucTooltipColors.backgroundColor.dark : stacatrucTooltipColors.backgroundColor.light;
-    chart.options.plugins.tooltip.borderColor = darkMode ? stacatrucTooltipColors.borderColor.dark : stacatrucTooltipColors.borderColor.light;
-    
-    // Update chart colors for dark/light mode
-    const colors = darkMode ? chartColorScheme.dark : chartColorScheme.light;
-    chart.data.datasets.forEach(dataset => {
-      dataset.backgroundColor = colors;
-      dataset.hoverBackgroundColor = colors;
-    });
-    
-    chart.update('none');
-  }, [currentTheme, chart]);
 
   return (
     <div className="grow flex flex-col justify-center cursor-pointer">

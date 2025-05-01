@@ -30,7 +30,7 @@ function CardDetailModal({ isOpen, onClose, title, children }) {
       {/* Modal container - increased max width */}
       <div 
         ref={modalRef} 
-        className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-[88rem] max-h-[90vh] overflow-hidden flex flex-col z-10 mx-4"
+        className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-[95rem] max-h-[90vh] overflow-hidden flex flex-col z-10 mx-4"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">

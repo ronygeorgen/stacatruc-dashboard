@@ -65,6 +65,12 @@ export default function DatePicker({
     changePeriod(0, newDate); // Set to "Custom Range" when manually selecting
   };
 
+  // Group the fiscal periods into categories for better UI organization
+  const groupedPeriods = {
+    fiscalQuarters: fiscalPeriods.slice(1, 5), // Q1-Q4
+    // standardPeriods: fiscalPeriods.slice(5)   // This Week, Last Week, etc.
+  };
+
   return (
     <div className={cn("grid gap-2 relative", className)}>
       {/* Fiscal Period Dropdown */}
@@ -89,23 +95,46 @@ export default function DatePicker({
         {dropdownOpen && (
           <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700/60 rounded-lg shadow-lg py-1.5">
             <div className="font-medium text-sm text-gray-600 dark:text-gray-300">
-              {fiscalPeriods.map((period, index) => (
-                <button
-                  key={index}
-                  className={`flex items-center w-full hover:bg-gray-50 dark:hover:bg-gray-700/20 py-1 px-3 cursor-pointer ${index === selectedPeriodIndex ? 'text-violet-500' : ''}`}
-                  onClick={() => selectFiscalPeriod(index)}
+              {/* All Opportunities Option */}
+              <button
+                className={`flex items-center w-full hover:bg-gray-50 dark:hover:bg-gray-700/20 py-1 px-3 cursor-pointer ${0 === selectedPeriodIndex ? 'text-violet-500' : ''}`}
+                onClick={() => selectFiscalPeriod(0)}
+              >
+                <svg 
+                  className={`shrink-0 mr-2 fill-current text-violet-500 ${0 !== selectedPeriodIndex && 'invisible'}`} 
+                  width="12" 
+                  height="9" 
+                  viewBox="0 0 12 9"
                 >
-                  <svg 
-                    className={`shrink-0 mr-2 fill-current text-violet-500 ${index !== selectedPeriodIndex && 'invisible'}`} 
-                    width="12" 
-                    height="9" 
-                    viewBox="0 0 12 9"
-                  >
-                    <path d="M10.28.28L3.989 6.575 1.695 4.28A1 1 0 00.28 5.695l3 3a1 1 0 001.414 0l7-7A1 1 0 0010.28.28z" />
-                  </svg>
-                  <span>{period.label}</span>
-                </button>
-              ))}
+                  <path d="M10.28.28L3.989 6.575 1.695 4.28A1 1 0 00.28 5.695l3 3a1 1 0 001.414 0l7-7A1 1 0 0010.28.28z" />
+                </svg>
+                <span>{fiscalPeriods[0].label}</span>
+              </button>
+
+              {/* Fiscal Quarters Section with Header */}
+              <div className="pt-2 pb-1">
+                <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase px-3 mb-1">Fiscal Quarters</div>
+                {groupedPeriods.fiscalQuarters.map((period, idx) => {
+                  const index = idx + 1; // Offset by 1 because we've extracted the first element
+                  return (
+                    <button
+                      key={index}
+                      className={`flex items-center w-full hover:bg-gray-50 dark:hover:bg-gray-700/20 py-1 px-3 cursor-pointer ${index === selectedPeriodIndex ? 'text-violet-500' : ''}`}
+                      onClick={() => selectFiscalPeriod(index)}
+                    >
+                      <svg 
+                        className={`shrink-0 mr-2 fill-current text-violet-500 ${index !== selectedPeriodIndex && 'invisible'}`} 
+                        width="12" 
+                        height="9" 
+                        viewBox="0 0 12 9"
+                      >
+                        <path d="M10.28.28L3.989 6.575 1.695 4.28A1 1 0 00.28 5.695l3 3a1 1 0 001.414 0l7-7A1 1 0 0010.28.28z" />
+                      </svg>
+                      <span>{period.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}

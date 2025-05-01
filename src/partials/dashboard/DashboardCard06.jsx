@@ -1,353 +1,170 @@
-import React, { useMemo, useState } from 'react';
-import DoughnutChart from '../../charts/PieChart';
+import React, { useEffect, useState, useMemo } from 'react';
+import PieChart from '../../charts/PieChart';
 import ChartModal from '../../components/ChartModal';
-import { isWithinInterval, parseISO } from 'date-fns';
-import { useFiscalPeriod } from "../../contexts/FiscalPeriodContext";
-
-// Import utilities
-import { getCssVariable } from '../../utils/Utils';
-import { 
-  openOpportunities, 
-  closedOpportunities, 
-  totalAmountOpportunities, 
-  amountClosedOpportunities 
-} from '../../utils/DummyData';
+import { axiosInstance } from "../../services/api";
+import OpportunityTable from '../../components/OpportunityTable';
+import CardDetailModal from '../../components/CardDetailModal';
 
 function DashboardCard06() {
-  // Add state for modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProbability, setSelectedProbability] = useState(null);
   const [modalTitle, setModalTitle] = useState('');
+  const [dashboardData, setDashboardData] = useState(null);
+  const [opportunityData, setOpportunityData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedOpportunities, setSelectedOpportunities] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [pageSize] = useState(10);
 
-  // Get fiscal period context
-  const { dateRange, periodLabel } = useFiscalPeriod();
-  
-  // Filter opportunities based on date range
-  const filteredOpportunities = useMemo(() => {
-    // Combine all opportunities data first
-    const combined = [
-      ...openOpportunities,
-      ...closedOpportunities,
-      ...totalAmountOpportunities,
-      ...amountClosedOpportunities
-    ];
-    
-    // If no date range, return all opportunities filtered by standard rules
-    if (!dateRange?.from || !dateRange?.to) {
-      return combined.filter(opportunity => 
-        opportunity.stage !== "Closed Lost" && 
-        opportunity.probability !== "100%" && 
-        opportunity.probability !== "0%"
-      );
-    }
-    
-    // Filter by date range and standard rules
-    return combined.filter(opportunity => {
-      // First apply standard filters
-      if (opportunity.stage === "Closed Lost" || 
-          opportunity.probability === "100%" || 
-          opportunity.probability === "0%") {
-        return false;
-      }
-      
-      // Then filter by date range
+  useEffect(() => {
+    const fetchOpportunityData = async () => {
       try {
-        // Get the relevant date (created date, modified date, etc.)
-        const dateStr = opportunity.createdDate || opportunity.date || opportunity.lastModified;
-        
-        // Skip if no date available
-        if (!dateStr) return false;
-        
-        // Parse the date
-        const oppDate = parseISO(dateStr);
-        
-        // Check if the date is within the selected date range
-        return isWithinInterval(oppDate, {
-          start: dateRange.from,
-          end: dateRange.to
-        });
-      } catch (error) {
-        console.error("Error parsing date for opportunity:", opportunity);
-        return false;
+        setLoading(true);
+        const response = await axiosInstance.get('api2/opportunity_dash');
+        setDashboardData(response.data);
+        if (response.data?.chances) {
+          setOpportunityData(response.data.chances);
+        }
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching opportunity data:", err);
+        setError("Failed to load opportunity data");
+        setLoading(false);
       }
-    });
-  }, [dateRange, openOpportunities, closedOpportunities, totalAmountOpportunities, amountClosedOpportunities]);
-
-  // Count opportunities by probability
-  const probabilityCounts = useMemo(() => {
-    const counts = {
-      '25%': 0,
-      '50%': 0,
-      '75%': 0,
-      '90%': 0
     };
 
-    filteredOpportunities.forEach(opportunity => {
-      if (counts.hasOwnProperty(opportunity.probability)) {
-        counts[opportunity.probability]++;
-      }
-    });
-
-    return counts;
-  }, [filteredOpportunities]);
-
-  // Calculate percentages for chart
-  const chartData = useMemo(() => {
-    const total = Object.values(probabilityCounts).reduce((sum, count) => sum + count, 0);
-    
-    if (total === 0) return {
-      labels: ['25% Probability', '50% Probability', '75% Probability', '90% Probability'],
-      datasets: [{
-        label: 'Deal Closing Probability',
-        data: [0, 0, 0, 0],
-        backgroundColor: [
-          getCssVariable('--error'),
-          getCssVariable('--warning'),
-          getCssVariable('--secondary'),
-          getCssVariable('--success'),
-        ],
-        hoverBackgroundColor: [
-          getCssVariable('--error-dark'),
-          getCssVariable('--warning-dark'),
-          getCssVariable('--secondary-dark'),
-          getCssVariable('--success-dark'),
-        ],
-        borderWidth: 0,
-      }]
-    };
-    
-    return {
-      labels: ['25% Probability', '50% Probability', '75% Probability', '90% Probability'],
-      datasets: [{
-        label: 'Deal Closing Probability',
-        data: [
-          probabilityCounts['25%'],
-          probabilityCounts['50%'],
-          probabilityCounts['75%'],
-          probabilityCounts['90%'],
-        ],
-        backgroundColor: [
-          getCssVariable('--error'),
-          getCssVariable('--warning'),
-          getCssVariable('--secondary'),
-          getCssVariable('--success'),
-        ],
-        hoverBackgroundColor: [
-          getCssVariable('--error-dark'),
-          getCssVariable('--warning-dark'),
-          getCssVariable('--secondary-dark'),
-          getCssVariable('--success-dark'),
-        ],
-        borderWidth: 0,
-      }]
-    };
-  }, [probabilityCounts]);
-
-  // Create a summary of total opportunities by probability
-  const summary = useMemo(() => {
-    const total = Object.values(probabilityCounts).reduce((sum, count) => sum + count, 0);
-    return total;
-  }, [probabilityCounts]);
-
-  // Get appropriate chart data for specific periods
-  const getPeriodSpecificData = () => {
-    // Define period-specific data distributions
-    // These would normally come from real data, but we're simulating for the demo
-    if (periodLabel?.includes("Week")) {
-      return {
-        labels: ['25% Probability', '50% Probability', '75% Probability', '90% Probability'],
-        datasets: [{
-          label: 'Deal Closing Probability',
-          data: [2, 5, 8, 3], // Weekly distribution
-          backgroundColor: [
-            getCssVariable('--error'),
-            getCssVariable('--warning'),
-            getCssVariable('--secondary'),
-            getCssVariable('--success'),
-          ],
-          hoverBackgroundColor: [
-            getCssVariable('--error-dark'),
-            getCssVariable('--warning-dark'),
-            getCssVariable('--secondary-dark'),
-            getCssVariable('--success-dark'),
-          ],
-          borderWidth: 0,
-        }]
-      };
-    } 
-    else if (periodLabel?.includes("Month")) {
-      return {
-        labels: ['25% Probability', '50% Probability', '75% Probability', '90% Probability'],
-        datasets: [{
-          label: 'Deal Closing Probability',
-          data: [8, 15, 22, 12], // Monthly distribution
-          backgroundColor: [
-            getCssVariable('--error'),
-            getCssVariable('--warning'),
-            getCssVariable('--secondary'),
-            getCssVariable('--success'),
-          ],
-          hoverBackgroundColor: [
-            getCssVariable('--error-dark'),
-            getCssVariable('--warning-dark'),
-            getCssVariable('--secondary-dark'),
-            getCssVariable('--success-dark'),
-          ],
-          borderWidth: 0,
-        }]
-      };
-    }
-    else if (periodLabel?.includes("6 Months")) {
-      return {
-        labels: ['25% Probability', '50% Probability', '75% Probability', '90% Probability'],
-        datasets: [{
-          label: 'Deal Closing Probability',
-          data: [25, 42, 58, 30], // 6-month distribution
-          backgroundColor: [
-            getCssVariable('--error'),
-            getCssVariable('--warning'),
-            getCssVariable('--secondary'),
-            getCssVariable('--success'),
-          ],
-          hoverBackgroundColor: [
-            getCssVariable('--error-dark'),
-            getCssVariable('--warning-dark'),
-            getCssVariable('--secondary-dark'),
-            getCssVariable('--success-dark'),
-          ],
-          borderWidth: 0,
-        }]
-      };
-    }
-    else if (periodLabel === "This Year") {
-      return {
-        labels: ['25% Probability', '50% Probability', '75% Probability', '90% Probability'],
-        datasets: [{
-          label: 'Deal Closing Probability',
-          data: [45, 78, 103, 62], // This year distribution
-          backgroundColor: [
-            getCssVariable('--error'),
-            getCssVariable('--warning'),
-            getCssVariable('--secondary'),
-            getCssVariable('--success'),
-          ],
-          hoverBackgroundColor: [
-            getCssVariable('--error-dark'),
-            getCssVariable('--warning-dark'),
-            getCssVariable('--secondary-dark'),
-            getCssVariable('--success-dark'),
-          ],
-          borderWidth: 0,
-        }]
-      };
-    }
-    else if (periodLabel === "Last Year") {
-      return {
-        labels: ['25% Probability', '50% Probability', '75% Probability', '90% Probability'],
-        datasets: [{
-          label: 'Deal Closing Probability',
-          data: [38, 65, 95, 55], // Last year distribution
-          backgroundColor: [
-            getCssVariable('--error'),
-            getCssVariable('--warning'),
-            getCssVariable('--secondary'),
-            getCssVariable('--success'),
-          ],
-          hoverBackgroundColor: [
-            getCssVariable('--error-dark'),
-            getCssVariable('--warning-dark'),
-            getCssVariable('--secondary-dark'),
-            getCssVariable('--success-dark'),
-          ],
-          borderWidth: 0,
-        }]
-      };
-    }
-    
-    // Return default data if no period matches
-    return {
-      labels: ['25% Probability', '50% Probability', '75% Probability', '90% Probability'],
-      datasets: [{
-        label: 'Deal Closing Probability',
-        data: [12, 24, 36, 18], // Default distribution
-        backgroundColor: [
-          getCssVariable('--error'),
-          getCssVariable('--warning'),
-          getCssVariable('--secondary'),
-          getCssVariable('--success'),
-        ],
-        hoverBackgroundColor: [
-          getCssVariable('--error-dark'),
-          getCssVariable('--warning-dark'),
-          getCssVariable('--secondary-dark'),
-          getCssVariable('--success-dark'),
-        ],
-        borderWidth: 0,
-      }]
-    };
-  };
-
-  // CHANGED: Always prioritize period-specific data when a period is selected
-  const displayData = periodLabel ? getPeriodSpecificData() : chartData;
-
-  // Calculate an appropriate summary count based on the displayed data
-  const displaySummary = periodLabel 
-    ? displayData.datasets[0].data.reduce((sum, count) => sum + count, 0)
-    : summary;
-
-  // Get all opportunities data to use for filtering
-  const allOpportunities = useMemo(() => {
-    return [
-      ...openOpportunities,
-      ...closedOpportunities,
-      ...totalAmountOpportunities,
-      ...amountClosedOpportunities
-    ];
+    fetchOpportunityData();
   }, []);
 
-  // Handle chart segment click
-  const handleSegmentClick = (index, label) => {
-    // Extract probability value from label (e.g., "25% Probability" -> "25%")
-    const probabilityValue = label.split(' ')[0];
+  const processedChancesData = useMemo(() => {
+    const result = [];
+
+    dashboardData?.chances?.forEach(item => {
+      if (item.chances_value && item.chances_value !== "Unknown") {
+        const percentageMatch = item.chances_value.match(/(\d+)%/);
+        if (percentageMatch && percentageMatch[1]) {
+          const percentage = percentageMatch[1] + '%';
+          const count = item.count || 0;
+
+          result.push({
+            probability: percentage,
+            label: `${percentage} Probability`,
+            count: count
+          });
+        }
+      }
+    });
+
+    return result;
+  }, [dashboardData]);
+
+  const chartData = useMemo(() => {
+    const sortedChances = [...processedChancesData].sort((a, b) => {
+      return parseInt(a.probability) - parseInt(b.probability);
+    });
+
+    return {
+      labels: sortedChances.map(item => item.label),
+      datasets: [
+        {
+          label: 'Deal Closing Probability',
+          data: sortedChances.map(item => item.count),
+          backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'],
+          borderWidth: 0,
+          tooltipData: sortedChances // Custom field to pass original objects for tooltip customization
+        }
+      ]
+    };
+  }, [processedChancesData]);
+
+  const totalOpportunities = useMemo(() => {
+    return dashboardData?.open_ops_count || 0;
+  }, [dashboardData]);
+
+  const fetchFilteredOpportunities = async (probability, page = 1) => {
+    setLoading(true);
+    const chancesParam = encodeURIComponent(`${probability} chances of closing the deal`);
+    
+    try {
+      const response = await axiosInstance.get(`/api2/opportunities/?chances=${chancesParam}&page=${page}`);
+      setSelectedOpportunities(response.data.results || []);
+      setTotalCount(response.data.count || 0);
+      setCurrentPage(page);
+      setLoading(false);
+    } catch (error) {
+      console.error("Failed to fetch filtered opportunities:", error);
+      setSelectedOpportunities([]);
+      setLoading(false);
+    }
+  };
+
+  const handleSegmentClick = async (index, label) => {
+    const probabilityValue = label.split(' ')[0]; // "25%"
     setSelectedProbability(probabilityValue);
     setModalTitle(`Opportunities with ${label}`);
     setIsModalOpen(true);
+    
+    // Fetch the first page of opportunities with this probability
+    fetchFilteredOpportunities(probabilityValue, 1);
   };
 
-  // Filter opportunities for the selected probability
-  const selectedOpportunities = useMemo(() => {
-    if (!selectedProbability) return [];
-    
-    return allOpportunities.filter(opportunity => 
-      opportunity.probability === selectedProbability &&
-      opportunity.stage !== "Closed Lost"
-    );
-  }, [selectedProbability, allOpportunities]);
+  const handlePageChange = (page) => {
+    if (selectedProbability) {
+      fetchFilteredOpportunities(selectedProbability, page);
+    }
+  };
 
   return (
-    <div className="flex flex-col col-span-full sm:col-span-4 xl:col-span-4 bg-white dark:bg-gray-800 shadow-xs rounded-xl">
+    <div className="flex flex-col col-span-full sm:col-span-4 xl:col-span-4 bg-white dark:bg-gray-800 shadow-xs rounded-xl" > 
       <header className="px-5 py-4 border-b border-gray-100 dark:border-gray-700/60 flex justify-between items-center">
         <h2 className="font-semibold text-gray-800 dark:text-gray-100">Deal Closing Probability</h2>
         <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center">
-          <span className="mr-1">{periodLabel || "All Time"}</span>
-          <span className="ml-2">{displaySummary} Open Opportunities</span>
+          <span className="ml-2">{totalOpportunities} Open Opportunities</span>
         </div>
       </header>
-      {/* Chart built with Chart.js 3 */}
-      <DoughnutChart 
-        data={displayData} 
-        width={389} 
-        height={260} 
-        onSegmentClick={handleSegmentClick}
-      />
+
+      {loading && !isModalOpen && (
+        <div className="flex items-center justify-center h-64">
+          <div className="text-gray-500">Loading data...</div>
+        </div>
+      )}
+
+      {error && !isModalOpen && (
+        <div className="flex items-center justify-center h-64">
+          <div className="text-red-500">{error}</div>
+        </div>
+      )}
+
+      {!loading && !error && chartData.labels.length > 0 && (
+        <PieChart 
+          data={chartData} 
+          width={389} 
+          height={260} 
+          onSegmentClick={handleSegmentClick}
+          customTooltip={(tooltipItem, data) => {
+            const index = tooltipItem[0].dataIndex;
+            const dataset = data.datasets[0];
+            const original = dataset.tooltipData?.[index];
+            return `${original.label}: ${original.count}`;
+          }}
+        />
+      )}
       
-      {/* Modal for displaying opportunity details */}
-      <ChartModal
+      <CardDetailModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={modalTitle}
-        opportunities={selectedOpportunities}
-      />
+      >
+        <OpportunityTable
+          opportunities={selectedOpportunities}
+          currentPage={currentPage}  
+          totalCount={totalCount}
+          onPageChange={handlePageChange}
+          loading={loading}
+        />
+      </CardDetailModal>
     </div>
   );
 }
