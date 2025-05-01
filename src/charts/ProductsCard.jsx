@@ -288,9 +288,9 @@ function ProductsCard() {
 
   // Format currency values
   const formatCurrency = (value) => {
-    return new Intl.NumberFormat('de-DE', {
+    return new Intl.NumberFormat('en-GB', {
       style: 'currency',
-      currency: 'EUR',
+      currency: 'GBP',
       maximumFractionDigits: 0
     }).format(value);
   };
