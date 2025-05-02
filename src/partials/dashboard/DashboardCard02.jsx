@@ -27,9 +27,9 @@ function DashboardCard02() {
   const [chartData, setChartData] = React.useState(null);
   const [chartLoading, setChartLoading] = React.useState(false);
 
-  const opportunities = useSelector((state) => state.opportunities.data || []);
+  // Use closedOpportunities specific state
+  const { closedOpportunities } = useSelector((state) => state.opportunities);
   const dispatch = useDispatch();
-  const { aggregations } = useSelector((state) => state.opportunities);
   
   // Prevent duplicate API calls with useRef flag
   const initialLoadDone = React.useRef(false);
@@ -43,7 +43,7 @@ function DashboardCard02() {
           searchQuery: "", 
           page: 1, 
           pageSize: 10,
-          state: 'close' // Only focus on open opportunities
+          state: 'close' // Only focus on closed opportunities
         };
         
         // If a fiscal period code is selected, use that for filtering
@@ -61,7 +61,7 @@ function DashboardCard02() {
         // Check if this is initial load
         if (!initialLoadDone.current) {
           initialLoadDone.current = true;
-          // For initial load, fetch all opportunities without filters
+          // For initial load, fetch closed opportunities
           dispatch(fetchOpportunities({ 
             searchQuery: "", 
             page: 1, 
@@ -87,11 +87,11 @@ function DashboardCard02() {
           if (response.data && response.data.graph_data) {
             const graphData = response.data.graph_data;
             
-            // Prepare chart data from API response - only open value
+            // Prepare chart data from API response - only closed value
             const chartDatasets = {
               labels: graphData.labels,
               datasets: [
-                // Open opportunities dataset with enhanced styling
+                // Closed opportunities dataset with enhanced styling
                 {
                   data: graphData.closed,
                   fill: true,
@@ -181,7 +181,8 @@ function DashboardCard02() {
     fetchClosedOpportunities(page);
   };
 
-  const totalAmountClosed = aggregations?.amount_closed || 0;
+  // Use closedOpportunities specific aggregations
+  const totalAmountClosed = closedOpportunities.aggregations?.amount_closed || 0;
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-GB', { 
@@ -197,10 +198,7 @@ function DashboardCard02() {
     fetchClosedOpportunities(1); // Reset to first page when opening modal
   };
   
-  
-
-
-   return (
+  return (
     <>
     <div className="cursor-pointer flex flex-col col-span-full sm:col-span-6 xl:col-span-3 bg-white dark:bg-gray-800 shadow-xs rounded-xl " onClick={handleOpenModal}>
       <div className="px-5 pt-5">

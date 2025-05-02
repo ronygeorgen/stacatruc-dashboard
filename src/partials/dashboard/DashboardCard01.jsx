@@ -25,7 +25,7 @@ function DashboardCard01() {
 
   const opportunities = useSelector((state) => state.opportunities.data || []);
   const dispatch = useDispatch();
-  const { aggregations } = useSelector((state) => state.opportunities);
+  const { openOpportunities } = useSelector((state) => state.opportunities);
   
   // Prevent duplicate API calls with useRef flag
   const initialLoadDone = React.useRef(false);
@@ -176,7 +176,7 @@ function DashboardCard01() {
     fetchOpenOpportunities(page);
   };
   
-  const totalAmount = aggregations?.amount_open || 0;
+  const totalAmount = openOpportunities.aggregations?.amount_open || 0;
 
   const handleOpenModal = () => {
     setIsModalOpen(true);

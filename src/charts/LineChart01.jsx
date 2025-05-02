@@ -231,8 +231,16 @@ function LineChart01({
               label: (context) => {
                 // Format the tooltip value
                 const datasetLabel = context.dataset.label || '';
-                const value = formatEuroValue(context.parsed.y);
-                return `${datasetLabel}: ${value}`;
+                
+                // Check if the dataset label contains "Deals" and format accordingly
+                if (datasetLabel.includes('Deals')) {
+                  // For "Deals" labels, don't use currency formatting
+                  return `${datasetLabel}: ${context.parsed.y}`;
+                } else {
+                  // For other labels, use the pound currency formatting
+                  const value = formatEuroValue(context.parsed.y);
+                  return `${datasetLabel}: ${value}`;
+                }
               },
             },
             titleFont: {

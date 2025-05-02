@@ -11,7 +11,6 @@ import './services/request_interceptor';
 import './services/response_interceptor';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <Router>
@@ -23,5 +22,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </Router>
       </PersistGate>
     </Provider>
-  </React.StrictMode>
 );
