@@ -40,6 +40,12 @@ function SourceCard() {
 
   const selectedPipelines = useSelector((state) => state.filters?.pipelines || []);
 
+  const selectedPipelineStages = useSelector((state) => state.filters?.pipelineStages || []);
+  const selectedAssignedUsers = useSelector((state) => state.filters?.assignedUsers || []);
+  const selectedOpportunityOwners = useSelector((state) => state.filters?.opportunityOwners || []);
+  const selectedOpportunitySources = useSelector((state) => state.filters?.opportunitySources || []);
+  const selectedProductSales = useSelector((state) => state.filters?.productSales || []);
+
   
   // For modal pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -92,6 +98,74 @@ function SourceCard() {
           }
         });
       }
+
+      if (selectedPipelineStages && selectedPipelineStages.length > 0) {
+        // Don't set params.pipeline as an array
+        delete params.stage_name; // Remove any existing pipeline param
+        
+        // Add each pipeline as a separate parameter with the same name
+        selectedPipelineStages.forEach(stage_name => {
+          // This will be handled by axios to create multiple params with same name
+          if (!params.stage_name) {
+            params.stage_name = stage_name;
+          } else if (Array.isArray(params.stage_name)) {
+            params.stage_name.push(stage_name);
+          } else {
+            params.stage_name = [params.stage_name, stage_name];
+          }
+        });
+      }
+      
+      if (selectedAssignedUsers && selectedAssignedUsers.length > 0) {
+        // Don't set params.pipeline as an array
+        delete params.assigned_to; // Remove any existing pipeline param
+        
+        // Add each pipeline as a separate parameter with the same name
+        selectedAssignedUsers.forEach(assigned_to => {
+          // This will be handled by axios to create multiple params with same name
+          if (!params.assigned_to) {
+            params.assigned_to = assigned_to;
+          } else if (Array.isArray(params.assigned_to)) {
+            params.assigned_to.push(assigned_to);
+          } else {
+            params.assigned_to = [params.assigned_to, assigned_to];
+          }
+        });
+      }
+      
+      if (selectedOpportunityOwners && selectedOpportunityOwners.length > 0) {
+        // Don't set params.pipeline as an array
+        delete params.contact; // Remove any existing pipeline param
+        
+        // Add each pipeline as a separate parameter with the same name
+        selectedOpportunityOwners.forEach(contact => {
+          // This will be handled by axios to create multiple params with same name
+          if (!params.contact) {
+            params.contact = contact;
+          } else if (Array.isArray(params.contact)) {
+            params.contact.push(contact);
+          } else {
+            params.contact = [params.contact, contact];
+          }
+        });
+      }
+      
+      if (selectedOpportunitySources && selectedOpportunitySources.length > 0) {
+        // Don't set params.pipeline as an array
+        delete params.opportunity_source; // Remove any existing pipeline param
+        
+        // Add each pipeline as a separate parameter with the same name
+        selectedOpportunitySources.forEach(opportunity_source => {
+          // This will be handled by axios to create multiple params with same name
+          if (!params.opportunity_source) {
+            params.opportunity_source = opportunity_source;
+          } else if (Array.isArray(params.opportunity_source)) {
+            params.opportunity_source.push(opportunity_source);
+          } else {
+            params.opportunity_source = [params.opportunity_source, opportunity_source];
+          }
+        });
+      }
       
       const response = await axiosInstance.get(url, { params });
       setDashboardData(response.data);
@@ -111,7 +185,7 @@ function SourceCard() {
     } finally {
       setLoading(false);
     }
-  }, [dateRange, fiscalPeriodCode, selectedPipelines]);
+  }, [dateRange, fiscalPeriodCode, selectedPipelines, selectedPipelineStages, selectedAssignedUsers, selectedOpportunityOwners, selectedOpportunitySources]);
 
   // Initial data fetch
   useEffect(() => {
@@ -159,6 +233,74 @@ function SourceCard() {
           }
         });
       }
+
+      if (selectedPipelineStages && selectedPipelineStages.length > 0) {
+        // Don't set params.pipeline as an array
+        delete params.stage_name; // Remove any existing pipeline param
+        
+        // Add each pipeline as a separate parameter with the same name
+        selectedPipelineStages.forEach(stage_name => {
+          // This will be handled by axios to create multiple params with same name
+          if (!params.stage_name) {
+            params.stage_name = stage_name;
+          } else if (Array.isArray(params.stage_name)) {
+            params.stage_name.push(stage_name);
+          } else {
+            params.stage_name = [params.stage_name, stage_name];
+          }
+        });
+      }
+      
+      if (selectedAssignedUsers && selectedAssignedUsers.length > 0) {
+        // Don't set params.pipeline as an array
+        delete params.assigned_to; // Remove any existing pipeline param
+        
+        // Add each pipeline as a separate parameter with the same name
+        selectedAssignedUsers.forEach(assigned_to => {
+          // This will be handled by axios to create multiple params with same name
+          if (!params.assigned_to) {
+            params.assigned_to = assigned_to;
+          } else if (Array.isArray(params.assigned_to)) {
+            params.assigned_to.push(assigned_to);
+          } else {
+            params.assigned_to = [params.assigned_to, assigned_to];
+          }
+        });
+      }
+      
+      if (selectedOpportunityOwners && selectedOpportunityOwners.length > 0) {
+        // Don't set params.pipeline as an array
+        delete params.contact; // Remove any existing pipeline param
+        
+        // Add each pipeline as a separate parameter with the same name
+        selectedOpportunityOwners.forEach(contact => {
+          // This will be handled by axios to create multiple params with same name
+          if (!params.contact) {
+            params.contact = contact;
+          } else if (Array.isArray(params.contact)) {
+            params.contact.push(contact);
+          } else {
+            params.contact = [params.contact, contact];
+          }
+        });
+      }
+      
+      if (selectedOpportunitySources && selectedOpportunitySources.length > 0) {
+        // Don't set params.pipeline as an array
+        delete params.opportunity_source; // Remove any existing pipeline param
+        
+        // Add each pipeline as a separate parameter with the same name
+        selectedOpportunitySources.forEach(opportunity_source => {
+          // This will be handled by axios to create multiple params with same name
+          if (!params.opportunity_source) {
+            params.opportunity_source = opportunity_source;
+          } else if (Array.isArray(params.opportunity_source)) {
+            params.opportunity_source.push(opportunity_source);
+          } else {
+            params.opportunity_source = [params.opportunity_source, opportunity_source];
+          }
+        });
+      }
       
       const response = await axiosInstance.get(url, { params });
       
@@ -172,7 +314,7 @@ function SourceCard() {
     } finally {
       setModalLoading(false);
     }
-  }, [dateRange, fiscalPeriodCode, pageSize, selectedPipelines]);
+  }, [dateRange, fiscalPeriodCode, selectedPipelines, selectedPipelineStages, selectedAssignedUsers, selectedOpportunityOwners, selectedOpportunitySources]);
 
   // Handle source row click
   const handleSourceClick = (source) => {

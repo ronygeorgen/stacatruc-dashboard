@@ -20,11 +20,18 @@ function DashboardCard06() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [pageSize] = useState(10);
+
   
   // Add fiscal period context
   const { dateRange, periodLabel, selectedPeriodIndex, fiscalPeriodCode } = useFiscalPeriod();
   
   const selectedPipelines = useSelector((state) => state.filters?.pipelines || []);
+
+  const selectedPipelineStages = useSelector((state) => state.filters?.pipelineStages || []);
+  const selectedAssignedUsers = useSelector((state) => state.filters?.assignedUsers || []);
+  const selectedOpportunityOwners = useSelector((state) => state.filters?.opportunityOwners || []);
+  const selectedOpportunitySources = useSelector((state) => state.filters?.opportunitySources || []);
+  const selectedProductSales = useSelector((state) => state.filters?.productSales || []);
 
   console.log('selcted pipelines in pie chard dashboard', selectedPipelines);
   
@@ -58,6 +65,30 @@ function DashboardCard06() {
               params.append('pipeline',pipeline)
             });
           }
+
+          if (selectedPipelineStages && selectedPipelineStages.length > 0) {
+            selectedPipelineStages.forEach(stage_name => {
+              params.append("stage_name", stage_name);
+            });
+          }
+          
+          if (selectedAssignedUsers && selectedAssignedUsers.length > 0) {
+            selectedAssignedUsers.forEach(assigned_to => {
+              params.append("assigned_to", assigned_to);
+            });
+          }
+          
+          if (selectedOpportunityOwners && selectedOpportunityOwners.length > 0) {
+            selectedOpportunityOwners.forEach(contact => {
+              params.append("contact", contact);
+            });
+          }
+          
+          if (selectedOpportunitySources && selectedOpportunitySources.length > 0) {
+            selectedOpportunitySources.forEach(opportunity_source => {
+              params.append("opportunity_source", opportunity_source);
+            });
+          }
           
           return params.toString();
         };
@@ -87,7 +118,8 @@ function DashboardCard06() {
       // For subsequent loads, use filters
       fetchOpportunityData();
     }
-  }, [dateRange, fiscalPeriodCode, selectedPipelines ]); // Add dependencies to re-fetch when filters change
+  }, [dateRange, fiscalPeriodCode, selectedPipelines, selectedPipelineStages, selectedAssignedUsers, selectedOpportunityOwners, selectedOpportunitySources]);
+
 
   const processedChancesData = useMemo(() => {
     const result = [];
@@ -162,6 +194,30 @@ function DashboardCard06() {
         });
       }
       
+      if (selectedPipelineStages && selectedPipelineStages.length > 0) {
+        selectedPipelineStages.forEach(stage_name => {
+          url += `&stage_name=${encodeURIComponent(stage_name)}`;
+        });
+      }
+      
+      if (selectedAssignedUsers && selectedAssignedUsers.length > 0) {
+        selectedAssignedUsers.forEach(assigned_to => {
+          url += `&assigned_to=${encodeURIComponent(assigned_to)}`;
+        });
+      }
+      
+      if (selectedOpportunityOwners && selectedOpportunityOwners.length > 0) {
+        selectedOpportunityOwners.forEach(contact => {
+          url += `&contact=${encodeURIComponent(contact)}`;
+        });
+      }
+      
+      if (selectedOpportunitySources && selectedOpportunitySources.length > 0) {
+        selectedOpportunitySources.forEach(opportunity_source => {
+          url += `&opportunity_source=${encodeURIComponent(opportunity_source)}`;
+        });
+      }
+      
       
       const response = await axiosInstance.get(url);
       setSelectedOpportunities(response.data.results || []);
@@ -173,7 +229,8 @@ function DashboardCard06() {
       setSelectedOpportunities([]);
       setLoading(false);
     }
-  }, [pageSize, fiscalPeriodCode, dateRange, selectedPipelines]);
+  }, [dateRange, fiscalPeriodCode, selectedPipelines, selectedPipelineStages, selectedAssignedUsers, selectedOpportunityOwners, selectedOpportunitySources]);
+
 
   const handleSegmentClick = async (index, label) => {
     const probabilityValue = label.split(' ')[0]; // "25%"

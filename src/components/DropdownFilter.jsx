@@ -75,7 +75,7 @@ function DropdownFilters() {
       
       if (!uniquePipelineStagesMap.has(normalizedName)) {
         uniquePipelineStagesMap.set(normalizedName, {
-          id: stage.ghl_id,
+          id: displayName,
           label: displayName // Use display name as the visible label
         });
       }
@@ -90,7 +90,7 @@ function DropdownFilters() {
     ? oppSourcesList
         .filter(source => source && typeof source.source === 'string') // Filter out non-objects and objects without string source
         .map(source => ({
-          id: source.source.replace(/\s+/g, '-'), // No need for toLowerCase, just replace spaces
+          id: source.source, // No need for toLowerCase, just replace spaces
           label: source.source
         }))
     : [];

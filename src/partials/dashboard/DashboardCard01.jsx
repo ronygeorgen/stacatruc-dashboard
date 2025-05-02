@@ -28,6 +28,12 @@ function DashboardCard01() {
 
   // Get the selected pipeline filters from redux state
   const selectedPipelines = useSelector((state) => state.filters?.pipelines || []);
+
+  const selectedPipelineStages = useSelector((state) => state.filters?.pipelineStages || []);
+  const selectedAssignedUsers = useSelector((state) => state.filters?.assignedUsers || []);
+  const selectedOpportunityOwners = useSelector((state) => state.filters?.opportunityOwners || []);
+  const selectedOpportunitySources = useSelector((state) => state.filters?.opportunitySources || []);
+  const selectedProductSales = useSelector((state) => state.filters?.productSales || []);
   
   // Prevent duplicate API calls with useRef flag
   const initialLoadDone = React.useRef(false);
@@ -61,6 +67,22 @@ function DashboardCard01() {
         params.pipeline = selectedPipelines;
       }
       
+      if (selectedPipelineStages && selectedPipelineStages.length > 0) {
+        params.stage_name = selectedPipelineStages;
+      }
+      
+      if (selectedAssignedUsers && selectedAssignedUsers.length > 0) {
+        params.assigned_to = selectedAssignedUsers;
+      }
+      
+      if (selectedOpportunityOwners && selectedOpportunityOwners.length > 0) {
+        params.contact = selectedOpportunityOwners;
+      }
+      
+      if (selectedOpportunitySources && selectedOpportunitySources.length > 0) {
+        params.opportunity_source = selectedOpportunitySources;
+      }
+      
       // Check if this is initial load
       if (!initialLoadDone.current) {
         initialLoadDone.current = true;
@@ -92,6 +114,30 @@ function DashboardCard01() {
         if (selectedPipelines && selectedPipelines.length > 0) {
           selectedPipelines.forEach(pipeline => {
             urlParams.append("pipeline", pipeline);
+          });
+        }
+        
+        if (selectedPipelineStages && selectedPipelineStages.length > 0) {
+          selectedPipelineStages.forEach(stage_name => {
+            urlParams.append("stage_name", stage_name);
+          });
+        }
+        
+        if (selectedAssignedUsers && selectedAssignedUsers.length > 0) {
+          selectedAssignedUsers.forEach(assigned_to => {
+            urlParams.append("assigned_to", assigned_to);
+          });
+        }
+        
+        if (selectedOpportunityOwners && selectedOpportunityOwners.length > 0) {
+          selectedOpportunityOwners.forEach(contact => {
+            urlParams.append("contact", contact);
+          });
+        }
+        
+        if (selectedOpportunitySources && selectedOpportunitySources.length > 0) {
+          selectedOpportunitySources.forEach(opportunity_source => {
+            urlParams.append("opportunity_source", opportunity_source);
           });
         }
         
@@ -150,7 +196,7 @@ function DashboardCard01() {
     
     // Call the fetch function
     fetchData();
-  }, [dispatch, dateRange, fiscalPeriodCode, selectedPipelines]);
+  }, [dispatch, dateRange, fiscalPeriodCode, selectedPipelines, selectedPipelineStages, selectedAssignedUsers, selectedOpportunityOwners, selectedOpportunitySources]);
   
   const fetchOpenOpportunities = React.useCallback(async (page = 1) => {
     try {
@@ -178,6 +224,22 @@ function DashboardCard01() {
         params.pipeline = selectedPipelines;
       }
       
+      if (selectedPipelineStages && selectedPipelineStages.length > 0) {
+        params.stage_name = selectedPipelineStages;
+      }
+      
+      if (selectedAssignedUsers && selectedAssignedUsers.length > 0) {
+        params.assigned_to = selectedAssignedUsers;
+      }
+      
+      if (selectedOpportunityOwners && selectedOpportunityOwners.length > 0) {
+        params.contact = selectedOpportunityOwners;
+      }
+      
+      if (selectedOpportunitySources && selectedOpportunitySources.length > 0) {
+        params.opportunity_source = selectedOpportunitySources;
+      }
+      
       const data = await opportunityAPI.getOpportunities(
         params.searchQuery,
         params.page,
@@ -186,7 +248,11 @@ function DashboardCard01() {
         params.fromDate,
         params.toDate,
         params.state,
-        params.pipeline
+        params.pipeline,
+        params.stage_name,
+        params.assigned_to,
+        params.contact,
+        params.opportunity_source,
       );
       
       setModalOpportunities(data.results || []);
@@ -197,7 +263,7 @@ function DashboardCard01() {
     } finally {
       setLoading(false);
     }
-  }, [dateRange, pageSize, fiscalPeriodCode, selectedPipelines]);
+  }, [dateRange, pageSize, fiscalPeriodCode, selectedPipelines, selectedPipelineStages, selectedAssignedUsers, selectedOpportunityOwners, selectedOpportunitySources]);
     
   const handlePageChange = (page) => {
     fetchOpenOpportunities(page);
