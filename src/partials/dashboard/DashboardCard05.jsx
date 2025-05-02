@@ -29,8 +29,11 @@ function DashboardCard05() {
   const [chartData, setChartData] = React.useState(null);
   const [chartLoading, setChartLoading] = React.useState(false);
   
-  const { closedOpportunities } = useSelector((state) => state.opportunities);
   const dispatch = useDispatch();
+  const { closedOpportunities } = useSelector((state) => state.opportunities);
+
+  const selectedPipelines = useSelector((state) => state.filters?.pipelines || []);
+  
   
   // Prevent duplicate API calls with useRef flag
   const initialLoadDone = React.useRef(false);
@@ -58,6 +61,11 @@ function DashboardCard05() {
               params.toDate = format(dateRange.to, 'yyyy-MM-dd');
             }
           }
+
+          // Add pipeline filters if they exist
+          if (selectedPipelines && selectedPipelines.length > 0) {
+            params.pipeline = selectedPipelines;
+          }
           
           // Check if this is initial load
           if (!initialLoadDone.current) {
@@ -79,9 +87,23 @@ function DashboardCard05() {
             setChartLoading(true);
             
             let endpoint = '/opportunity_dash';
+            let urlParams = new URLSearchParams();
+
             // Add fiscal period as query parameter if available
             if (fiscalPeriodCode) {
-              endpoint += `?fiscal_period=${fiscalPeriodCode}`;
+              urlParams.append("fiscal_period", fiscalPeriodCode);
+            }
+
+            // Add pipeline filters if available
+            if (selectedPipelines && selectedPipelines.length > 0) {
+              selectedPipelines.forEach(pipeline => {
+                urlParams.append("pipeline", pipeline);
+              });
+            }
+
+            // Only append '?' if we have parameters
+            if (urlParams.toString()) {
+              endpoint += `?${urlParams.toString()}`;
             }
             
             const response = await axiosInstance.get(endpoint);
@@ -134,7 +156,7 @@ function DashboardCard05() {
         
         // Call the fetch function
         fetchData();
-      }, [dispatch, dateRange, fiscalPeriodCode]);
+      }, [dispatch, dateRange, fiscalPeriodCode, selectedPipelines]);
 
   const fetchCloseOpportunities = React.useCallback(async (page = 1) => {
     try {
@@ -156,6 +178,11 @@ function DashboardCard05() {
           params.toDate = format(dateRange.to, 'yyyy-MM-dd');
         }
       }
+
+      // Add pipeline filters if they exist
+      if (selectedPipelines && selectedPipelines.length > 0) {
+        params.pipeline = selectedPipelines;
+      }
       
       const data = await opportunityAPI.getOpportunities(
         params.searchQuery,
@@ -164,7 +191,9 @@ function DashboardCard05() {
         params.fiscalPeriod,
         params.fromDate,
         params.toDate,
-        params.state
+        params.state,
+        params.pipeline
+
       );
       
       setModalOpportunities(data.results || []);
@@ -175,7 +204,7 @@ function DashboardCard05() {
     } finally {
       setLoading(false);
     }
-  }, [dateRange, pageSize, fiscalPeriodCode]);
+  }, [dateRange, pageSize, fiscalPeriodCode, selectedPipelines]);
 
   const handlePageChange = (page) => {
     fetchCloseOpportunities(page);

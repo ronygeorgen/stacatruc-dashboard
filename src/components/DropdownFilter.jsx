@@ -6,6 +6,14 @@ import { fetchOpportunityOwners } from "../features/contacts/contactsThunks";
 import { fetchPipelines } from "../features/Pipeline/pipelineThunks";
 import { fetchPipelineStages, fetchPipelineStagesByPipelines } from "../features/pipelineStages/pipelineStagesThunks";
 import { fetchOppSources } from "../features/opportunitySource/oppSourceThunks";
+import { 
+  setPipelineFilters, 
+  setPipelineStageFilters,
+  setAssignedUserFilters,
+  setOpportunityOwnerFilters,
+  setOpportunitySourceFilters,
+  setProductSalesFilters
+} from '../features/globalFilter/filterSlice'
 
 function DropdownFilters() {
   const { assignedUserOptions, status, error } = useSelector((state) => state.users);
@@ -91,8 +99,11 @@ function DropdownFilters() {
     dispatch(fetchOpportunityOwners(query));
   };
 
-  // Handler for pipeline filter changes
-  const handlePipelineFilterApply = (selectedPipelineIds) => {
+   // Handler for pipeline filter changes - now updates both pipeline stages and Redux filter store
+   const handlePipelineFilterApply = (selectedPipelineIds) => {
+    // Update pipeline filter state in Redux
+    dispatch(setPipelineFilters(selectedPipelineIds));
+    
     // If no pipelines selected or empty array (cleared), fetch all stages
     if (!selectedPipelineIds || selectedPipelineIds.length === 0) {
       // Fetch all pipeline stages to reset the filter
@@ -101,6 +112,31 @@ function DropdownFilters() {
       // Fetch stages filtered by the selected pipelines
       dispatch(fetchPipelineStagesByPipelines(selectedPipelineIds));
     }
+  };
+
+  // Handler for pipeline stage filter changes
+  const handlePipelineStageFilterApply = (selectedStageIds) => {
+    dispatch(setPipelineStageFilters(selectedStageIds));
+  };
+
+  // Handler for assigned user filter changes
+  const handleAssignedUserFilterApply = (selectedUserIds) => {
+    dispatch(setAssignedUserFilters(selectedUserIds));
+  };
+
+  // Handler for opportunity owner filter changes
+  const handleOpportunityOwnerFilterApply = (selectedOwnerIds) => {
+    dispatch(setOpportunityOwnerFilters(selectedOwnerIds));
+  };
+
+  // Handler for opportunity source filter changes
+  const handleOpportunitySourceFilterApply = (selectedSourceIds) => {
+    dispatch(setOpportunitySourceFilters(selectedSourceIds));
+  };
+
+  // Handler for product sales filter changes
+  const handleProductSalesFilterApply = (selectedProductIds) => {
+    dispatch(setProductSalesFilters(selectedProductIds));
   };
 
   // Product Sales options
@@ -124,26 +160,31 @@ function DropdownFilters() {
       />
       <SingleDropdownFilter 
         title="Pipeline stages" 
-        filterOptions={pipelineStagesOptions} 
+        filterOptions={pipelineStagesOptions}
+        onApplyFilters={handlePipelineStageFilterApply}
       />
       <SingleDropdownFilter 
         title="Owner - Assigned User" 
-        filterOptions={assignedUserOptions} 
+        filterOptions={assignedUserOptions}
+        onApplyFilters={handleAssignedUserFilterApply}
       />
       <SingleDropdownFilter 
         title="Opportunity Owner" 
         filterOptions={opportunityOwnerOptions} 
         searchable
         onSearch={handleSearchOpportunityOwner}
+        onApplyFilters={handleOpportunityOwnerFilterApply}
         align="right"
       />
       <SingleDropdownFilter 
         title="Opportunity Source" 
-        filterOptions={opportunitySourceOptions} 
+        filterOptions={opportunitySourceOptions}
+        onApplyFilters={handleOpportunitySourceFilterApply}
       />
       <SingleDropdownFilter 
         title="Product Sales" 
-        filterOptions={productSalesOptions} 
+        filterOptions={productSalesOptions}
+        onApplyFilters={handleProductSalesFilterApply}
         align="right"
       />
     </div>

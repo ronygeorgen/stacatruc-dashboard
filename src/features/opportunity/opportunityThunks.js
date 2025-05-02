@@ -11,6 +11,7 @@ export const fetchOpportunities = createAsyncThunk(
         fiscalPeriod = null,
         fromDate = null,
         toDate = null,
+        pipeline = null, // Add pipeline parameter
         ...otherFilters 
       } = filters || {};
 
@@ -33,10 +34,34 @@ export const fetchOpportunities = createAsyncThunk(
         }
       }
       
+      // Add pipeline filters
+      if (pipeline) {
+        // If pipeline is an array, add each pipeline ID separately
+        if (Array.isArray(pipeline)) {
+          pipeline.forEach(p => {
+            // Ensure p is not null or undefined before appending
+            if (p) params.append('pipeline', p);
+          });
+        } 
+        // If it's a single value, add it directly
+        else if (pipeline) {
+          params.append('pipeline', pipeline);
+        }
+      }
+      
       // Add any other filters
       Object.entries(otherFilters).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
-          params.append(key, value);
+          // Handle arrays in other filters too
+          if (Array.isArray(value)) {
+            value.forEach(v => {
+              if (v !== null && v !== undefined) {
+                params.append(key, v);
+              }
+            });
+          } else {
+            params.append(key, value);
+          }
         }
       });
 

@@ -8,7 +8,8 @@ export const opportunityAPI = {
     fiscalPeriod = null,
     fromDate = null,
     toDate = null,
-    state = null
+    state = null,
+    pipeline = null // Add pipeline parameter
   ) {
     // Build query parameters
     const params = new URLSearchParams();
@@ -38,6 +39,20 @@ export const opportunityAPI = {
       }
       if (toDate) {
         params.append("created_at_max", toDate);
+      }
+    }
+    
+    // Add pipeline filters if provided
+    if (pipeline) {
+      // If pipeline is an array, add each pipeline ID separately
+      if (Array.isArray(pipeline)) {
+        pipeline.forEach(p => {
+          params.append("pipeline", p);
+        });
+      } 
+      // If it's a single value, add it directly
+      else {
+        params.append("pipeline", pipeline);
       }
     }
     

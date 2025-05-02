@@ -23,9 +23,11 @@ function DashboardCard01() {
   const [chartData, setChartData] = React.useState(null);
   const [chartLoading, setChartLoading] = React.useState(false);
 
-  const opportunities = useSelector((state) => state.opportunities.data || []);
   const dispatch = useDispatch();
   const { openOpportunities } = useSelector((state) => state.opportunities);
+
+  // Get the selected pipeline filters from redux state
+  const selectedPipelines = useSelector((state) => state.filters?.pipelines || []);
   
   // Prevent duplicate API calls with useRef flag
   const initialLoadDone = React.useRef(false);
@@ -53,6 +55,11 @@ function DashboardCard01() {
           params.toDate = format(dateRange.to, 'yyyy-MM-dd');
         }
       }
+
+      // Add pipeline filters if they exist
+      if (selectedPipelines && selectedPipelines.length > 0) {
+        params.pipeline = selectedPipelines;
+      }
       
       // Check if this is initial load
       if (!initialLoadDone.current) {
@@ -74,9 +81,23 @@ function DashboardCard01() {
         setChartLoading(true);
         
         let endpoint = '/opportunity_dash';
+        let urlParams = new URLSearchParams();
+        
         // Add fiscal period as query parameter if available
         if (fiscalPeriodCode) {
-          endpoint += `?fiscal_period=${fiscalPeriodCode}`;
+          urlParams.append("fiscal_period", fiscalPeriodCode);
+        }
+        
+        // Add pipeline filters if available
+        if (selectedPipelines && selectedPipelines.length > 0) {
+          selectedPipelines.forEach(pipeline => {
+            urlParams.append("pipeline", pipeline);
+          });
+        }
+        
+        // Only append '?' if we have parameters
+        if (urlParams.toString()) {
+          endpoint += `?${urlParams.toString()}`;
         }
         
         const response = await axiosInstance.get(endpoint);
@@ -129,7 +150,7 @@ function DashboardCard01() {
     
     // Call the fetch function
     fetchData();
-  }, [dispatch, dateRange, fiscalPeriodCode]);
+  }, [dispatch, dateRange, fiscalPeriodCode, selectedPipelines]);
   
   const fetchOpenOpportunities = React.useCallback(async (page = 1) => {
     try {
@@ -151,6 +172,11 @@ function DashboardCard01() {
           params.toDate = format(dateRange.to, 'yyyy-MM-dd');
         }
       }
+
+      // Add pipeline filters if they exist
+      if (selectedPipelines && selectedPipelines.length > 0) {
+        params.pipeline = selectedPipelines;
+      }
       
       const data = await opportunityAPI.getOpportunities(
         params.searchQuery,
@@ -159,7 +185,8 @@ function DashboardCard01() {
         params.fiscalPeriod,
         params.fromDate,
         params.toDate,
-        params.state
+        params.state,
+        params.pipeline
       );
       
       setModalOpportunities(data.results || []);
@@ -170,7 +197,7 @@ function DashboardCard01() {
     } finally {
       setLoading(false);
     }
-  }, [dateRange, pageSize, fiscalPeriodCode]);
+  }, [dateRange, pageSize, fiscalPeriodCode, selectedPipelines]);
     
   const handlePageChange = (page) => {
     fetchOpenOpportunities(page);
@@ -203,7 +230,9 @@ function DashboardCard01() {
             {periodLabel}
           </div>
         </header>
-        <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase mb-1">Sales Pipeline</div>
+        <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase mb-1">
+          Sales Pipeline {selectedPipelines?.length > 0 ? `(${selectedPipelines.length} selected)` : ''}
+        </div>
         <div className="flex items-start">
           <div className="text-3xl font-bold text-gray-800 dark:text-gray-100 mr-2">{formatCurrency(totalAmount)}</div>
           
@@ -249,5 +278,6 @@ function DashboardCard01() {
     </>
   );
 }
+
 
 export default DashboardCard01;

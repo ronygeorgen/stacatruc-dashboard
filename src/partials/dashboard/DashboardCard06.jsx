@@ -24,6 +24,10 @@ function DashboardCard06() {
   // Add fiscal period context
   const { dateRange, periodLabel, selectedPeriodIndex, fiscalPeriodCode } = useFiscalPeriod();
   
+  const selectedPipelines = useSelector((state) => state.filters?.pipelines || []);
+
+  console.log('selcted pipelines in pie chard dashboard', selectedPipelines);
+  
   // Prevent duplicate API calls with useRef flag
   const initialLoadDone = useRef(false);
 
@@ -46,6 +50,13 @@ function DashboardCard06() {
             if (dateRange.to) {
               params.append('created_at_max', format(dateRange.to, 'yyyy-MM-dd'));
             }
+          }
+
+          // Add pipeline filters if available
+          if (selectedPipelines && selectedPipelines.length > 0) {
+            selectedPipelines.forEach(pipeline => {
+              params.append('pipeline',pipeline)
+            });
           }
           
           return params.toString();
@@ -76,7 +87,7 @@ function DashboardCard06() {
       // For subsequent loads, use filters
       fetchOpportunityData();
     }
-  }, [dateRange, fiscalPeriodCode]); // Add dependencies to re-fetch when filters change
+  }, [dateRange, fiscalPeriodCode, selectedPipelines ]); // Add dependencies to re-fetch when filters change
 
   const processedChancesData = useMemo(() => {
     const result = [];
@@ -128,18 +139,29 @@ function DashboardCard06() {
     const chancesParam = encodeURIComponent(`${probability} chances of closing the deal`);
     
     try {
-      // Start with the base URL and known parameters
-      let url = `/opportunities/?chances=${chancesParam}&page=${page}&page_size=${pageSize}`;
+      // Format the chances parameter correctly - don't use encodeURIComponent here
+      const chancesParam = `${probability} chances of closing the deal`;
+      
+      // Build the base URL without URLSearchParams to avoid double encoding
+      let url = `/opportunities/?chances=${encodeURIComponent(chancesParam)}&page=${page}&page_size=${pageSize}`;
       
       // Add fiscal period filter if available, otherwise use date range
       if (fiscalPeriodCode) {
-        url += `&fiscal_period=${fiscalPeriodCode}`;
+        url += `&fiscal_period=${encodeURIComponent(fiscalPeriodCode)}`;
       } else if (dateRange && dateRange.from) {
         url += `&created_at_min=${format(dateRange.from, 'yyyy-MM-dd')}`;
         if (dateRange.to) {
           url += `&created_at_max=${format(dateRange.to, 'yyyy-MM-dd')}`;
         }
       }
+
+      // Add pipeline filters if available
+      if (selectedPipelines && selectedPipelines.length > 0) {
+        selectedPipelines.forEach(pipeline => {
+          url += `&pipeline=${encodeURIComponent(pipeline)}`;
+        });
+      }
+      
       
       const response = await axiosInstance.get(url);
       setSelectedOpportunities(response.data.results || []);
@@ -151,7 +173,7 @@ function DashboardCard06() {
       setSelectedOpportunities([]);
       setLoading(false);
     }
-  }, [pageSize, fiscalPeriodCode, dateRange]);
+  }, [pageSize, fiscalPeriodCode, dateRange, selectedPipelines]);
 
   const handleSegmentClick = async (index, label) => {
     const probabilityValue = label.split(' ')[0]; // "25%"

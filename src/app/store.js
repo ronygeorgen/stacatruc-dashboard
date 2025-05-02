@@ -7,6 +7,7 @@ import opportunitiesReducer from '../features/opportunity/opportunitySlice'
 import pipelineReducer from '../features/Pipeline/pipelineSlice'
 import pipelineStagesReducer from '../features/pipelineStages/pipelineStagesSlice'
 import oppSourceReducer from '../features/opportunitySource/oppSourceSlice'
+import filterReducer from '../features/globalFilter/filterSlice'
 
 import storage from 'redux-persist/lib/storage';
 
@@ -59,6 +60,7 @@ const rootReducers = combineReducers({
   pipelines: pipelinePersistedReducer,
   pipelineStages: pipelineStagesPersistedReducer,
   oppSources: oppSourcePersistedReducer,
+  filters: filterReducer
   // add more reducers here 
 });
 

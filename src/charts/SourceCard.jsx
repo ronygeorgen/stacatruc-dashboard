@@ -4,6 +4,8 @@ import OpportunityTable from '../components/OpportunityTable';
 import CardDetailModal from '../components/CardDetailModal';
 import { axiosInstance } from "../services/api";
 import { format } from 'date-fns';
+import { useDispatch, useSelector } from 'react-redux';
+
 
 // Function to get a color based on the source type
 const getSourceColor = (sourceName) => {
@@ -35,6 +37,9 @@ function SourceCard() {
   const [sourceData, setSourceData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
+
+  const selectedPipelines = useSelector((state) => state.filters?.pipelines || []);
+
   
   // For modal pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -69,6 +74,24 @@ function SourceCard() {
           params.to_date = format(dateRange.to, 'yyyy-MM-dd');
         }
       }
+
+      // Add pipeline filters if they exist
+      if (selectedPipelines && selectedPipelines.length > 0) {
+        // Don't set params.pipeline as an array
+        delete params.pipeline; // Remove any existing pipeline param
+        
+        // Add each pipeline as a separate parameter with the same name
+        selectedPipelines.forEach(pipeline => {
+          // This will be handled by axios to create multiple params with same name
+          if (!params.pipeline) {
+            params.pipeline = pipeline;
+          } else if (Array.isArray(params.pipeline)) {
+            params.pipeline.push(pipeline);
+          } else {
+            params.pipeline = [params.pipeline, pipeline];
+          }
+        });
+      }
       
       const response = await axiosInstance.get(url, { params });
       setDashboardData(response.data);
@@ -88,7 +111,7 @@ function SourceCard() {
     } finally {
       setLoading(false);
     }
-  }, [dateRange, fiscalPeriodCode]);
+  }, [dateRange, fiscalPeriodCode, selectedPipelines]);
 
   // Initial data fetch
   useEffect(() => {
@@ -118,6 +141,24 @@ function SourceCard() {
           params.to_date = format(dateRange.to, 'yyyy-MM-dd');
         }
       }
+
+      // Add pipeline filters if they exist
+      if (selectedPipelines && selectedPipelines.length > 0) {
+        // Don't set params.pipeline as an array
+        delete params.pipeline; // Remove any existing pipeline param
+        
+        // Add each pipeline as a separate parameter with the same name
+        selectedPipelines.forEach(pipeline => {
+          // This will be handled by axios to create multiple params with same name
+          if (!params.pipeline) {
+            params.pipeline = pipeline;
+          } else if (Array.isArray(params.pipeline)) {
+            params.pipeline.push(pipeline);
+          } else {
+            params.pipeline = [params.pipeline, pipeline];
+          }
+        });
+      }
       
       const response = await axiosInstance.get(url, { params });
       
@@ -131,7 +172,7 @@ function SourceCard() {
     } finally {
       setModalLoading(false);
     }
-  }, [dateRange, fiscalPeriodCode, pageSize]);
+  }, [dateRange, fiscalPeriodCode, pageSize, selectedPipelines]);
 
   // Handle source row click
   const handleSourceClick = (source) => {
