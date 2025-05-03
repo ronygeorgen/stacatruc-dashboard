@@ -26,3 +26,15 @@ export const fetchOppSources = createAsyncThunk(
       }
     }
   );
+
+  export const fetchOppSourcesByFilters = createAsyncThunk(
+    "oppSources/fetchOppSourcesByFilters",
+    async (filters) => {
+      try {
+        const response = await oppSourceAPI.getOppSourcesByFilters(filters);
+        return response.data.opp_source || [];
+      } catch (error) {
+        return rejectWithValue(error.response?.data || error.message);
+      }
+    }
+  );

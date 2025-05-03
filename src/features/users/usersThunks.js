@@ -24,3 +24,11 @@ export const fetchUsersByPipelines = createAsyncThunk(
     
   }
 );
+
+export const fetchUsersByFilters = createAsyncThunk(
+  "users/fetchUsersByFilters",
+  async (filters) => {
+    const response = await usersAPI.getUsersByFilters(filters);
+    return response.data;
+  }
+);

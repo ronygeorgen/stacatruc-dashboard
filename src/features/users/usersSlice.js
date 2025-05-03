@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchUsers, fetchUsersByPipelines } from './usersThunks';
+import { fetchUsers, fetchUsersByPipelines, fetchUsersByFilters } from './usersThunks';
 
 const initialState = {
     assignedUserOptions: [],
@@ -51,6 +51,20 @@ const initialState = {
         .addCase(fetchUsersByPipelines.rejected, (state, action) => {
           state.status = 'failed';
           state.error = action.payload;
+        })
+        .addCase(fetchUsersByFilters.pending, (state) => {
+          state.status = "loading";
+        })
+        .addCase(fetchUsersByFilters.fulfilled, (state, action) => {
+          state.status = "succeeded";
+          state.filteredUserOptions = action.payload.map(user => ({
+            id: user.id, // Changed from value to id to match your component
+            label: `${user.first_name} ${user.last_name}`,
+          }));
+        })
+        .addCase(fetchUsersByFilters.rejected, (state, action) => {
+          state.status = "failed";
+          state.error = action.error.message;
         });
     },
   });

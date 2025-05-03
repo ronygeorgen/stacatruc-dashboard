@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchPipelineStages, fetchPipelineStagesByPipelines } from "./pipelineStagesThunks";
+import { fetchPipelineStages, fetchPipelineStagesByPipelines, fetchPipelineStagesByFilters } from "./pipelineStagesThunks";
 
 const initialState = {
   stages: [],
@@ -40,6 +40,17 @@ const pipelineStagesSlice = createSlice({
         state.filteredStages = action.payload;
       })
       .addCase(fetchPipelineStagesByPipelines.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(fetchPipelineStagesByFilters.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchPipelineStagesByFilters.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.filteredStages = action.payload;
+      })
+      .addCase(fetchPipelineStagesByFilters.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       });

@@ -26,3 +26,11 @@ export const fetchOpportunityOwners = createAsyncThunk(
       
     }
   );
+
+  export const fetchOpportunityOwnersByFilters = createAsyncThunk(
+    "contacts/fetchOpportunityOwnersByFilters",
+    async (filters) => {
+      const response = await contactsAPI.getContactsByFilters(filters);
+      return response.data;
+    }
+  );

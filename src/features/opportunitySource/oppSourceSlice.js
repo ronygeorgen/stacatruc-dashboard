@@ -1,6 +1,6 @@
 // src/store/opportunities/opportunitySlice.js
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchOppSources, fetchOppSourcesByPipelines } from "./oppSourceThunks";
+import { fetchOppSources, fetchOppSourcesByPipelines, fetchOppSourcesByFilters } from "./oppSourceThunks";
 
 const oppSourceSlice = createSlice({
   name: "oppSources",
@@ -38,6 +38,17 @@ const oppSourceSlice = createSlice({
       .addCase(fetchOppSourcesByPipelines.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(fetchOppSourcesByFilters.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchOppSourcesByFilters.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.filteredSources = action.payload;
+      })
+      .addCase(fetchOppSourcesByFilters.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
       });
   },
 });

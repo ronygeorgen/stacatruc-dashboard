@@ -1,15 +1,15 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
 import debounce from "lodash.debounce";
 import Transition from "../utils/Transition";
 
-function SingleDropdownFilter({
+const SingleDropdownFilter = forwardRef(({
   title,
   filterOptions,
   onSearch,
   searchable = false,
   align,
   onApplyFilters = null
-}) {
+}, ref) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState([]);
   const [searchInput, setSearchInput] = useState("");
@@ -18,6 +18,13 @@ function SingleDropdownFilter({
   const dropdown = useRef(null);
   const checkboxRefs = useRef({});
 
+  // Expose reset method to parent component
+  useImperativeHandle(ref, () => ({
+    resetSelections: () => {
+      setSelectedFilters([]);
+    }
+  }));
+
   useEffect(() => {
     filterOptions.forEach(option => {
       checkboxRefs.current[option.id] = React.createRef();
@@ -25,31 +32,12 @@ function SingleDropdownFilter({
   }, [filterOptions]);
 
   const handleClearFilters = () => {
-    Object.values(checkboxRefs.current).forEach(ref => {
-      if (ref.current) ref.current.checked = false;
-    });
     setSelectedFilters([]);
-    
-    // If onApplyFilters callback exists, call it with empty array to indicate all filters cleared
-    if (onApplyFilters) {
-      onApplyFilters([]);
-    }
+    onApplyFilters?.([]);
   };
 
   const handleApplyFilters = () => {
-    const selected = [];
-    Object.entries(checkboxRefs.current).forEach(([id, ref]) => {
-      if (ref.current && ref.current.checked) {
-        selected.push(id);
-      }
-    });
-    setSelectedFilters(selected);
-    
-    // If onApplyFilters callback exists, call it with selected filters
-    if (onApplyFilters) {
-      onApplyFilters(selected);
-    }
-    
+    onApplyFilters?.(selectedFilters);
     setDropdownOpen(false);
   };
 
@@ -141,22 +129,27 @@ function SingleDropdownFilter({
             </div>
           )}
 
-          <ul className="mb-4 max-h-64 overflow-y-auto">
-            {filterOptions.map((option) => (
-              <li key={option.id} className="py-1 px-3">
-                <label className="flex items-center">
-                  <input
-                    ref={checkboxRefs.current[option.id]}
-                    type="checkbox"
-                    className="form-checkbox"
-                  />
-                  <span className="text-sm font-medium ml-2">
-                    {option.label}
-                  </span>
-                </label>
-              </li>
-            ))}
-          </ul>
+<ul className="mb-4 max-h-64 overflow-y-auto">
+  {filterOptions.map((option) => (
+    <li key={option.id} className="py-1 px-3">
+      <label className="flex items-center">
+        <input
+          type="checkbox"
+          className="form-checkbox"
+          checked={selectedFilters.includes(option.id)}
+          onChange={(e) => {
+            const isChecked = e.target.checked;
+            setSelectedFilters((prev) => {
+              if (isChecked) return [...prev, option.id];
+              return prev.filter((id) => id !== option.id);
+            });
+          }}
+        />
+        <span className="text-sm font-medium ml-2">{option.label}</span>
+      </label>
+    </li>
+  ))}
+</ul>
 
           <div className="py-2 px-3 border-t border-gray-200 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-700/20">
             <ul className="flex items-center justify-between">
@@ -182,6 +175,6 @@ function SingleDropdownFilter({
       </Transition>
     </div>
   );
-}
+});
 
 export default SingleDropdownFilter;

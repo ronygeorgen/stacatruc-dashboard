@@ -8,3 +8,11 @@ export const fetchPipelines = createAsyncThunk(
     return response.data;
   }
 );
+
+export const fetchPipelinesByFilters = createAsyncThunk(
+  "pipelines/fetchByFilters",
+  async (filters) => {
+    const response = await pipelineAPI.getPipelinesByFilters(filters);
+    return response.data;
+  }
+);

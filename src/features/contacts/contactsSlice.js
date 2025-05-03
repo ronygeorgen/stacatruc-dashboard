@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchOpportunityOwners, fetchOpportunityOwnersByPipelines } from "./contactsThunks";
+import { fetchOpportunityOwners, fetchOpportunityOwnersByPipelines, fetchOpportunityOwnersByFilters } from "./contactsThunks";
 
 const contactsSlice = createSlice({
     name: "contacts",
@@ -37,6 +37,20 @@ const contactsSlice = createSlice({
         .addCase(fetchOpportunityOwnersByPipelines.rejected, (state, action) => {
           state.status = "failed";
           state.error = action.payload;
+        })
+        .addCase(fetchOpportunityOwnersByFilters.pending, (state) => {
+          state.status = "loading";
+        })
+        .addCase(fetchOpportunityOwnersByFilters.fulfilled, (state, action) => {
+          state.status = "succeeded";
+          state.filteredOpportunityOwnerOptions = action.payload.results.map(user => ({
+            id: user.id, // Changed from value to id to match your component
+            label: `${user.first_name} ${user.last_name}`,
+          }));
+        })
+        .addCase(fetchOpportunityOwnersByFilters.rejected, (state, action) => {
+          state.status = "failed";
+          state.error = action.error.message;
         });
     },
   });

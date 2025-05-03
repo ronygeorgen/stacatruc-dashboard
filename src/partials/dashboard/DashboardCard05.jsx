@@ -176,15 +176,15 @@ function DashboardCard05() {
                       gradient.addColorStop(1, 'rgba(20, 83, 156, 0.15)');
                       return gradient;
                     },
-                    borderColor: 'rgb(20, 83, 156)',
+                    borderColor: 'rgb(34, 197, 94)',
                     borderWidth: 2.5,
                     tension: 0.4,
                     pointRadius: 1,
                     pointHoverRadius: 5,
                     pointBackgroundColor: 'rgb(255, 255, 255)',
-                    pointBorderColor: 'rgb(20, 83, 156)',
+                    pointBorderColor: 'rgb(34, 197, 94)',
                     pointBorderWidth: 2,
-                    pointHoverBackgroundColor: 'rgb(20, 83, 156)',
+                    pointHoverBackgroundColor: 'rgb(34, 197, 94)',
                     clip: 20,
                     label: 'Total Closed Deals'
                   }
@@ -291,7 +291,7 @@ function DashboardCard05() {
       <div className="px-5 pt-5">
         <header className="flex justify-between items-start mb-2">
           <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">Total Closed Deals</h2>
-          <div className="text-xs font-semibold text-white px-2 py-1 bg-blue-600 rounded-full">
+          <div className="text-xs font-semibold text-white px-2 py-1 bg-green-600 rounded-full">
             {periodLabel}
           </div>
         </header>
