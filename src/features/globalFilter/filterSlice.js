@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const filterSlice = createSlice({
   name: 'filters',
   initialState: {
-    pipelines: [],
+    selectedGlobalFilterPipelines: [],
     pipelineStages: [],
     assignedUsers: [],
     opportunityOwners: [],
@@ -12,7 +12,7 @@ const filterSlice = createSlice({
   },
   reducers: {
     setPipelineFilters: (state, action) => {
-      state.pipelines = action.payload;
+      state.selectedGlobalFilterPipelines = action.payload;
     },
     setPipelineStageFilters: (state, action) => {
       state.pipelineStages = action.payload;
@@ -30,7 +30,7 @@ const filterSlice = createSlice({
       state.productSales = action.payload;
     },
     clearAllFilters: (state) => {
-      state.pipelines = [];
+      state.selectedGlobalFilterPipelines = [];
       state.pipelineStages = [];
       state.assignedUsers = [];
       state.opportunityOwners = [];

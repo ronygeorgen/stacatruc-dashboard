@@ -14,3 +14,13 @@ export const fetchUsers = createAsyncThunk(
     }
   }
 );
+
+// New thunk to fetch pipeline stages filtered by pipeline IDs
+export const fetchUsersByPipelines = createAsyncThunk(
+  "users/fetchUsersByPipelines",
+  async (pipelineIds) => {
+    const response = await usersAPI.getUsersByPipelines(pipelineIds);
+    return response.data;
+    
+  }
+);

@@ -64,7 +64,7 @@ function LeaderboardCard() {
   const [totalClosedValue, setTotalClosedValue] = useState(0);
 
 
-  const selectedPipelines = useSelector((state) => state.filters?.pipelines || []);
+  const selectedPipelines = useSelector((state) => state.filters?.selectedGlobalFilterPipelines || []);
 
   const selectedPipelineStages = useSelector((state) => state.filters?.pipelineStages || []);
   const selectedAssignedUsers = useSelector((state) => state.filters?.assignedUsers || []);

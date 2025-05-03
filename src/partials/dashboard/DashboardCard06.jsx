@@ -25,7 +25,7 @@ function DashboardCard06() {
   // Add fiscal period context
   const { dateRange, periodLabel, selectedPeriodIndex, fiscalPeriodCode } = useFiscalPeriod();
   
-  const selectedPipelines = useSelector((state) => state.filters?.pipelines || []);
+  const selectedPipelines = useSelector((state) => state.filters?.selectedGlobalFilterPipelines || []);
 
   const selectedPipelineStages = useSelector((state) => state.filters?.pipelineStages || []);
   const selectedAssignedUsers = useSelector((state) => state.filters?.assignedUsers || []);

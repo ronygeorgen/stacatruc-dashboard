@@ -27,7 +27,7 @@ function DashboardCard01() {
   const { openOpportunities } = useSelector((state) => state.opportunities);
 
   // Get the selected pipeline filters from redux state
-  const selectedPipelines = useSelector((state) => state.filters?.pipelines || []);
+  const selectedPipelines = useSelector((state) => state.filters?.selectedGlobalFilterPipelines || []);
 
   const selectedPipelineStages = useSelector((state) => state.filters?.pipelineStages || []);
   const selectedAssignedUsers = useSelector((state) => state.filters?.assignedUsers || []);

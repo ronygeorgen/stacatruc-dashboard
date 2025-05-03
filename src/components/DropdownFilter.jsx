@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUsers } from "../features/users/usersThunks";
+import { fetchUsers, fetchUsersByPipelines } from "../features/users/usersThunks";
 import SingleDropdownFilter from "./SingleDropdownFilter";
-import { fetchOpportunityOwners } from "../features/contacts/contactsThunks";
+import { fetchOpportunityOwners, fetchOpportunityOwnersByPipelines } from "../features/contacts/contactsThunks";
 import { fetchPipelines } from "../features/Pipeline/pipelineThunks";
 import { fetchPipelineStages, fetchPipelineStagesByPipelines } from "../features/pipelineStages/pipelineStagesThunks";
-import { fetchOppSources } from "../features/opportunitySource/oppSourceThunks";
+import { fetchOppSources, fetchOppSourcesByPipelines } from "../features/opportunitySource/oppSourceThunks";
 import { 
   setPipelineFilters, 
   setPipelineStageFilters,
@@ -16,11 +16,16 @@ import {
 } from '../features/globalFilter/filterSlice'
 
 function DropdownFilters() {
-  const { assignedUserOptions, status, error } = useSelector((state) => state.users);
-  const { opportunityOwnerOptions } = useSelector(state => state.contacts);
+  // const { assignedUserOptions, status, error } = useSelector((state) => state.users);
+  const { opportunityOwnerOptions, filteredOpportunityOwnerOptions } = useSelector(state => state.contacts);
   const { items: pipelines } = useSelector(state => state.pipelines);
   const { stages: pipelineStages, filteredStages } = useSelector(state => state.pipelineStages);
-  const { sources: oppSourcesList } = useSelector(state => state.oppSources);
+  const { assignedUserOptions, filteredUserOptions } = useSelector(state => state.users);
+  const { sources: oppSourcesList, filteredSources } = useSelector(state => state.oppSources);
+  console.log('opportunity sources not filtered=', oppSourcesList);
+  console.log('opportunity sources withh filtered=', filteredSources);
+
+  // const { GlobalPipelines } = useSelector(state => state.filters.selectedGlobalFilterPipelines);
   
   const dispatch = useDispatch();
   
@@ -39,6 +44,9 @@ function DropdownFilters() {
 
   // Create pipeline stage options based on the filtered stages or all stages if no filter is applied
   const stagesToUse = filteredStages && filteredStages.length > 0 ? filteredStages : pipelineStages;
+  const assignedUserToUse = filteredUserOptions && filteredUserOptions.length > 0 ? filteredUserOptions : assignedUserOptions;
+  const opportunityOwnerToUse = filteredOpportunityOwnerOptions && filteredOpportunityOwnerOptions.length > 0 ? filteredOpportunityOwnerOptions : opportunityOwnerOptions;
+  const oppSourceToUse = filteredSources && filteredSources.length > 0 ? filteredSources : oppSourcesList;
   
   // Filter unique pipeline stages by normalized name (keeping the first occurrence)
   const uniquePipelineStagesMap = new Map();
@@ -86,8 +94,8 @@ function DropdownFilters() {
     .sort((a, b) => a.label.localeCompare(b.label));
 
   // Make sure oppSourcesList is an array and each item is a string before trying to map over it
-  const opportunitySourceOptions = Array.isArray(oppSourcesList) 
-    ? oppSourcesList
+  const opportunitySourceOptions = Array.isArray(oppSourceToUse) 
+    ? oppSourceToUse
         .filter(source => source && typeof source.source === 'string') // Filter out non-objects and objects without string source
         .map(source => ({
           id: source.source, // No need for toLowerCase, just replace spaces
@@ -95,12 +103,19 @@ function DropdownFilters() {
         }))
     : [];
 
-  const handleSearchOpportunityOwner = (query) => {
-    dispatch(fetchOpportunityOwners(query));
-  };
+  // const handleSearchOpportunityOwner = (query) => {
+  //     dispatch(fetchOpportunityOwners(query));
+  // };
+  // const handleSearchOpportunityOwner = (query) => {
+  //   if (!GlobalPipelines || GlobalPipelines.length === 0) {
+  //     dispatch(fetchOpportunityOwners(query));
+  //   } else {
+  //     dispatch(fetchOpportunityOwnersByPipelines(query,GlobalPipelines));
+  //   }
+  // };
 
    // Handler for pipeline filter changes - now updates both pipeline stages and Redux filter store
-   const handlePipelineFilterApply = (selectedPipelineIds) => {
+  const handlePipelineFilterApply = (selectedPipelineIds) => {
     // Update pipeline filter state in Redux
     dispatch(setPipelineFilters(selectedPipelineIds));
     
@@ -108,9 +123,16 @@ function DropdownFilters() {
     if (!selectedPipelineIds || selectedPipelineIds.length === 0) {
       // Fetch all pipeline stages to reset the filter
       dispatch(fetchPipelineStages());
+      dispatch(fetchUsers());
+      dispatch(fetchOpportunityOwners());
+      dispatch(fetchOppSources());
+
     } else {
       // Fetch stages filtered by the selected pipelines
       dispatch(fetchPipelineStagesByPipelines(selectedPipelineIds));
+      dispatch(fetchUsersByPipelines(selectedPipelineIds));
+      dispatch(fetchOpportunityOwnersByPipelines(selectedPipelineIds));
+      dispatch(fetchOppSourcesByPipelines(selectedPipelineIds));
     }
   };
 
@@ -165,14 +187,14 @@ function DropdownFilters() {
       />
       <SingleDropdownFilter 
         title="Owner - Assigned User" 
-        filterOptions={assignedUserOptions}
+        filterOptions={assignedUserToUse}
         onApplyFilters={handleAssignedUserFilterApply}
       />
       <SingleDropdownFilter 
         title="Opportunity Owner" 
-        filterOptions={opportunityOwnerOptions} 
-        searchable
-        onSearch={handleSearchOpportunityOwner}
+        filterOptions={opportunityOwnerToUse} 
+        // searchable
+        // onSearch={handleSearchOpportunityOwner}
         onApplyFilters={handleOpportunityOwnerFilterApply}
         align="right"
       />

@@ -38,7 +38,7 @@ function SourceCard() {
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
 
-  const selectedPipelines = useSelector((state) => state.filters?.pipelines || []);
+  const selectedPipelines = useSelector((state) => state.filters?.selectedGlobalFilterPipelines || []);
 
   const selectedPipelineStages = useSelector((state) => state.filters?.pipelineStages || []);
   const selectedAssignedUsers = useSelector((state) => state.filters?.assignedUsers || []);

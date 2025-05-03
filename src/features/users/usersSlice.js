@@ -1,8 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchUsers } from './usersThunks';
+import { fetchUsers, fetchUsersByPipelines } from './usersThunks';
 
 const initialState = {
     assignedUserOptions: [],
+    filteredUserOptions: [],
     status: 'idle',
     error: null,
   };
@@ -11,8 +12,8 @@ const initialState = {
     name: 'users',
     initialState,
     reducers: {
-      clearAssignedUserOptions: (state) => {
-        state.assignedUserOptions = [];
+      clearfilteredUserOptions: (state) => {
+        state.filteredUserOptions = [];
       },
     },
     extraReducers: (builder) => {
@@ -27,8 +28,27 @@ const initialState = {
               id: user.id, // Changed from value to id to match your component
               label: `${user.first_name} ${user.last_name}`,
             }));
+            state.filteredUserOptions = action.payload.map(user => ({
+              id: user.id, // Changed from value to id to match your component
+              label: `${user.first_name} ${user.last_name}`,
+            }));
           })
         .addCase(fetchUsers.rejected, (state, action) => {
+          state.status = 'failed';
+          state.error = action.payload;
+        })
+        .addCase(fetchUsersByPipelines.pending, (state) => {
+          state.status = 'loading';
+        })
+        .addCase(fetchUsersByPipelines.fulfilled, (state, action) => {
+          state.status = 'succeeded';
+          // Transform the data to match the expected format
+          state.filteredUserOptions = action.payload.map(user => ({
+            id: user.id, // Changed from value to id to match your component
+            label: `${user.first_name} ${user.last_name}`,
+          }));
+        })
+        .addCase(fetchUsersByPipelines.rejected, (state, action) => {
           state.status = 'failed';
           state.error = action.payload;
         });
@@ -36,7 +56,7 @@ const initialState = {
   });
   
   // Export actions
-  export const { clearAssignedUserOptions } = usersSlice.actions;
+  export const { clearfilteredUserOptions } = usersSlice.actions;
   
   // Export reducer
   export default usersSlice.reducer;

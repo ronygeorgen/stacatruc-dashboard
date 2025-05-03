@@ -17,3 +17,12 @@ export const fetchOpportunityOwners = createAsyncThunk(
     }
   );
   
+  // New thunk to fetch pipeline stages filtered by pipeline IDs
+  export const fetchOpportunityOwnersByPipelines = createAsyncThunk(
+    "contacts/fetchOpportunityOwnersByPipelines",
+    async (pipelineIds) => {
+      const response = await contactsAPI.getContactsByPipelines(pipelineIds);
+      return response.data;
+      
+    }
+  );

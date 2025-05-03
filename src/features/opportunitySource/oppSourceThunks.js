@@ -13,3 +13,16 @@ export const fetchOppSources = createAsyncThunk(
     }
   }
 );
+
+  // New thunk to fetch pipeline stages filtered by pipeline IDs
+  export const fetchOppSourcesByPipelines = createAsyncThunk(
+    "oppSources/fetchOppSourcesByPipelines",
+    async (pipelineIds) => {
+      try{
+      const response = await oppSourceAPI.getOppSourcesByPipelines(pipelineIds);
+      return response.data.opp_source || [];
+      } catch (error) {
+        return rejectWithValue(error.response?.data || error.message);
+      }
+    }
+  );
