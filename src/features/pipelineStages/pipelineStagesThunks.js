@@ -14,7 +14,6 @@ export const fetchPipelineStagesByPipelines = createAsyncThunk(
   "pipelineStages/fetchByPipelines",
   async (pipelineIds) => {
     const response = await pipelineStagesAPI.getPipelineStagesByPipelines(pipelineIds);
-    console.log('blahhhhhhhhhhh');
     
     return response.data;
   }
