@@ -216,7 +216,7 @@ const dummyProductData = [
   },
   {
     id: 5,
-    name: 'HPT and PPT',
+    name: 'HPT and PPT (hand pallet trucks and power pallet trucks)',
     icon: '🚛',
     value: 310000,
     units: 138,
@@ -232,22 +232,6 @@ const dummyProductData = [
   },
   {
     id: 6,
-    name: 'VAPS',
-    icon: '✨',
-    value: 182000,
-    units: 156,
-    opportunities: Array(36).fill().map((_, i) => ({
-      id: `vaps-${i+1}`,
-      customerName: `VAPS Client ${i+1}`,
-      closingDate: new Date(2024, 8, Math.floor(Math.random() * 30) + 1).toISOString(),
-      amount: Math.floor(Math.random() * 7000) + 3000,
-      units: Math.floor(Math.random() * 6) + 1,
-      productName: 'VAPS',
-      stage: ['Closed Won', 'Negotiation', 'Proposal', 'Prospecting'][Math.floor(Math.random() * 4)]
-    }))
-  },
-  {
-    id: 7,
     name: 'Racking',
     icon: '🗄️',
     value: 245000,
@@ -263,8 +247,8 @@ const dummyProductData = [
     }))
   },
   {
-    id: 8,
-    name: 'Roller Shutter Doors',
+    id: 7,
+    name: 'Charger Installation & Battery Checks',
     icon: '🚪',
     value: 165000,
     units: 42,

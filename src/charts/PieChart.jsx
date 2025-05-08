@@ -126,7 +126,15 @@ function PieChart({
                 const index = context.dataIndex;
                 const original = dataset.tooltipData?.[index];
                 if (original) {
-                  return `${original.label}: ${original.count}`;
+                  const formatCurrency = (amount) => {
+                    return new Intl.NumberFormat('en-GB', {
+                      style: 'currency',
+                      currency: 'GBP',
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    }).format(amount);
+                  };
+                  return [`Count: ${original.count}`, `Value: ${formatCurrency(original.value)}`];
                 }
                 return context.label || '';
               }

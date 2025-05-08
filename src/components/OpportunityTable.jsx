@@ -275,7 +275,7 @@ const getProbabilityBgColor = (probabilityStr) => {
             <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0 z-10">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-[160px] whitespace-nowrap">
-                  Account Name
+                  Company Name
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-[160px] whitespace-nowrap">
                   Customer Name
@@ -341,6 +341,8 @@ const getProbabilityBgColor = (probabilityStr) => {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Stage</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[150px] whitespace-nowrap">Status</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[100px] whitespace-nowrap">Age (days)</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[200px] whitespace-nowrap">Expected Close Date</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[200px] whitespace-nowrap">Envisage Date</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Created Date</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Updated Date</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Amount</th>
@@ -404,6 +406,16 @@ const getProbabilityBgColor = (probabilityStr) => {
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[100px]">
                         {calculateAge(opportunity.created_at)}
                       </td>
+
+                      {/* new columns */}
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
+                        {formatDate(opportunity.created_at)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
+                        {formatDate(opportunity.updated_at)}
+                      </td>
+
+                      
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
                         {formatDate(opportunity.created_at)}
                       </td>

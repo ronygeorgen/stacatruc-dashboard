@@ -130,11 +130,13 @@ function DashboardCard06() {
         if (percentageMatch && percentageMatch[1]) {
           const percentage = percentageMatch[1] + '%';
           const count = item.count || 0;
+          const value = item.total_value || 0;
 
           result.push({
             probability: percentage,
             label: `${percentage} Probability`,
-            count: count
+            count: count,
+            value: value
           });
         }
       }
@@ -249,7 +251,7 @@ function DashboardCard06() {
   };
 
   return (
-    <div className="flex flex-col col-span-full sm:col-span-4 xl:col-span-4 bg-white dark:bg-gray-800 shadow-xs rounded-xl" > 
+    <div className="flex flex-col col-span-full sm:col-span-12 lg:col-span-4 xl:col-span-4 bg-white dark:bg-gray-800 shadow-xs rounded-xl" > 
       <header className="px-5 py-4 border-b border-gray-100 dark:border-gray-700/60 flex justify-between items-center">
         <h2 className="font-semibold text-gray-800 dark:text-gray-100">Deal Closing Probability</h2>
         <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center">

@@ -42,6 +42,18 @@ export function FiscalPeriodProvider({ children }) {
       getValue: () => null,
       code: null
     },
+    {
+      label: "Last 13 Months",
+      getValue: () => {
+        const now = new Date();
+        const from = subMonths(now, 13);
+        return {
+          from,
+          to: now
+        };
+      },
+      code: null
+    },
     // Fiscal Quarters
     { 
       label: `Q1 (Feb - Apr)`, 

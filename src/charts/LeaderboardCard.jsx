@@ -211,6 +211,10 @@ function LeaderboardCard() {
             name: user.user_name || 'Unknown User',
             closedValue: user.total_value || 0,
             deals: user.total_opps || 0,
+            open_value: user.open_value,
+            open_count: user.open_count,
+            closed_value: user.closed_value,
+            closed_count: user.closed_count,
             rank: index + 1 // Add ranking
           }));
         
@@ -390,7 +394,7 @@ function LeaderboardCard() {
 
   return (
     <>
-      <div className="flex flex-col col-span-full sm:col-span-8 lg:col-span-8 xl:col-span-8 bg-white dark:bg-gray-800 shadow-xs rounded-xl">
+      <div className="flex flex-col col-span-full sm:col-span-12 lg:col-span-8 xl:col-span-8 bg-white dark:bg-gray-800 shadow-xs rounded-xl">
         <header className="px-5 py-4 border-b border-gray-100 dark:border-gray-700/60 flex justify-between items-center">
           <h2 className="font-semibold text-gray-800 dark:text-gray-100">Sales Leaderboard</h2>
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center">
@@ -421,7 +425,19 @@ function LeaderboardCard() {
                         <div className="font-semibold text-left">Sales Rep</div>
                       </th>
                       <th className="p-2 whitespace-nowrap">
-                        <div className="font-semibold text-right">Totla Value</div>
+                        <div className="font-semibold text-left">Total Open Value</div>
+                      </th>
+                      <th className="p-2 whitespace-nowrap">
+                        <div className="font-semibold text-left">Total Open Deals</div>
+                      </th>
+                      <th className="p-2 whitespace-nowrap">
+                        <div className="font-semibold text-left">Total Closed Value</div>
+                      </th>
+                      <th className="p-2 whitespace-nowrap">
+                        <div className="font-semibold text-left">Total Closed Deals</div>
+                      </th>
+                      <th className="p-2 whitespace-nowrap">
+                        <div className="font-semibold text-right">Total Value</div>
                       </th>
                       <th className="p-2 whitespace-nowrap">
                         <div className="font-semibold text-center">Deals</div>
@@ -457,6 +473,22 @@ function LeaderboardCard() {
                               </div>
                               <div className="font-medium text-gray-800 dark:text-gray-100">{person.name}</div>
                             </div>
+                          </td>
+                          <td className="p-2 whitespace-nowrap">
+                            <div className="text-right font-medium text-green-600 dark:text-green-400">
+                              {formatCurrency(person.open_value)}
+                            </div>
+                          </td>
+                          <td className="p-2 whitespace-nowrap">
+                            <div className="text-center font-medium text-gray-800 dark:text-gray-200">{person.open_count}</div>
+                          </td>
+                          <td className="p-2 whitespace-nowrap">
+                            <div className="text-right font-medium text-green-600 dark:text-green-400">
+                              {formatCurrency(person.closed_value)}
+                            </div>
+                          </td>
+                          <td className="p-2 whitespace-nowrap">
+                            <div className="text-center font-medium text-gray-800 dark:text-gray-200">{person.closed_count}</div>
                           </td>
                           <td className="p-2 whitespace-nowrap">
                             <div className="text-right font-medium text-green-600 dark:text-green-400">
