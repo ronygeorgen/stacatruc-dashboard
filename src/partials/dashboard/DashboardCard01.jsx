@@ -52,7 +52,7 @@ function DashboardCard01() {
       
       // If a fiscal period code is selected, use that for filtering
       if (fiscalPeriodCode) {
-        params.fiscalPeriod = fiscalPeriodCode;
+        params.fiscal_period = fiscalPeriodCode;
       } 
       // Otherwise use the date range if available
       else if (dateRange && dateRange.from) {
@@ -107,7 +107,7 @@ function DashboardCard01() {
         
         // Add fiscal period as query parameter if available
         if (fiscalPeriodCode) {
-          urlParams.append("fiscalPeriod", fiscalPeriodCode);
+          urlParams.append("fiscal_period", fiscalPeriodCode);
         } else if (dateRange && dateRange.from) {
           const createdAtMin = format(dateRange.from, 'yyyy-MM-dd');
           urlParams.append("created_at_min", createdAtMin);
@@ -218,7 +218,7 @@ function DashboardCard01() {
       
       // Apply fiscal period filter if available, otherwise use date range if available
       if (fiscalPeriodCode) {
-        params.fiscalPeriod = fiscalPeriodCode;
+        params.fiscal_period = fiscalPeriodCode;
       } else if (dateRange && dateRange.from) {
         params.created_at_min = format(dateRange.from, 'yyyy-MM-dd');
         if (dateRange.to) {
@@ -251,7 +251,7 @@ function DashboardCard01() {
         params.searchQuery,
         params.page,
         params.pageSize,
-        params.fiscalPeriod,
+        params.fiscal_period,
         params.created_at_min,
         params.created_at_max,
         params.state,
