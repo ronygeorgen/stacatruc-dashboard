@@ -409,10 +409,10 @@ const getProbabilityBgColor = (probabilityStr) => {
 
                       {/* new columns */}
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
-                        {formatDate(opportunity.created_at)}
+                        N/A
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
-                        {formatDate(opportunity.updated_at)}
+                        N/A
                       </td>
 
                       

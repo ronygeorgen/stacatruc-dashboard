@@ -111,12 +111,17 @@ export function FiscalPeriodProvider({ children }) {
 
   // Function to change the fiscal period
   const changePeriod = (index, customRange = null) => {
-    setSelectedPeriodIndex(index);
-    if (index === 0 && customRange) {
-      setDateRange(customRange);
-      setFiscalPeriodCode(null);
-    }
-  };
+  setSelectedPeriodIndex(index);
+  if (customRange) {
+    setDateRange(customRange);
+    setFiscalPeriodCode(null);
+  } else {
+    const period = fiscalPeriods[index];
+    setDateRange(period.getValue());
+    setFiscalPeriodCode(period.code);
+  }
+};
+
 
   return (
     <FiscalPeriodContext.Provider 
