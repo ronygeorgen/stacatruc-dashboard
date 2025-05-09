@@ -6,8 +6,8 @@ export const opportunityAPI = {
     page = 1, 
     pageSize = 10, 
     fiscalPeriod = null,
-    fromDate = null,
-    toDate = null,
+    created_at_min = null,
+    created_at_max = null,
     state = null,
     pipeline = null,
     stage_name = null, 
@@ -38,11 +38,11 @@ export const opportunityAPI = {
     } 
     // Otherwise use date range if provided
     else {
-      if (fromDate) {
-        params.append("created_at_min", fromDate);
+      if (created_at_min) {
+        params.append("created_at_min", created_at_min);
       }
-      if (toDate) {
-        params.append("created_at_max", toDate);
+      if (created_at_max) {
+        params.append("created_at_max", created_at_max);
       }
     }
     

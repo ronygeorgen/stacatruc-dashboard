@@ -9,8 +9,8 @@ export const fetchOpportunities = createAsyncThunk(
         page = 1, 
         pageSize = 10, 
         fiscalPeriod = null,
-        fromDate = null,
-        toDate = null,
+        created_at_min = null,
+        created_at_max = null,
         pipeline = null, // Add pipeline parameter
         ...otherFilters 
       } = filters || {};
@@ -27,10 +27,10 @@ export const fetchOpportunities = createAsyncThunk(
         params.append('fiscal_period', fiscalPeriod);
       } 
       // Otherwise use date range if provided
-      else if (fromDate) {
-        params.append('created_at_min', fromDate);
-        if (toDate) {
-          params.append('created_at_max', toDate);
+      else if (created_at_min) {
+        params.append('created_at_min', created_at_min);
+        if (created_at_max) {
+          params.append('created_at_max', created_at_max);
         }
       }
       

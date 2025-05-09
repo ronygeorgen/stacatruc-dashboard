@@ -105,15 +105,15 @@ function LineChart01({
     
     switch (timeUnit) {
       case 'day':
-        return format(date, 'EEEE, MMM d, yyyy'); // e.g., "Monday, Apr 25, 2025"
+        return format(date, 'MMMM yyyy'); // e.g., "Monday, Apr 25, 2025"
       case 'week':
-        return format(date, "'Week of' MMM d, yyyy");
+        return format(date, 'MMMM yyyy');
       case 'month':
         return format(date, 'MMMM yyyy'); // e.g., "April 2025"
       case 'year':
-        return format(date, 'yyyy');
+        return format(date, 'MMMM yyyy');
       default:
-        return format(date, 'MMM d, yyyy');
+        return format(date, 'MMMM yyyy');
     }
   };
 
@@ -161,8 +161,8 @@ function LineChart01({
           type: 'time',
           time: {
             unit: timeUnit,
-            tooltipFormat: timeUnit === 'day' ? 'MMM d, yyyy' : 
-                          timeUnit === 'month' ? 'MMMM yyyy' : 'yyyy',
+            tooltipFormat: timeUnit === 'day' ? 'MMMM yyyy' : 
+                          timeUnit === 'month' ? 'MMMM yyyy': 'MMMM yyyy',
             displayFormats: {
               day: 'd',
               week: 'MMM d',

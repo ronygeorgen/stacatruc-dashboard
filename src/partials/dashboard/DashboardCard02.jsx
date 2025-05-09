@@ -61,9 +61,9 @@ function DashboardCard02() {
         } 
         // Otherwise use the date range if available
         else if (dateRange && dateRange.from) {
-          params.fromDate = format(dateRange.from, 'yyyy-MM-dd');
+          params.created_at_min = format(dateRange.from, 'yyyy-MM-dd');
           if (dateRange.to) {
-            params.toDate = format(dateRange.to, 'yyyy-MM-dd');
+            params.created_at_max = format(dateRange.to, 'yyyy-MM-dd');
           }
         }
 
@@ -112,7 +112,14 @@ function DashboardCard02() {
 
           // Add fiscal period as query parameter if available
           if (fiscalPeriodCode) {
-            urlParams.append("fiscal_period", fiscalPeriodCode);
+            urlParams.append("fiscalPeriod", fiscalPeriodCode);
+          } else if (dateRange && dateRange.from) {
+            const createdAtMin = format(dateRange.from, 'yyyy-MM-dd');
+            urlParams.append("created_at_min", createdAtMin);
+            if (dateRange.to) {
+              const createdAtMax = format(dateRange.to, 'yyyy-MM-dd');
+              urlParams.append("created_at_max", createdAtMax);
+            }
           }
 
           // Add pipeline filters if available
@@ -219,9 +226,9 @@ function DashboardCard02() {
       if (fiscalPeriodCode) {
         params.fiscalPeriod = fiscalPeriodCode;
       } else if (dateRange && dateRange.from) {
-        params.fromDate = format(dateRange.from, 'yyyy-MM-dd');
+        params.created_at_min = format(dateRange.from, 'yyyy-MM-dd');
         if (dateRange.to) {
-          params.toDate = format(dateRange.to, 'yyyy-MM-dd');
+          params.created_at_max = format(dateRange.to, 'yyyy-MM-dd');
         }
       }
 
@@ -251,8 +258,8 @@ function DashboardCard02() {
         params.page,
         params.pageSize,
         params.fiscalPeriod,
-        params.fromDate,
-        params.toDate,
+        params.created_at_min,
+        params.created_at_max,
         params.state,
         params.pipeline,
         params.stage_name,

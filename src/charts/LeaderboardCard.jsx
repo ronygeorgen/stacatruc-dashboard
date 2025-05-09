@@ -108,9 +108,9 @@ function LeaderboardCard() {
       if (fiscalPeriodCode) {
         params.fiscal_period = fiscalPeriodCode;
       } else if (dateRange && dateRange.from) {
-        params.from_date = format(dateRange.from, 'yyyy-MM-dd');
+        params.created_at_min = format(dateRange.from, 'yyyy-MM-dd');
         if (dateRange.to) {
-          params.to_date = format(dateRange.to, 'yyyy-MM-dd');
+          params.created_at_max = format(dateRange.to, 'yyyy-MM-dd');
         }
       }
 
@@ -268,9 +268,9 @@ function LeaderboardCard() {
       if (fiscalPeriodCode) {
         params.fiscal_period = fiscalPeriodCode;
       } else if (dateRange && dateRange.from) {
-        params.from_date = format(dateRange.from, 'yyyy-MM-dd');
+        params.created_at_min = format(dateRange.from, 'yyyy-MM-dd');
         if (dateRange.to) {
-          params.to_date = format(dateRange.to, 'yyyy-MM-dd');
+          params.created_at_max = format(dateRange.to, 'yyyy-MM-dd');
         }
       }
 
