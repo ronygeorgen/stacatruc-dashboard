@@ -1,50 +1,46 @@
 import React, { useState } from 'react';
-import BarChart01 from '../../charts/BarChart01';
+import BarChart04 from '../../charts/BarChart04';
 import Modal from '../../components/ChartModal';
 import { getCssVariable } from '../../utils/Utils';
 
-function DashboardCard04({ 
+function DashboardCard014( { 
   title,
   labels,
-  dataOpen,
-  dataClosed,
-  amountOpen,
-  amountClosed
-}) {
+  totalOpenCounts,
+  totalClosedCounts,
+  openOpsCount,
+  closedOpsCount
+} ) {
   const [showModal, setShowModal] = useState(false);
   const [modalData, setModalData] = useState(null);
-
-  // Use the props data to construct the chart data
+  
   const chartData = {
-    labels: labels ,
+    labels: [
+      '12-01-2022', '01-01-2023', '02-01-2023',
+      '03-01-2023', '04-01-2023', '05-01-2023',
+    ],
     datasets: [
       {
         label: 'Open',
-        data: dataOpen,
-        // We'll use secondary color for the Open data (blue bar)
+        data: [
+          800, 1600, 900, 1300, 1950, 1700,
+        ],
         backgroundColor: getCssVariable('--secondary'),
         hoverBackgroundColor: getCssVariable('--secondary-dark'),
         barPercentage: 0.7,
         categoryPercentage: 0.7,
         borderRadius: 4,
-        // Add custom metadata for the legend
-        meta: {
-          amount: amountOpen
-        }
       },
       {
-        label: 'Closed',
-        data: dataClosed,
-        // We'll use primary color for the Closed data (green bar)
+        label: 'Close',
+        data: [
+          4900, 2600, 5350, 4800, 5200, 4800,
+        ],
         backgroundColor: getCssVariable('--primary'),
         hoverBackgroundColor: getCssVariable('--primary-dark'),
         barPercentage: 0.7,
         categoryPercentage: 0.7,
         borderRadius: 4,
-        // Add custom metadata for the legend
-        meta: {
-          amount: amountClosed
-        }
       },
     ],
   };
@@ -56,37 +52,30 @@ function DashboardCard04({
     const label = chartData.labels[index];
     const value = dataset.data[index];
     
-    // You could set modal data and open the modal here if needed
-    setModalData({
-      datasetLabel: dataset.label,
+    setModalData({ 
+      datasetIndex, 
+      index,
       label,
       value,
+      datasetLabel: dataset.label
     });
     setShowModal(true);
   };
 
+  const closeModal = () => {
+    setShowModal(false);
+    // Use a short timeout to avoid UI flicker
+    setTimeout(() => setModalData(null), 200);
+  };
+
   return (
     <div className="flex flex-col col-span-full sm:col-span-full md:col-span-6 lg:col-span-6 bg-white dark:bg-gray-800 shadow-xs rounded-xl">
-      <BarChart01 
-        labels={labels}
-        dataOpen={dataOpen}
-        dataClosed={dataClosed}
-        amountOpen={amountOpen}
-        amountClosed={amountClosed}
-        width={795} 
-        height={248} 
-        onBarClick={handleBarClick} 
-      />
+      <BarChart04 title={title} labels={labels} totalOpenCounts={totalOpenCounts} totalClosedCounts={totalClosedCounts} openOpsCount={openOpsCount} closedOpsCount={closedOpsCount} width={795} height={248} onBarClick={handleBarClick} />
       
-      {showModal && modalData && (
-        <Modal
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-          data={modalData}
-        />
-      )}
+      {/* Modal component */}
+      <Modal isOpen={showModal} onClose={closeModal} data={modalData} />
     </div>
   );
 }
 
-export default DashboardCard04;
+export default DashboardCard014;

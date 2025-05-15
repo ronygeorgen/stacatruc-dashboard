@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchOpportunities } from "../features/opportunity/opportunityThunks";
+import { axiosInstance } from "../services/api";
+import { useFiscalPeriod } from "../contexts/FiscalPeriodContext";
 
 import Sidebar from '../partials/Sidebar';
 import Header from '../partials/Header';
@@ -13,6 +17,7 @@ import DashboardCard06 from '../partials/dashboard/DashboardCard06';
 import LeaderboardCard from '../charts/LeaderboardCard';
 import SourceCard from '../charts/SourceCard';
 import ProductsCard from '../charts/ProductsCard';
+import DashboardCard014 from "../partials/dashboard/DashboardCard014";
 import DashboardCard07 from '../partials/dashboard/DashboardCard07';
 import DashboardCard08 from '../partials/dashboard/DashboardCard08';
 import DashboardCard09 from '../partials/dashboard/DashboardCard09';
@@ -25,7 +30,135 @@ import { getCssVariable } from '../utils/Utils';
 function Dashboard() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const { dateRange, periodLabel, fiscalPeriodCode } = useFiscalPeriod();
+  const [modalOpportunities, setModalOpportunities] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [totalCount, setTotalCount] = React.useState(0);
+  const [pageSize] = React.useState(10);
+  const [chartData, setChartData] = React.useState(null);
+  const [chartLoading, setChartLoading] = React.useState(false);
 
+  const [labels, setLabels] = useState([]);
+  const [dataOpen, setDataOpen] = useState([]);
+  const [dataClosed, setDataClosed] = useState([]);
+  const [amountOpen, setAmountOpen] = useState(0);
+  const [amountClosed, setAmountClosed] = useState(0);
+  const [totalOpenCounts, setTotalOpenCounts] = useState([]);
+  const [totalClosedCounts, setTotalClosedCounts] = useState([]);
+  const [openOpsCount, setOpenOpsCount] = useState(0);
+  const [closedOpsCount, setClosedOpsCount] = useState(0);
+  
+  const dispatch = useDispatch();
+
+  // Get the selected pipeline filters from redux state
+  const selectedPipelines = useSelector((state) => state.filters?.selectedGlobalFilterPipelines || []);
+
+  const selectedPipelineStages = useSelector((state) => state.filters?.pipelineStages || []);
+  const selectedAssignedUsers = useSelector((state) => state.filters?.assignedUsers || []);
+  const selectedOpportunityOwners = useSelector((state) => state.filters?.opportunityOwners || []);
+  const selectedOpportunitySources = useSelector((state) => state.filters?.opportunitySources || []);
+  const selectedProductSales = useSelector((state) => state.filters?.productSales || []);
+
+    // Prevent duplicate API calls with useRef flag
+    const initialLoadDone = React.useRef(false);
+     // Fetch opportunities and chart data
+      React.useEffect(() => {
+        // Create a function to handle the data fetching
+        const fetchData = async () => {
+          
+          // Fetch chart data with fiscal period parameter
+          try {
+            setChartLoading(true);
+            
+            let endpoint = '/opportunity_dash';
+            let urlParams = new URLSearchParams();
+            
+            // Add fiscal period as query parameter if available
+            if (fiscalPeriodCode) {
+              urlParams.append("fiscal_period", fiscalPeriodCode);
+            } else if (dateRange && dateRange.from) {
+              const createdAtMin = format(dateRange.from, 'yyyy-MM-dd');
+              urlParams.append("created_at_min", createdAtMin);
+              if (dateRange.to) {
+                const createdAtMax = format(dateRange.to, 'yyyy-MM-dd');
+                urlParams.append("created_at_max", createdAtMax);
+              }
+            }
+            
+            // Add pipeline filters if available
+            if (selectedPipelines && selectedPipelines.length > 0) {
+              selectedPipelines.forEach(pipeline => {
+                urlParams.append("pipeline", pipeline);
+              });
+            }
+            
+            if (selectedPipelineStages && selectedPipelineStages.length > 0) {
+              selectedPipelineStages.forEach(stage_name => {
+                urlParams.append("stage_name", stage_name);
+              });
+            }
+            
+            if (selectedAssignedUsers && selectedAssignedUsers.length > 0) {
+              selectedAssignedUsers.forEach(assigned_to => {
+                urlParams.append("assigned_to", assigned_to);
+              });
+            }
+            
+            if (selectedOpportunityOwners && selectedOpportunityOwners.length > 0) {
+              selectedOpportunityOwners.forEach(contact => {
+                urlParams.append("contact", contact);
+              });
+            }
+            
+            if (selectedOpportunitySources && selectedOpportunitySources.length > 0) {
+              selectedOpportunitySources.forEach(opportunity_source => {
+                urlParams.append("opportunity_source", opportunity_source);
+              });
+            }
+            
+            // Only append '?' if we have parameters
+            if (urlParams.toString()) {
+              endpoint += `?${urlParams.toString()}`;
+            }
+            
+            const response = await axiosInstance.get(endpoint);
+            if (response.data && response.data.graph_data) {
+              const graphData = response.data.graph_data;
+              setLabels(graphData.labels || []);
+              setDataOpen(graphData.open || []);
+              setDataClosed(graphData.closed || []);
+              setAmountOpen(response.data.amount_open || 0);
+              setAmountClosed(response.data.amount_closed || 0);
+              setTotalOpenCounts(response.data.graph_data.open_counts || []);
+              setTotalClosedCounts(response.data.graph_data.closed_counts || []);
+              setOpenOpsCount(response.data.open_ops_count || 0);
+              setClosedOpsCount(response.data.closed_ops_count || 0);
+
+            }
+          } catch (error) {
+            console.error('Error fetching chart data:', error);
+          } finally {
+            setChartLoading(false);
+          }
+        };
+        
+        // Call the fetch function
+        fetchData();
+      }, [dispatch, dateRange, fiscalPeriodCode, selectedPipelines, selectedPipelineStages, selectedAssignedUsers, selectedOpportunityOwners, selectedOpportunitySources]);
+      
+  
+    
+      // Format currency in GBP (British Pound)
+      const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-GB', { 
+          style: 'currency',
+          currency: 'GBP',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(amount);
+      };
   return (
     <div className="flex h-screen overflow-hidden">
 
@@ -83,7 +216,24 @@ function Dashboard() {
               {/* Line chart (Acme Professional) */}
               <DashboardCard05 />
               {/* Bar chart (Direct vs Indirect) */}
-              {/* <DashboardCard04 /> */}
+              <DashboardCard04
+                title="Total Open VS Total Closed Values"
+                labels={labels}
+                dataOpen={dataOpen}
+                dataClosed={dataClosed}
+                amountOpen={amountOpen}
+                amountClosed={amountClosed}
+              />
+
+              <DashboardCard014
+                title="Total Open VS Total Closed Deals"
+                labels={labels}
+                totalOpenCounts={totalOpenCounts}
+                totalClosedCounts={totalClosedCounts}
+                openOpsCount={openOpsCount}
+                closedOpsCount={closedOpsCount}
+              />
+
               {/* Line chart (Real Time Value) */}
               {/* <DashboardCard05 /> */}
               {/* Doughnut chart (Top Countries) */}

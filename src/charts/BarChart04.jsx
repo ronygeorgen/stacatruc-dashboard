@@ -10,26 +10,23 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 
-const BarChart01 = ({ 
+const BarChart04 = ({ 
   title, 
   labels,
-  dataOpen, 
-  dataClosed, 
-  amountOpen,
-  amountClosed
+  totalOpenCounts,
+  totalClosedCounts, 
+  openOpsCount,
+  closedOpsCount
 }) => {
   const [viewMode, setViewMode] = useState('both'); // 'both', 'open', 'closed'
   
+
+  // Format data for the chart
   const data = labels.map((label, index) => ({
     name: label,
-    Open: dataOpen[index],
-    Closed: dataClosed[index],
+    Open: totalOpenCounts[index],
+    Closed: totalClosedCounts[index],
   }));
-
-  // Format as millions with £ symbol
-  const formatCurrency = (value) => {
-    return `£${(value / 1_000_000).toFixed(2)}M`;
-  };
 
   // Custom tooltip
   const CustomTooltip = ({ active, payload, label }) => {
@@ -39,7 +36,7 @@ const BarChart01 = ({
           <p className="font-medium">{label}</p>
           {payload.map((entry, index) => (
             <p key={index} style={{ color: entry.color }}>
-              {`${entry.name}: ${formatCurrency(entry.value)}`}
+              {`${entry.name}: ${entry.value}`}
             </p>
           ))}
         </div>
@@ -48,6 +45,7 @@ const BarChart01 = ({
     return null;
   };
 
+  // Toggle buttons for view modes
   const ViewToggle = () => (
     <div className="flex space-x-2 mb-4">
       <button
@@ -83,20 +81,21 @@ const BarChart01 = ({
     </div>
   );
 
+  // Legend with total amounts
   const CustomLegend = () => (
     <div className="flex justify-center mt-2 space-x-6">
       {(viewMode === 'both' || viewMode === 'open') && (
         <div className="flex items-center">
           <span className="inline-block w-3 h-3 mr-2 bg-blue-500 rounded-full"></span>
           <span className="text-gray-600 mr-1">Open</span>
-          <span className="font-semibold">{formatCurrency(amountOpen)}</span>
+          <span className="font-semibold">{openOpsCount}</span>
         </div>
       )}
       {(viewMode === 'both' || viewMode === 'closed') && (
         <div className="flex items-center">
           <span className="inline-block w-3 h-3 mr-2 bg-green-600 rounded-full"></span>
           <span className="text-gray-600 mr-1">Closed</span>
-          <span className="font-semibold">{formatCurrency(amountClosed)}</span>
+          <span className="font-semibold">{closedOpsCount}</span>
         </div>
       )}
     </div>
@@ -125,11 +124,12 @@ const BarChart01 = ({
               axisLine={{ stroke: '#E5E7EB' }}
             />
             <YAxis 
-              tickFormatter={formatCurrency}
+              // Changed from formatCurrency to display integer counts
+              tickFormatter={(value) => Math.round(value)}
               tick={{ fontSize: 12 }}
               tickLine={false}
               axisLine={{ stroke: '#E5E7EB' }}
-              width={70}
+              width={40}
             />
             <Tooltip content={<CustomTooltip />} />
             {(viewMode === 'both' || viewMode === 'open') && (
@@ -155,4 +155,4 @@ const BarChart01 = ({
   );
 };
 
-export default BarChart01;
+export default BarChart04;
