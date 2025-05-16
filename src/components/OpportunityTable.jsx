@@ -11,6 +11,7 @@ function OpportunityTable({
   onPageChange, 
   loading, 
   onDateFilterChange, 
+  onDownloadCSV,
 }) {
   const fixedTableRef = useRef(null);
   const scrollableTableRef = useRef(null);
@@ -207,7 +208,19 @@ const handleDateChange = (dates) => {
         <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
           Opportunities ({totalCount || opportunities.length})
         </div>
-
+        <div className="flex items-center space-x-4">
+          {/* Download button */}
+          <button
+            onClick={onDownloadCSV}
+            disabled={loading || opportunities.length === 0}
+            className="inline-flex items-center justify-center px-3 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Download CSV
+          </button>
+        </div>
         {/* Pagination controls */}
         <div className="flex items-center space-x-1">
           <button

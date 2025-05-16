@@ -7,6 +7,7 @@ import OpportunityTable from '../../components/OpportunityTable';
 import CardDetailModal from '../../components/CardDetailModal';
 import { useFiscalPeriod } from "../../contexts/FiscalPeriodContext";
 import { useDispatch, useSelector } from 'react-redux';
+import { downloadAsCSV } from '../../components/DownloadAsCSV';
 
 function DashboardCard06() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,20 +21,19 @@ function DashboardCard06() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [pageSize] = useState(10);
-
+  const [startDate, setStartDate] = useState(null)
+  const [endDate, setEndDate] = useState(null)
+  const [downloadLoading, setDownloadLoading] = useState(false);
   
   // Add fiscal period context
   const { dateRange, periodLabel, selectedPeriodIndex, fiscalPeriodCode } = useFiscalPeriod();
   
   const selectedPipelines = useSelector((state) => state.filters?.selectedGlobalFilterPipelines || []);
-
   const selectedPipelineStages = useSelector((state) => state.filters?.pipelineStages || []);
   const selectedAssignedUsers = useSelector((state) => state.filters?.assignedUsers || []);
   const selectedOpportunityOwners = useSelector((state) => state.filters?.opportunityOwners || []);
   const selectedOpportunitySources = useSelector((state) => state.filters?.opportunitySources || []);
   const selectedProductSales = useSelector((state) => state.filters?.productSales || []);
-
-  console.log('selcted pipelines in pie chard dashboard', selectedPipelines);
   
   // Prevent duplicate API calls with useRef flag
   const initialLoadDone = useRef(false);
@@ -238,10 +238,47 @@ function DashboardCard06() {
 
   const handleDateFilterChange = useCallback((startDate, endDate) => {
     if (selectedProbability) {
+      setStartDate(startDate)
+      setEndDate(endDate)
       // Build URL with the filtered dates and make API call
       fetchFilteredOpportunities(selectedProbability, currentPage, startDate, endDate);
     }
   }, [selectedProbability, currentPage, fetchFilteredOpportunities]);
+
+  const handleDownloadCSV = useCallback(async () => {
+    console.log('Starting CSV download with date range:', startDate, endDate);
+    
+    try {
+      setDownloadLoading(true);
+      
+      // Prepare filters object to pass to the downloadAsCSV function
+      const chancesParam = `${selectedProbability} chances of closing the deal`;
+      const filters = {
+        chancesParam,
+        startDate,
+        endDate,
+        fiscalPeriodCode,
+        dateRange,
+        selectedPipelines,
+        selectedPipelineStages,
+        selectedAssignedUsers,
+        selectedOpportunityOwners,
+        selectedOpportunitySources,
+        format
+      };
+      
+      // Call the enhanced downloadAsCSV function with axiosInstance and filters
+      await downloadAsCSV([], selectedProbability, axiosInstance, filters);
+      
+      setStartDate(null);
+      setEndDate(null);
+      setDownloadLoading(false);
+    } catch (error) {
+      console.error("Failed to download CSV:", error);
+      setDownloadLoading(false);
+    }
+  }, [startDate, endDate, selectedProbability, fiscalPeriodCode, dateRange, selectedPipelines, selectedPipelineStages, 
+      selectedAssignedUsers, selectedOpportunityOwners, selectedOpportunitySources]);
 
   const handleSegmentClick = async (index, label) => {
     const probabilityValue = label.split(' ')[0]; // "25%"
@@ -307,7 +344,9 @@ function DashboardCard06() {
           totalCount={totalCount}
           onPageChange={handlePageChange}
           loading={loading}
+          downloadLoading={downloadLoading}
           onDateFilterChange={handleDateFilterChange}
+          onDownloadCSV={handleDownloadCSV}
         />
       </CardDetailModal>
     </div>
