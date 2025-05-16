@@ -1,23 +1,35 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useThemeProvider } from '../utils/ThemeContext';
+import { format } from 'date-fns';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
-function OpportunityTable({ opportunities, totalCount, currentPage, onPageChange, loading }) {
+function OpportunityTable({ 
+  opportunities, 
+  totalCount, 
+  currentPage, 
+  onPageChange, 
+  loading, 
+  onDateFilterChange, 
+}) {
   const fixedTableRef = useRef(null);
   const scrollableTableRef = useRef(null);
   const [rowHeights, setRowHeights] = useState([]);
   const { currentTheme } = useThemeProvider();
   const darkMode = currentTheme === 'dark';
-
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   // Stacatruc color palette
-const stacatrucColors = {
-  green: '#36A501',
-  darkGrey: '#474747',
-  lightGrey: '#E4E4E4',
-  medGrey: '#707070',
-  clarkGreen: '#BCD230',
-  blue: '#3985AE',
-};
+  const stacatrucColors = {
+    green: '#36A501',
+    darkGrey: '#474747',
+    lightGrey: '#E4E4E4',
+    medGrey: '#707070',
+    clarkGreen: '#BCD230',
+    blue: '#3985AE',
+  };
   
   // Synchronize vertical scroll between tables
   useEffect(() => {
@@ -73,6 +85,29 @@ const stacatrucColors = {
     return () => window.removeEventListener('resize', syncRowHeights);
   }, [opportunities]);
 
+ // Handle date filter changes
+const handleDateChange = (dates) => {
+  const [start, end] = dates;
+  setStartDate(start);
+  setEndDate(end);
+  
+  if (start && end) {
+    // Format dates for API
+    const formattedStartDate = format(start, 'yyyy-MM-dd');
+    const formattedEndDate = format(end, 'yyyy-MM-dd');
+    
+    // Call parent component's filter handler
+    onDateFilterChange(formattedStartDate, formattedEndDate);
+    setShowDatePicker(false);
+  }
+};
+
+
+  // Toggle date picker visibility
+  const toggleDatePicker = () => {
+    setShowDatePicker(!showDatePicker);
+  };
+
   // Format date strings
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -106,7 +141,6 @@ const stacatrucColors = {
         style: 'currency',
         currency: 'GBP',
         minimumFractionDigits: 2,
-
         maximumFractionDigits: 2,
       }).format(numValue);
     } catch (error) {
@@ -114,7 +148,6 @@ const stacatrucColors = {
     }
   };
   
-
   // Extract name from nested object
   const getFullName = (contact) => {
     if (!contact) return 'N/A';
@@ -130,35 +163,41 @@ const stacatrucColors = {
     };
   };
 
-// Modified getProbabilityBgColor function
-const getProbabilityBgColor = (probabilityStr) => {
-  // Extract just the percentage value
-  const cleanPercentage = probabilityStr?.trim()?.match(/(\d+)%/)?.[1];
-  
-  if (!cleanPercentage) return darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-700';
-  
-  // Map percentage to appropriate Tailwind color classes
-  switch (cleanPercentage) {
-    case '25':
-      return darkMode ? 'bg-gray-700 text-white' : 'bg-gray-800 text-white'; // Dark Grey
-    case '50':
-      return darkMode ? 'bg-orange-200 text-green-800' : 'bg-orange-200 text-green-800'; // Clark Green 
-    case '75':
-      return darkMode ? 'bg-blue-200 text-blue-800' : 'bg-blue-200 text-blue-800'; // Blue
-    case '90':
-      return darkMode ? 'bg-green-500 text-white' : 'bg-green-500 text-white'; // Green
-    default:
-      return darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-700';
-  }
-};
+  // Modified getProbabilityBgColor function
+  const getProbabilityBgColor = (probabilityStr) => {
+    // Extract just the percentage value
+    const cleanPercentage = probabilityStr?.trim()?.match(/(\d+)%/)?.[1];
+    
+    if (!cleanPercentage) return darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-700';
+    
+    // Map percentage to appropriate Tailwind color classes
+    switch (cleanPercentage) {
+      case '25':
+        return darkMode ? 'bg-gray-700 text-white' : 'bg-gray-800 text-white'; // Dark Grey
+      case '50':
+        return darkMode ? 'bg-orange-200 text-green-800' : 'bg-orange-200 text-green-800'; // Clark Green 
+      case '75':
+        return darkMode ? 'bg-blue-200 text-blue-800' : 'bg-blue-200 text-blue-800'; // Blue
+      case '90':
+        return darkMode ? 'bg-green-500 text-white' : 'bg-green-500 text-white'; // Green
+      default:
+        return darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-700';
+    }
+  };
 
-   // Format probability display
-   const formatProbability = (probabilityStr) => {
+  // Format probability display
+  const formatProbability = (probabilityStr) => {
     // Extract just the percentage value
     const cleanPercentage = probabilityStr?.trim()?.match(/(\d+)%/)?.[1];
     
     if (!cleanPercentage) return 'N/A';
     return `${cleanPercentage}%`;
+  };
+
+  const getActiveFilterClasses = () => {
+    return startDate && endDate ? 
+      'text-blue-500 dark:text-blue-400 font-semibold' : 
+      'text-gray-500 dark:text-gray-400';
   };
 
   return (
@@ -343,7 +382,45 @@ const getProbabilityBgColor = (probabilityStr) => {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[100px] whitespace-nowrap">Age (days)</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[200px] whitespace-nowrap">Expected Close Date</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[200px] whitespace-nowrap">Envisage Date</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Created Date</th>
+                <th className="relative px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-[120px] whitespace-nowrap">
+                  <div className="flex items-center">
+                    <span className={`cursor-pointer ${getActiveFilterClasses()}`} onClick={toggleDatePicker}>
+                      Created Date {startDate && endDate && '🔍'}
+                    </span>
+                  </div>
+                  {showDatePicker && (
+                    <div className="absolute top-full left-0 mt-1 z-50 bg-white dark:bg-gray-800 shadow-lg rounded-md p-2 border border-gray-200 dark:border-gray-700">
+                      <DatePicker
+                        selected={startDate}
+                        onChange={handleDateChange}
+                        startDate={startDate}
+                        endDate={endDate}
+                        selectsRange
+                        inline
+                        className="bg-white dark:bg-gray-800 border-none"
+                      />
+                      <div className="flex justify-between mt-2">
+                        <button 
+                          className="px-2 py-1 text-xs rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                          onClick={() => {
+                            setStartDate(null);
+                            setEndDate(null);
+                            onDateFilterChange(null, null);
+                            setShowDatePicker(false);
+                          }}
+                        >
+                          Clear
+                        </button>
+                        <button 
+                          className="px-2 py-1 text-xs rounded bg-blue-500 text-white hover:bg-blue-600"
+                          onClick={() => setShowDatePicker(false)}
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Updated Date</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Amount</th>
               </tr>
@@ -351,13 +428,13 @@ const getProbabilityBgColor = (probabilityStr) => {
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {loading ? (
                 <tr>
-                  <td colSpan="8" className="px-4 py-5 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan="12" className="px-4 py-5 text-center text-gray-500 dark:text-gray-400">
                     Loading...
                   </td>
                 </tr>
               ) : opportunities.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="px-4 py-5 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan="12" className="px-4 py-5 text-center text-gray-500 dark:text-gray-400">
                     No opportunities found
                   </td>
                 </tr>

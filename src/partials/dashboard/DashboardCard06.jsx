@@ -168,9 +168,10 @@ function DashboardCard06() {
     return dashboardData?.open_ops_count || 0;
   }, [dashboardData]);
 
-  const fetchFilteredOpportunities = useCallback(async (probability, page = 1) => {
+
+
+  const fetchFilteredOpportunities = useCallback(async (probability, page = 1, createdAtMin = null, createdAtMax = null) => {
     setLoading(true);
-    const chancesParam = encodeURIComponent(`${probability} chances of closing the deal`);
     
     try {
       // Format the chances parameter correctly - don't use encodeURIComponent here
@@ -180,7 +181,9 @@ function DashboardCard06() {
       let url = `/opportunities/?chances=${encodeURIComponent(chancesParam)}&page=${page}&page_size=${pageSize}`;
       
       // Add fiscal period filter if available, otherwise use date range
-      if (fiscalPeriodCode) {
+      if (createdAtMin && createdAtMax) {
+        url += `&created_at_min=${createdAtMin}&created_at_max=${createdAtMax}`;
+      } else if (fiscalPeriodCode) {
         url += `&fiscal_period=${encodeURIComponent(fiscalPeriodCode)}`;
       } else if (dateRange && dateRange.from) {
         url += `&created_at_min=${format(dateRange.from, 'yyyy-MM-dd')}`;
@@ -233,6 +236,12 @@ function DashboardCard06() {
     }
   }, [dateRange, fiscalPeriodCode, selectedPipelines, selectedPipelineStages, selectedAssignedUsers, selectedOpportunityOwners, selectedOpportunitySources]);
 
+  const handleDateFilterChange = useCallback((startDate, endDate) => {
+    if (selectedProbability) {
+      // Build URL with the filtered dates and make API call
+      fetchFilteredOpportunities(selectedProbability, currentPage, startDate, endDate);
+    }
+  }, [selectedProbability, currentPage, fetchFilteredOpportunities]);
 
   const handleSegmentClick = async (index, label) => {
     const probabilityValue = label.split(' ')[0]; // "25%"
@@ -298,6 +307,7 @@ function DashboardCard06() {
           totalCount={totalCount}
           onPageChange={handlePageChange}
           loading={loading}
+          onDateFilterChange={handleDateFilterChange}
         />
       </CardDetailModal>
     </div>
