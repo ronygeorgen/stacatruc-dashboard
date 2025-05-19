@@ -24,6 +24,10 @@ function DashboardCard06() {
   const [startDate, setStartDate] = useState(null)
   const [endDate, setEndDate] = useState(null)
   const [downloadLoading, setDownloadLoading] = useState(false);
+  const [estimatedClosingStartDate, setEstimatedClosingStartDate] = useState(null);
+  const [estimatedClosingEndDate, setEstimatedClosingEndDate] = useState(null);
+  const [estimatedDeliveryStartDate, setEstimatedDeliveryStartDate] = useState(null);
+  const [estimatedDeliveryEndDate, setEstimatedDeliveryEndDate] = useState(null);
   
   // Add fiscal period context
   const { dateRange, periodLabel, selectedPeriodIndex, fiscalPeriodCode } = useFiscalPeriod();
@@ -170,7 +174,16 @@ function DashboardCard06() {
 
 
 
-  const fetchFilteredOpportunities = useCallback(async (probability, page = 1, createdAtMin = null, createdAtMax = null) => {
+  const fetchFilteredOpportunities = useCallback(async (
+    probability, 
+    page = 1, 
+    createdAtMin = null, 
+    createdAtMax = null,
+    estimatedClosingMin = null,
+    estimatedClosingMax = null,
+    estimatedDeliveryMin = null,
+    estimatedDeliveryMax = null
+  ) => {
     setLoading(true);
     
     try {
@@ -190,6 +203,16 @@ function DashboardCard06() {
         if (dateRange.to) {
           url += `&created_at_max=${format(dateRange.to, 'yyyy-MM-dd')}`;
         }
+      }
+
+      // Add estimated closing date filters
+      if (estimatedClosingMin && estimatedClosingMax) {
+        url += `&estimated_closing_date_min=${estimatedClosingMin}&estimated_closing_date_max=${estimatedClosingMax}`;
+      }
+
+      // Add estimated delivery date filters
+      if (estimatedDeliveryMin && estimatedDeliveryMax) {
+        url += `&estimated_delivery_date_min=${estimatedDeliveryMin}&estimated_delivery_date_max=${estimatedDeliveryMax}`;
       }
 
       // Add pipeline filters if available
@@ -236,49 +259,108 @@ function DashboardCard06() {
     }
   }, [dateRange, fiscalPeriodCode, selectedPipelines, selectedPipelineStages, selectedAssignedUsers, selectedOpportunityOwners, selectedOpportunitySources]);
 
-  const handleDateFilterChange = useCallback((startDate, endDate) => {
-    if (selectedProbability) {
-      setStartDate(startDate)
-      setEndDate(endDate)
-      // Build URL with the filtered dates and make API call
-      fetchFilteredOpportunities(selectedProbability, currentPage, startDate, endDate);
-    }
-  }, [selectedProbability, currentPage, fetchFilteredOpportunities]);
+ // Fixed handlers that only pass the specific filter being set
+const handleEstimatedClosingDateFilterChange = useCallback((newStartDate, newEndDate) => {
+  if (selectedProbability) {
+    setEstimatedClosingStartDate(newStartDate);
+    setEstimatedClosingEndDate(newEndDate);
+    fetchFilteredOpportunities(
+      selectedProbability, 
+      currentPage, 
+      startDate,  // Only pass if actually set
+      endDate,    // Only pass if actually set
+      newStartDate,  // estimatedClosingMin - only this filter is being set
+      newEndDate,    // estimatedClosingMax - only this filter is being set
+      estimatedDeliveryStartDate,  // Only pass if actually set
+      estimatedDeliveryEndDate     // Only pass if actually set
+    );
+  }
+}, [selectedProbability, currentPage, startDate, endDate, estimatedDeliveryStartDate, estimatedDeliveryEndDate, fetchFilteredOpportunities]);
+
+const handleEstimatedDeliveryDateFilterChange = useCallback((newStartDate, newEndDate) => {
+  if (selectedProbability) {
+    setEstimatedDeliveryStartDate(newStartDate);
+    setEstimatedDeliveryEndDate(newEndDate);
+    fetchFilteredOpportunities(
+      selectedProbability, 
+      currentPage, 
+      startDate,  // Only pass if actually set
+      endDate,    // Only pass if actually set
+      estimatedClosingStartDate,   // Only pass if actually set
+      estimatedClosingEndDate,     // Only pass if actually set
+      newStartDate,  // estimatedDeliveryMin - only this filter is being set
+      newEndDate     // estimatedDeliveryMax - only this filter is being set
+    );
+  }
+}, [selectedProbability, currentPage, startDate, endDate, estimatedClosingStartDate, estimatedClosingEndDate, fetchFilteredOpportunities]);
+
+const handleDateFilterChange = useCallback((startDate, endDate) => {
+  if (selectedProbability) {
+    setStartDate(startDate);
+    setEndDate(endDate);
+    fetchFilteredOpportunities(
+      selectedProbability, 
+      currentPage, 
+      startDate,  // createdAtMin - only this filter is being set
+      endDate,    // createdAtMax - only this filter is being set
+      estimatedClosingStartDate,   // Only pass if actually set
+      estimatedClosingEndDate,     // Only pass if actually set
+      estimatedDeliveryStartDate,  // Only pass if actually set
+      estimatedDeliveryEndDate     // Only pass if actually set
+    );
+  }
+}, [selectedProbability, currentPage, estimatedClosingStartDate, estimatedClosingEndDate, estimatedDeliveryStartDate, estimatedDeliveryEndDate, fetchFilteredOpportunities]);
+
+
 
   const handleDownloadCSV = useCallback(async () => {
-    console.log('Starting CSV download with date range:', startDate, endDate);
     
     try {
-      setDownloadLoading(true);
-      
-      // Prepare filters object to pass to the downloadAsCSV function
-      const chancesParam = `${selectedProbability} chances of closing the deal`;
-      const filters = {
-        chancesParam,
-        startDate,
-        endDate,
-        fiscalPeriodCode,
-        dateRange,
-        selectedPipelines,
-        selectedPipelineStages,
-        selectedAssignedUsers,
-        selectedOpportunityOwners,
-        selectedOpportunitySources,
-        format
-      };
-      
-      // Call the enhanced downloadAsCSV function with axiosInstance and filters
-      await downloadAsCSV([], selectedProbability, axiosInstance, filters);
-      
-      setStartDate(null);
-      setEndDate(null);
-      setDownloadLoading(false);
-    } catch (error) {
-      console.error("Failed to download CSV:", error);
-      setDownloadLoading(false);
-    }
-  }, [startDate, endDate, selectedProbability, fiscalPeriodCode, dateRange, selectedPipelines, selectedPipelineStages, 
-      selectedAssignedUsers, selectedOpportunityOwners, selectedOpportunitySources]);
+    setDownloadLoading(true);
+    
+    const chancesParam = `${selectedProbability} chances of closing the deal`;
+    const filters = {
+      chancesParam,
+      startDate,
+      endDate,
+      estimatedClosingStartDate,
+      estimatedClosingEndDate,
+      estimatedDeliveryStartDate,
+      estimatedDeliveryEndDate,
+      fiscalPeriodCode,
+      dateRange,
+      selectedPipelines,
+      selectedPipelineStages,
+      selectedAssignedUsers,
+      selectedOpportunityOwners,
+      selectedOpportunitySources,
+      format
+    };
+    
+    await downloadAsCSV([], selectedProbability, axiosInstance, filters);
+    
+    // Reset all date states
+    setStartDate(null);
+    setEndDate(null);
+    setEstimatedClosingStartDate(null);
+    setEstimatedClosingEndDate(null);
+    setEstimatedDeliveryStartDate(null);
+    setEstimatedDeliveryEndDate(null);
+    setDownloadLoading(false);
+  } catch (error) {
+    console.error("Failed to download CSV:", error);
+    setDownloadLoading(false);
+  }
+}, [
+  startDate, endDate, 
+  estimatedClosingStartDate, estimatedClosingEndDate,
+  estimatedDeliveryStartDate, estimatedDeliveryEndDate,
+  selectedProbability, fiscalPeriodCode, dateRange, 
+  selectedPipelines, selectedPipelineStages, 
+  selectedAssignedUsers, selectedOpportunityOwners, selectedOpportunitySources
+]);
+
+
 
   const handleSegmentClick = async (index, label) => {
     const probabilityValue = label.split(' ')[0]; // "25%"
@@ -289,6 +371,21 @@ function DashboardCard06() {
     // Fetch the first page of opportunities with this probability
     fetchFilteredOpportunities(probabilityValue, 1);
   };
+
+   // Reset all filter states when modal is closed
+    const handleModalClose = () => {
+      setIsModalOpen(false);
+      setSelectedProbability(null);
+      setStartDate(null);
+      setEndDate(null);
+      setEstimatedClosingStartDate(null);
+      setEstimatedClosingEndDate(null);
+      setEstimatedDeliveryStartDate(null);
+      setEstimatedDeliveryEndDate(null);
+      setCurrentPage(1);
+      setSelectedOpportunities([]);
+      setTotalCount(0);
+    };
 
   const handlePageChange = (page) => {
     if (selectedProbability) {
@@ -335,7 +432,7 @@ function DashboardCard06() {
       
       <CardDetailModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleModalClose}
         title={modalTitle}
       >
         <OpportunityTable
@@ -346,6 +443,8 @@ function DashboardCard06() {
           loading={loading}
           downloadLoading={downloadLoading}
           onDateFilterChange={handleDateFilterChange}
+          onEstimatedClosingDateFilterChange={handleEstimatedClosingDateFilterChange}
+          onEstimatedDeliveryDateFilterChange={handleEstimatedDeliveryDateFilterChange}
           onDownloadCSV={handleDownloadCSV}
         />
       </CardDetailModal>

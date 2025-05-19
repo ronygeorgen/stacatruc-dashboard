@@ -11,6 +11,8 @@ function OpportunityTable({
   onPageChange, 
   loading, 
   onDateFilterChange, 
+  onEstimatedClosingDateFilterChange,
+  onEstimatedDeliveryDateFilterChange,
   onDownloadCSV,
 }) {
   const fixedTableRef = useRef(null);
@@ -21,6 +23,13 @@ function OpportunityTable({
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const [estimatedClosingStartDate, setEstimatedClosingStartDate] = useState(null);
+  const [estimatedClosingEndDate, setEstimatedClosingEndDate] = useState(null);
+  const [estimatedDeliveryStartDate, setEstimatedDeliveryStartDate] = useState(null);
+  const [estimatedDeliveryEndDate, setEstimatedDeliveryEndDate] = useState(null);
+  const [showEstimatedClosingDatePicker, setShowEstimatedClosingDatePicker] = useState(false);
+  const [showEstimatedDeliveryDatePicker, setShowEstimatedDeliveryDatePicker] = useState(false);
 
   // Stacatruc color palette
   const stacatrucColors = {
@@ -103,10 +112,48 @@ const handleDateChange = (dates) => {
   }
 };
 
+// Add these new handler functions:
+const handleEstimatedClosingDateChange = (dates) => {
+  const [start, end] = dates;
+  setEstimatedClosingStartDate(start);
+  setEstimatedClosingEndDate(end);
+  
+  if (start && end) {
+    const formattedStartDate = format(start, 'yyyy-MM-dd');
+    const formattedEndDate = format(end, 'yyyy-MM-dd');
+    
+    onEstimatedClosingDateFilterChange(formattedStartDate, formattedEndDate);
+    setShowEstimatedClosingDatePicker(false);
+  }
+};
+
+const handleEstimatedDeliveryDateChange = (dates) => {
+  const [start, end] = dates;
+  setEstimatedDeliveryStartDate(start);
+  setEstimatedDeliveryEndDate(end);
+  
+  if (start && end) {
+    const formattedStartDate = format(start, 'yyyy-MM-dd');
+    const formattedEndDate = format(end, 'yyyy-MM-dd');
+    
+    onEstimatedDeliveryDateFilterChange(formattedStartDate, formattedEndDate);
+    setShowEstimatedDeliveryDatePicker(false);
+  }
+};
+
 
   // Toggle date picker visibility
   const toggleDatePicker = () => {
     setShowDatePicker(!showDatePicker);
+  };
+
+   // Add toggle functions:
+  const toggleEstimatedClosingDatePicker = () => {
+    setShowEstimatedClosingDatePicker(!showEstimatedClosingDatePicker);
+  };
+
+  const toggleEstimatedDeliveryDatePicker = () => {
+    setShowEstimatedDeliveryDatePicker(!showEstimatedDeliveryDatePicker);
   };
 
   // Format date strings
@@ -195,10 +242,26 @@ const handleDateChange = (dates) => {
     return `${cleanPercentage}%`;
   };
 
-  const getActiveFilterClasses = () => {
-    return startDate && endDate ? 
-      'text-blue-500 dark:text-blue-400 font-semibold' : 
-      'text-gray-500 dark:text-gray-400';
+
+
+// Update the getActiveFilterClasses function to handle multiple date filters:
+  const getActiveFilterClasses = (dateType) => {
+    switch(dateType) {
+      case 'created':
+        return startDate && endDate ? 
+          'text-blue-500 dark:text-blue-400 font-semibold' : 
+          'text-gray-500 dark:text-gray-400';
+      case 'estimatedClosing':
+        return estimatedClosingStartDate && estimatedClosingEndDate ? 
+          'text-blue-500 dark:text-blue-400 font-semibold' : 
+          'text-gray-500 dark:text-gray-400';
+      case 'estimatedDelivery':
+        return estimatedDeliveryStartDate && estimatedDeliveryEndDate ? 
+          'text-blue-500 dark:text-blue-400 font-semibold' : 
+          'text-gray-500 dark:text-gray-400';
+      default:
+        return 'text-gray-500 dark:text-gray-400';
+    }
   };
 
   return (
@@ -393,11 +456,87 @@ const handleDateChange = (dates) => {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Stage</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[150px] whitespace-nowrap">Status</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[100px] whitespace-nowrap">Age (days)</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[200px] whitespace-nowrap">Expected Close Date</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[200px] whitespace-nowrap">Envisage Date</th>
+                <th className="relative px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-[200px] whitespace-nowrap">
+                  <div className="flex items-center">
+                    <span className={`cursor-pointer ${getActiveFilterClasses('estimatedClosing')}`} onClick={toggleEstimatedClosingDatePicker}>
+                      Estimated Closing Date {estimatedClosingStartDate && estimatedClosingEndDate && '🔍'}
+                    </span>
+                  </div>
+                  {showEstimatedClosingDatePicker && (
+                    <div className="absolute top-full left-0 mt-1 z-50 bg-white dark:bg-gray-800 shadow-lg rounded-md p-2 border border-gray-200 dark:border-gray-700">
+                      <DatePicker
+                        selected={estimatedClosingStartDate}
+                        onChange={handleEstimatedClosingDateChange}
+                        startDate={estimatedClosingStartDate}
+                        endDate={estimatedClosingEndDate}
+                        selectsRange
+                        inline
+                        className="bg-white dark:bg-gray-800 border-none"
+                      />
+                      <div className="flex justify-between mt-2">
+                        <button 
+                          className="px-2 py-1 text-xs rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                          onClick={() => {
+                            setEstimatedClosingStartDate(null);
+                            setEstimatedClosingEndDate(null);
+                            onEstimatedClosingDateFilterChange(null, null);
+                            setShowEstimatedClosingDatePicker(false);
+                          }}
+                        >
+                          Clear
+                        </button>
+                        <button 
+                          className="px-2 py-1 text-xs rounded bg-blue-500 text-white hover:bg-blue-600"
+                          onClick={() => setShowEstimatedClosingDatePicker(false)}
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </th>
+                <th className="relative px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-[200px] whitespace-nowrap">
+                    <div className="flex items-center">
+                      <span className={`cursor-pointer ${getActiveFilterClasses('estimatedDelivery')}`} onClick={toggleEstimatedDeliveryDatePicker}>
+                        Estimated Delivery Date {estimatedDeliveryStartDate && estimatedDeliveryEndDate && '🔍'}
+                      </span>
+                    </div>
+                    {showEstimatedDeliveryDatePicker && (
+                      <div className="absolute top-full left-0 mt-1 z-50 bg-white dark:bg-gray-800 shadow-lg rounded-md p-2 border border-gray-200 dark:border-gray-700">
+                        <DatePicker
+                          selected={estimatedDeliveryStartDate}
+                          onChange={handleEstimatedDeliveryDateChange}
+                          startDate={estimatedDeliveryStartDate}
+                          endDate={estimatedDeliveryEndDate}
+                          selectsRange
+                          inline
+                          className="bg-white dark:bg-gray-800 border-none"
+                        />
+                        <div className="flex justify-between mt-2">
+                          <button 
+                            className="px-2 py-1 text-xs rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                            onClick={() => {
+                              setEstimatedDeliveryStartDate(null);
+                              setEstimatedDeliveryEndDate(null);
+                              onEstimatedDeliveryDateFilterChange(null, null);
+                              setShowEstimatedDeliveryDatePicker(false);
+                            }}
+                          >
+                            Clear
+                          </button>
+                          <button 
+                            className="px-2 py-1 text-xs rounded bg-blue-500 text-white hover:bg-blue-600"
+                            onClick={() => setShowEstimatedDeliveryDatePicker(false)}
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </th>
                 <th className="relative px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-[120px] whitespace-nowrap">
                   <div className="flex items-center">
-                    <span className={`cursor-pointer ${getActiveFilterClasses()}`} onClick={toggleDatePicker}>
+                    <span className={`cursor-pointer ${getActiveFilterClasses('created')}`} onClick={toggleDatePicker}>
                       Created Date {startDate && endDate && '🔍'}
                     </span>
                   </div>
@@ -499,7 +638,7 @@ const handleDateChange = (dates) => {
 
                       {/* new columns */}
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
-                        N/A
+                        {formatDate(opportunity.custom_fields.estimated_closing_date)}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
                         N/A

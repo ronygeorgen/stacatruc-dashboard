@@ -87,7 +87,8 @@ export const downloadAsCSV = async (opportunities, selectedProbability, axiosIns
 
 // Helper function to fetch all opportunities via pagination
 async function fetchAllOpportunities(axiosInstance, filters) {
-  const { chancesParam, startDate, endDate, fiscalPeriodCode, dateRange, 
+  const { chancesParam, startDate, endDate, estimatedClosingStartDate, estimatedClosingEndDate, 
+          estimatedDeliveryStartDate, estimatedDeliveryEndDate, fiscalPeriodCode, dateRange, 
           selectedPipelines, selectedPipelineStages, selectedAssignedUsers, 
           selectedOpportunityOwners, selectedOpportunitySources, format } = filters;
   
@@ -111,6 +112,16 @@ async function fetchAllOpportunities(axiosInstance, filters) {
         if (dateRange.to) {
           url += `&created_at_max=${format(dateRange.to, 'yyyy-MM-dd')}`;
         }
+      }
+
+      // Add estimated closing date filters
+      if (estimatedClosingStartDate && estimatedClosingEndDate) {
+        url += `&estimated_closing_date_min=${estimatedClosingStartDate}&estimated_closing_date_max=${estimatedClosingEndDate}`;
+      }
+
+      // Add estimated delivery date filters
+      if (estimatedDeliveryStartDate && estimatedDeliveryEndDate) {
+        url += `&estimated_delivery_date_min=${estimatedDeliveryStartDate}&estimated_delivery_date_max=${estimatedDeliveryEndDate}`;
       }
 
       // Add pipeline filters if available
