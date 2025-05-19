@@ -12,8 +12,8 @@ export const downloadAsCSV = async (opportunities, selectedProbability, axiosIns
     'Stage',
     'Status',
     'Age (days)',
-    'Expected Close Date',
-    'Envisage Date',
+    'Expected Closing Date',
+    'Expected Delivary Date',
     'Created Date',
     'Updated Date',
     'Amount'
@@ -48,8 +48,8 @@ export const downloadAsCSV = async (opportunities, selectedProbability, axiosIns
       opp.stage?.name || 'N/A',
       opp.status || 'N/A',
       calculateAge(opp.created_at),
-      'N/A', // Expected Close Date
-      'N/A', // Envisage Date
+      opp.custom_fields.estimated_closing_date ? new Date(opp.custom_fields.estimated_closing_date).toLocaleDateString() : 'N/A',
+      opp.custom_fields.estimated_delivery_date ? new Date(opp.custom_fields.estimated_delivery_date).toLocaleDateString() : 'N/A',
       opp.created_at ? new Date(opp.created_at).toLocaleDateString() : 'N/A',
       opp.updated_at ? new Date(opp.updated_at).toLocaleDateString() : 'N/A',
       opp.opp_value || '£0.00'
@@ -125,8 +125,8 @@ async function fetchAllOpportunities(axiosInstance, filters) {
       }
 
       // Add estimated delivery date filters
-      if (updateMin && updateMax) {
-        url += `&updated_at_min=${updateMin}&updated_at_max=${updateMax}`;
+      if (updateStartDate && updateEndDate) {
+        url += `&updated_at_min=${updateStartDate}&updated_at_max=${updateEndDate}`;
       }
 
       // Add pipeline filters if available
