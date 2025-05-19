@@ -68,6 +68,7 @@ function DashboardCard04({
   return (
     <div className="flex flex-col col-span-full sm:col-span-full md:col-span-6 lg:col-span-6 bg-white dark:bg-gray-800 shadow-xs rounded-xl">
       <BarChart01 
+        title={title}
         labels={labels}
         dataOpen={dataOpen}
         dataClosed={dataClosed}

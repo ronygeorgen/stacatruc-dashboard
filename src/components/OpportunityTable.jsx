@@ -13,6 +13,7 @@ function OpportunityTable({
   onDateFilterChange, 
   onEstimatedClosingDateFilterChange,
   onEstimatedDeliveryDateFilterChange,
+  onUpdateFilterChange,
   onDownloadCSV,
 }) {
   const fixedTableRef = useRef(null);
@@ -28,6 +29,9 @@ function OpportunityTable({
   const [estimatedClosingEndDate, setEstimatedClosingEndDate] = useState(null);
   const [estimatedDeliveryStartDate, setEstimatedDeliveryStartDate] = useState(null);
   const [estimatedDeliveryEndDate, setEstimatedDeliveryEndDate] = useState(null);
+  const [updateStartDate, setUpdateStartDate] = useState(null);
+  const [updateEndDate, setUpdateEndDate] = useState(null);
+  const [showUpdateDatePicker, setShowUpdateDatePicker] = useState(false);
   const [showEstimatedClosingDatePicker, setShowEstimatedClosingDatePicker] = useState(false);
   const [showEstimatedDeliveryDatePicker, setShowEstimatedDeliveryDatePicker] = useState(false);
 
@@ -142,6 +146,21 @@ const handleEstimatedDeliveryDateChange = (dates) => {
 };
 
 
+const handleUpdateChange = (dates) => {
+  const [start, end] = dates;
+  setUpdateStartDate(start);
+  setUpdateEndDate(end);
+  
+  if (start && end) {
+    const formattedStartDate = format(start, 'yyyy-MM-dd');
+    const formattedEndDate = format(end, 'yyyy-MM-dd');
+    
+    onUpdateFilterChange(formattedStartDate, formattedEndDate);
+    setShowUpdateDatePicker(false);
+  }
+};
+
+
   // Toggle date picker visibility
   const toggleDatePicker = () => {
     setShowDatePicker(!showDatePicker);
@@ -154,6 +173,10 @@ const handleEstimatedDeliveryDateChange = (dates) => {
 
   const toggleEstimatedDeliveryDatePicker = () => {
     setShowEstimatedDeliveryDatePicker(!showEstimatedDeliveryDatePicker);
+  };
+  
+  const toggleUpdateDatePicker = () => {
+    setShowUpdateDatePicker(!showUpdateDatePicker);
   };
 
   // Format date strings
@@ -257,6 +280,10 @@ const handleEstimatedDeliveryDateChange = (dates) => {
           'text-gray-500 dark:text-gray-400';
       case 'estimatedDelivery':
         return estimatedDeliveryStartDate && estimatedDeliveryEndDate ? 
+          'text-blue-500 dark:text-blue-400 font-semibold' : 
+          'text-gray-500 dark:text-gray-400';
+      case 'updated-date':
+        return updateStartDate && updateEndDate ? 
           'text-blue-500 dark:text-blue-400 font-semibold' : 
           'text-gray-500 dark:text-gray-400';
       default:
@@ -573,7 +600,46 @@ const handleEstimatedDeliveryDateChange = (dates) => {
                     </div>
                   )}
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Updated Date</th>
+                <th className="relative px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">
+                  <div className="flex items-center">
+                      <span className={`cursor-pointer ${getActiveFilterClasses('updated-date')}`} onClick={toggleUpdateDatePicker}>
+                        Updated Date {updateStartDate && updateEndDate && '🔍'}
+                      </span>
+                    </div>
+                    {showUpdateDatePicker  && (
+                      <div className="absolute top-full left-0 mt-1 z-50 bg-white dark:bg-gray-800 shadow-lg rounded-md p-2 border border-gray-200 dark:border-gray-700">
+                        <DatePicker
+                          selected={updateStartDate}
+                          onChange={handleUpdateChange}
+                          startDate={updateStartDate}
+                          endDate={updateEndDate}
+                          selectsRange
+                          inline
+                          className="bg-white dark:bg-gray-800 border-none"
+                        />
+                        <div className="flex justify-between mt-2">
+                          <button 
+                            className="px-2 py-1 text-xs rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
+                            onClick={() => {
+                              setUpdateStartDate(null);
+                              setUpdateEndDate(null);
+                              onUpdateFilterChange(null, null);
+                              setShowUpdateDatePicker(false);
+                            }}
+                          >
+                            Clear
+                          </button>
+                          <button 
+                            className="px-2 py-1 text-xs rounded bg-blue-500 text-white hover:bg-blue-600"
+                            onClick={() => setShowUpdateDatePicker(false)}
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Amount</th>
               </tr>
             </thead>
@@ -641,7 +707,7 @@ const handleEstimatedDeliveryDateChange = (dates) => {
                         {formatDate(opportunity.custom_fields.estimated_closing_date)}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
-                        N/A
+                        {formatDate(opportunity.custom_fields.estimated_delivery_date)}
                       </td>
 
                       

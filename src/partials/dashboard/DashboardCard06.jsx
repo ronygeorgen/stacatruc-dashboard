@@ -28,6 +28,8 @@ function DashboardCard06() {
   const [estimatedClosingEndDate, setEstimatedClosingEndDate] = useState(null);
   const [estimatedDeliveryStartDate, setEstimatedDeliveryStartDate] = useState(null);
   const [estimatedDeliveryEndDate, setEstimatedDeliveryEndDate] = useState(null);
+  const [updateStartDate, setUpdateStartDate] = useState(null);
+  const [updateEndDate, setUpdateEndDate] = useState(null);
   
   // Add fiscal period context
   const { dateRange, periodLabel, selectedPeriodIndex, fiscalPeriodCode } = useFiscalPeriod();
@@ -182,7 +184,9 @@ function DashboardCard06() {
     estimatedClosingMin = null,
     estimatedClosingMax = null,
     estimatedDeliveryMin = null,
-    estimatedDeliveryMax = null
+    estimatedDeliveryMax = null,
+    updateMin = null,
+    updateMax = null,
   ) => {
     setLoading(true);
     
@@ -213,6 +217,11 @@ function DashboardCard06() {
       // Add estimated delivery date filters
       if (estimatedDeliveryMin && estimatedDeliveryMax) {
         url += `&estimated_delivery_date_min=${estimatedDeliveryMin}&estimated_delivery_date_max=${estimatedDeliveryMax}`;
+      }
+      
+      // Add estimated delivery date filters
+      if (updateMin && updateMax) {
+        url += `&updated_at_min=${updateMin}&updated_at_max=${updateMax}`;
       }
 
       // Add pipeline filters if available
@@ -272,10 +281,12 @@ const handleEstimatedClosingDateFilterChange = useCallback((newStartDate, newEnd
       newStartDate,  // estimatedClosingMin - only this filter is being set
       newEndDate,    // estimatedClosingMax - only this filter is being set
       estimatedDeliveryStartDate,  // Only pass if actually set
-      estimatedDeliveryEndDate     // Only pass if actually set
+      estimatedDeliveryEndDate,     // Only pass if actually set
+      updateStartDate,
+      updateEndDate
     );
   }
-}, [selectedProbability, currentPage, startDate, endDate, estimatedDeliveryStartDate, estimatedDeliveryEndDate, fetchFilteredOpportunities]);
+}, [selectedProbability, currentPage, startDate, endDate, estimatedDeliveryStartDate, estimatedDeliveryEndDate, updateStartDate, updateEndDate, fetchFilteredOpportunities]);
 
 const handleEstimatedDeliveryDateFilterChange = useCallback((newStartDate, newEndDate) => {
   if (selectedProbability) {
@@ -289,10 +300,31 @@ const handleEstimatedDeliveryDateFilterChange = useCallback((newStartDate, newEn
       estimatedClosingStartDate,   // Only pass if actually set
       estimatedClosingEndDate,     // Only pass if actually set
       newStartDate,  // estimatedDeliveryMin - only this filter is being set
-      newEndDate     // estimatedDeliveryMax - only this filter is being set
+      newEndDate,     // estimatedDeliveryMax - only this filter is being set
+      updateStartDate,
+      updateEndDate
     );
   }
-}, [selectedProbability, currentPage, startDate, endDate, estimatedClosingStartDate, estimatedClosingEndDate, fetchFilteredOpportunities]);
+}, [selectedProbability, currentPage, startDate, endDate, estimatedClosingStartDate, estimatedClosingEndDate, updateStartDate, updateEndDate, fetchFilteredOpportunities]);
+
+const handleUpdateDateFilterChange = useCallback((newStartDate, newEndDate) => {
+  if (selectedProbability) {
+    setUpdateStartDate(newStartDate);
+    setUpdateEndDate(newEndDate);
+    fetchFilteredOpportunities(
+      selectedProbability, 
+      currentPage, 
+      startDate,  // Only pass if actually set
+      endDate,    // Only pass if actually set
+      estimatedClosingStartDate,   // Only pass if actually set
+      estimatedClosingEndDate,     // Only pass if actually set
+      estimatedDeliveryStartDate,  // estimatedDeliveryMin - only this filter is being set
+      estimatedDeliveryEndDate,     // estimatedDeliveryMax - only this filter is being set
+      newStartDate,
+      newEndDate
+    );
+  }
+}, [selectedProbability, currentPage, startDate, endDate, estimatedClosingStartDate, estimatedClosingEndDate, estimatedDeliveryStartDate, estimatedDeliveryEndDate, fetchFilteredOpportunities]);
 
 const handleDateFilterChange = useCallback((startDate, endDate) => {
   if (selectedProbability) {
@@ -306,10 +338,12 @@ const handleDateFilterChange = useCallback((startDate, endDate) => {
       estimatedClosingStartDate,   // Only pass if actually set
       estimatedClosingEndDate,     // Only pass if actually set
       estimatedDeliveryStartDate,  // Only pass if actually set
-      estimatedDeliveryEndDate     // Only pass if actually set
+      estimatedDeliveryEndDate,     // Only pass if actually set
+      updateStartDate,
+      updateEndDate
     );
   }
-}, [selectedProbability, currentPage, estimatedClosingStartDate, estimatedClosingEndDate, estimatedDeliveryStartDate, estimatedDeliveryEndDate, fetchFilteredOpportunities]);
+}, [selectedProbability, currentPage, estimatedClosingStartDate, estimatedClosingEndDate, estimatedDeliveryStartDate, estimatedDeliveryEndDate, updateStartDate, updateEndDate, fetchFilteredOpportunities]);
 
 
 
@@ -327,6 +361,8 @@ const handleDateFilterChange = useCallback((startDate, endDate) => {
       estimatedClosingEndDate,
       estimatedDeliveryStartDate,
       estimatedDeliveryEndDate,
+      updateStartDate,
+      updateEndDate,
       fiscalPeriodCode,
       dateRange,
       selectedPipelines,
@@ -346,6 +382,8 @@ const handleDateFilterChange = useCallback((startDate, endDate) => {
     setEstimatedClosingEndDate(null);
     setEstimatedDeliveryStartDate(null);
     setEstimatedDeliveryEndDate(null);
+    setUpdateStartDate(null);
+    setUpdateEndDate(null);
     setDownloadLoading(false);
   } catch (error) {
     console.error("Failed to download CSV:", error);
@@ -354,9 +392,9 @@ const handleDateFilterChange = useCallback((startDate, endDate) => {
 }, [
   startDate, endDate, 
   estimatedClosingStartDate, estimatedClosingEndDate,
-  estimatedDeliveryStartDate, estimatedDeliveryEndDate,
-  selectedProbability, fiscalPeriodCode, dateRange, 
-  selectedPipelines, selectedPipelineStages, 
+  estimatedDeliveryStartDate, estimatedDeliveryEndDate, 
+  updateStartDate, updateEndDate, selectedProbability, 
+  fiscalPeriodCode, dateRange, selectedPipelines, selectedPipelineStages, 
   selectedAssignedUsers, selectedOpportunityOwners, selectedOpportunitySources
 ]);
 
@@ -382,6 +420,8 @@ const handleDateFilterChange = useCallback((startDate, endDate) => {
       setEstimatedClosingEndDate(null);
       setEstimatedDeliveryStartDate(null);
       setEstimatedDeliveryEndDate(null);
+      setUpdateStartDate(null);
+      setUpdateEndDate(null);
       setCurrentPage(1);
       setSelectedOpportunities([]);
       setTotalCount(0);
@@ -445,6 +485,7 @@ const handleDateFilterChange = useCallback((startDate, endDate) => {
           onDateFilterChange={handleDateFilterChange}
           onEstimatedClosingDateFilterChange={handleEstimatedClosingDateFilterChange}
           onEstimatedDeliveryDateFilterChange={handleEstimatedDeliveryDateFilterChange}
+          onUpdateFilterChange={handleUpdateDateFilterChange}
           onDownloadCSV={handleDownloadCSV}
         />
       </CardDetailModal>
