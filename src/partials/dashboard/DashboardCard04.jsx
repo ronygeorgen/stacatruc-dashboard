@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import BarChart01 from '../../charts/BarChart01';
 import Modal from '../../components/ChartModal';
 import { getCssVariable } from '../../utils/Utils';
+import CardDetailModal from '../../components/CardDetailModal';
+import OpportunityTable from '../../components/OpportunityTable';
+import { opportunityAPI } from '../../features/opportunity/opportunityAPI';
+import { useFiscalPeriod } from '../../contexts/FiscalPeriodContext';
 
 function DashboardCard04({ 
   title,
@@ -12,7 +16,14 @@ function DashboardCard04({
   amountClosed
 }) {
   const [showModal, setShowModal] = useState(false);
-  const [modalData, setModalData] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [modalOpportunities, setModalOpportunities] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [values, setValues] = useState({created_at_min:'', created_at_max:'', valueState:''})
+
+  const { dateRange, periodLabel, fiscalPeriodCode } = useFiscalPeriod();
 
   // Use the props data to construct the chart data
   const chartData = {
@@ -49,20 +60,59 @@ function DashboardCard04({
     ],
   };
 
-  const handleBarClick = ({ datasetIndex, index }) => {
-    console.log(`Clicked dataset ${datasetIndex}, index ${index}`);
+  const fetchOpenOpportunities = React.useCallback(async (page = 1, created_at_min, created_at_max, valueState) => {
+      try {
+        // setLoading(true);
+        
+        const params = {
+          searchQuery: "",
+          page: page,
+          state: valueState
+        };
+        
+        // Apply fiscal period filter if available, otherwise use date range if available
+
+          params.created_at_min = created_at_min
+          params.created_at_max = created_at_max
+  
+        
+        const data = await opportunityAPI.getOpportunities(
+          params.searchQuery,
+          params.page,
+          params.pageSize,
+          params.fiscal_period,
+          params.created_at_min,
+          params.created_at_max,
+          params.state,
+          params.pipeline,
+          params.stage_name,
+          params.assigned_to,
+          params.contact,
+          params.opportunity_source,
+        );
+        
+        setModalOpportunities(data.results || []);
+        setTotalCount(data.count || 0);
+        setCurrentPage(page);
+      } catch (error) {
+        console.error('Error fetching open opportunities:', error);
+      }
+    }, []);
+
+  const handleBarClick = ({ datasetIndex, index, payload }) => {
+    const { created_at_min, created_at_max } = payload;
+    console.log(`Clicked dataset ${datasetIndex}, index ${index}`, created_at_min, created_at_max, 'min');
     // Get additional data for the modal
-    const dataset = chartData.datasets[datasetIndex];
-    const label = chartData.labels[index];
-    const value = dataset.data[index];
     
-    // You could set modal data and open the modal here if needed
-    setModalData({
-      datasetLabel: dataset.label,
-      label,
-      value,
-    });
+    const valueState = datasetIndex == 0 ? 'open' : 'close'
+    setIsModalOpen(true);
+    setValues({created_at_min, created_at_max, valueState})
+    fetchOpenOpportunities(1, created_at_min, created_at_max, valueState);
     setShowModal(true);
+  };
+
+  const handlePageChange = (page) => {
+    fetchOpenOpportunities(page, values.created_at_min, values.created_at_max, values.valueState );
   };
 
   return (
@@ -76,15 +126,27 @@ function DashboardCard04({
         amountClosed={amountClosed}
         width={795} 
         height={248} 
-        onBarClick={handleBarClick} 
+        onBarClick={handleBarClick}
       />
       
-      {showModal && modalData && (
-        <Modal
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-          data={modalData}
-        />
+      {showModal && modalOpportunities && (
+        // <Modal
+        //   isOpen={showModal}
+        //   onClose={() => setShowModal(false)}
+        //   data={modalData}
+        // />
+        <CardDetailModal 
+            isOpen={isModalOpen} 
+            onClose={() => setIsModalOpen(false)}
+            title={`${values.valueState=='open'? 'Open' : 'Closed'} Opportunities - ${periodLabel}`}
+          >
+            <OpportunityTable 
+              opportunities={modalOpportunities} 
+              currentPage={currentPage}
+              totalCount={totalCount}
+              onPageChange={handlePageChange}
+            />
+          </CardDetailModal>
       )}
     </div>
   );

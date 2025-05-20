@@ -10,23 +10,46 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 
+const getMonthRange = (label) => {
+  const [year, month] = label.split('-').map(Number); // e.g., "2024-05" -> 2024, 5
+
+  // Use UTC to prevent timezone shift
+  const firstDay = new Date(Date.UTC(year, month - 1, 1));
+  const lastDay = new Date(Date.UTC(year, month, 0));
+
+  const formatDate = (date) => date.toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+  return {
+    created_at_min: formatDate(firstDay),
+    created_at_max: formatDate(lastDay),
+  };
+};
+
 const BarChart04 = ({ 
   title, 
   labels,
   totalOpenCounts,
   totalClosedCounts, 
   openOpsCount,
-  closedOpsCount
+  closedOpsCount,
+  onBarClick
 }) => {
   const [viewMode, setViewMode] = useState('both'); // 'both', 'open', 'closed'
   
 
   // Format data for the chart
-  const data = labels.map((label, index) => ({
-    name: label,
-    Open: totalOpenCounts[index],
-    Closed: totalClosedCounts[index],
-  }));
+  const data = labels.map((label, index) => {
+    console.log(label, 'label')
+    const { created_at_min, created_at_max } = getMonthRange(label);
+
+    return {
+      name: label,
+      Open: totalOpenCounts[index],
+      Closed: totalClosedCounts[index],
+      created_at_min,
+      created_at_max,
+    };
+  });
 
   // Custom tooltip
   const CustomTooltip = ({ active, payload, label }) => {
@@ -138,6 +161,7 @@ const BarChart04 = ({
                 fill="#3B82F6" 
                 radius={[4, 4, 0, 0]} 
                 barSize={viewMode === 'both' ? 20 : 30}
+                onClick={(data, index) => onBarClick({ datasetIndex: 0, index, payload: data.payload })}
               />
             )}
             {(viewMode === 'both' || viewMode === 'closed') && (
@@ -146,6 +170,7 @@ const BarChart04 = ({
                 fill="#16A34A" 
                 radius={[4, 4, 0, 0]} 
                 barSize={viewMode === 'both' ? 20 : 30}
+                onClick={(data, index) => onBarClick({ datasetIndex: 1, index, payload: data.payload })}
               />
             )}
           </BarChart>
