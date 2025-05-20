@@ -215,6 +215,7 @@ function Dashboard() {
               <DashboardCard02 />
               {/* Line chart (Acme Professional) */}
               <DashboardCard05 />
+              
               {/* Bar chart (Direct vs Indirect) */}
               <DashboardCard04
                 title="Total Open VS Total Closed Values"
