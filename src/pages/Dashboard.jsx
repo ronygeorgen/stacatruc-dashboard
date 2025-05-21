@@ -26,6 +26,7 @@ import DashboardCard11 from '../partials/dashboard/DashboardCard11';
 import DashboardCard12 from '../partials/dashboard/DashboardCard12';
 import DashboardCard13 from '../partials/dashboard/DashboardCard13';
 import { getCssVariable } from '../utils/Utils';
+import FleetInformation from "../charts/FleetInformation";
 
 function Dashboard() {
 
@@ -206,7 +207,7 @@ function Dashboard() {
             </div>
 
             {/* Cards */}
-            <div className="grid grid-cols-12 gap-6">
+            <div className="grid grid-cols-12 gap-6 mb-6">
 
               {/* Line chart (Acme Plus) */}
               <DashboardCard01 />
@@ -259,7 +260,7 @@ function Dashboard() {
               {/* <DashboardCard13 /> */}
               
             </div>
-
+            <FleetInformation />
           </div>
         </main>
 
