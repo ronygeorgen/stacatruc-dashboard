@@ -39,7 +39,6 @@ const BarChart04 = ({
 
   // Format data for the chart
   const data = labels.map((label, index) => {
-    console.log(label, 'label')
     const { created_at_min, created_at_max } = getMonthRange(label);
 
     return {

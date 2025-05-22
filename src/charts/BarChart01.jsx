@@ -38,7 +38,6 @@ const BarChart01 = ({
   const [viewMode, setViewMode] = useState('both'); // 'both', 'open', 'closed'
   
   const data = labels.map((label, index) => {
-    console.log(label, 'label')
     const { created_at_min, created_at_max } = getMonthRange(label);
 
     return {

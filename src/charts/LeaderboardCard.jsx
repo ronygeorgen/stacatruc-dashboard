@@ -419,25 +419,25 @@ function LeaderboardCard() {
                   <thead className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700">
                     <tr>
                       <th className="p-2 whitespace-nowrap">
-                        <div className="font-semibold text-left">#</div>
+                        <div className="font-semibold text-center">#</div>
                       </th>
                       <th className="p-2 whitespace-nowrap">
-                        <div className="font-semibold text-left">Sales Rep</div>
+                        <div className="font-semibold text-center">Sales Rep</div>
                       </th>
                       <th className="p-2 whitespace-nowrap">
-                        <div className="font-semibold text-left">Total Open Value</div>
+                        <div className="font-semibold text-center">Total Open Value</div>
                       </th>
                       <th className="p-2 whitespace-nowrap">
-                        <div className="font-semibold text-left">Total Open Deals</div>
+                        <div className="font-semibold text-center">Total Open Deals</div>
                       </th>
                       <th className="p-2 whitespace-nowrap">
-                        <div className="font-semibold text-left">Total Closed Value</div>
+                        <div className="font-semibold text-center">Total Closed Value</div>
                       </th>
                       <th className="p-2 whitespace-nowrap">
-                        <div className="font-semibold text-left">Total Closed Deals</div>
+                        <div className="font-semibold text-center">Total Closed Deals</div>
                       </th>
                       <th className="p-2 whitespace-nowrap">
-                        <div className="font-semibold text-right">Total Value</div>
+                        <div className="font-semibold text-center">Total Value</div>
                       </th>
                       <th className="p-2 whitespace-nowrap">
                         <div className="font-semibold text-center">Deals</div>
@@ -471,11 +471,11 @@ function LeaderboardCard() {
                               <div className={`w-8 h-8 mr-2 flex-shrink-0 rounded-full ${bgColorClass} flex items-center justify-center text-white font-medium`}>
                                 {firstInitial}
                               </div>
-                              <div className="font-medium text-gray-800 dark:text-gray-100">{person.name}</div>
+                              <div className="text-center font-medium text-gray-800 dark:text-gray-100">{person.name}</div>
                             </div>
                           </td>
                           <td className="p-2 whitespace-nowrap">
-                            <div className="text-right font-medium text-green-600 dark:text-green-400">
+                            <div className="text-center font-medium text-green-600 dark:text-green-400">
                               {formatCurrency(person.open_value)}
                             </div>
                           </td>
@@ -483,7 +483,7 @@ function LeaderboardCard() {
                             <div className="text-center font-medium text-gray-800 dark:text-gray-200">{person.open_count}</div>
                           </td>
                           <td className="p-2 whitespace-nowrap">
-                            <div className="text-right font-medium text-green-600 dark:text-green-400">
+                            <div className="text-center font-medium text-green-600 dark:text-green-400">
                               {formatCurrency(person.closed_value)}
                             </div>
                           </td>
@@ -491,7 +491,7 @@ function LeaderboardCard() {
                             <div className="text-center font-medium text-gray-800 dark:text-gray-200">{person.closed_count}</div>
                           </td>
                           <td className="p-2 whitespace-nowrap">
-                            <div className="text-right font-medium text-green-600 dark:text-green-400">
+                            <div className="text-center font-medium text-green-600 dark:text-green-400">
                               {formatCurrency(person.closedValue)}
                             </div>
                           </td>

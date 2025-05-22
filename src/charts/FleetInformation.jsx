@@ -101,7 +101,7 @@ function FleetInformation() {
     try {
       setLoading(true);
       
-      let url = '/opportunities/dyjWhADP4xZIti5DZnoa/';
+      let url = '/opportunities/';
       let params = {};
       
       // Apply fiscal period filter if available, otherwise use date range if available
@@ -201,35 +201,11 @@ function FleetInformation() {
       }
       
       const response = await axiosInstance.get(url, { params });
+      console.log('flteet information ',response);
+      setAllLeaderboardData(response.data.results);
+      updatePageData(response.data.results, 1);
+      console.log('All leader board data===', allLeaderboardData);
       
-      if (response.data) {
-        // Transform and sort the data by total_value in descending order
-        const transformedData = response.data.assigned_user_stats
-          .sort((a, b) => b.total_value - a.total_value)
-          .map((user, index) => ({
-            id: user.user_id || `user-${index}`,
-            name: user.user_name || 'Unknown User',
-            closedValue: user.total_value || 0,
-            deals: user.total_opps || 0,
-            open_value: user.open_value,
-            open_count: user.open_count,
-            closed_value: user.closed_value,
-            closed_count: user.closed_count,
-            rank: index + 1 // Add ranking
-          }));
-        
-        // Store all data
-        setAllLeaderboardData(transformedData);
-        
-        // Calculate total value from all users
-        const total = transformedData.reduce((sum, user) => sum + user.closedValue, 0);
-        setTotalClosedValue(total);
-        
-        // Apply initial pagination
-        console.log(transformedData, 'transformedData')
-        updatePageData(transformedData, 1);
-      }
-      console.log('no iteee')
     } catch (error) {
       console.error('Error fetching leaderboard data:', error);
       setAllLeaderboardData([]);
@@ -241,6 +217,8 @@ function FleetInformation() {
 
   // Function to update the paginated data
   const updatePageData = (data, page) => {
+    console.log('updated page data==', data);
+    
     const startIndex = (page - 1) * pageSize;
     const paginatedData = data.slice(startIndex, startIndex + pageSize);
     setLeaderboardData(paginatedData);
@@ -363,6 +341,8 @@ function FleetInformation() {
       const response = await axiosInstance.get(url, { params });
       
       setModalOpportunities(response.data.results || []);
+      console.log('Modal opportunities====', modalOpportunities);
+      
       setModalTotalCount(response.data.count || 0);
       setModalCurrentPage(page);
     } catch (error) {
@@ -422,26 +402,26 @@ function FleetInformation() {
                 <table className="table-auto w-full">
                   <thead className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700">
                     <tr>
+                      {/* <th className="p-2 whitespace-nowrap">
+                        <div className="font-semibold text-center">#</div>
+                      </th> */}
                       <th className="p-2 whitespace-nowrap">
-                        <div className="font-semibold text-left">#</div>
+                        <div className="font-semibold text-center">Rep Name</div>
                       </th>
                       <th className="p-2 whitespace-nowrap">
-                        <div className="font-semibold text-left">Rep Name</div>
+                        <div className="font-semibold text-center">Contract End Date</div>
                       </th>
                       <th className="p-2 whitespace-nowrap">
-                        <div className="font-semibold text-left">Contract End Date</div>
+                        <div className="font-semibold text-center">Current Supplier</div>
                       </th>
                       <th className="p-2 whitespace-nowrap">
-                        <div className="font-semibold text-left">Current Supplier</div>
+                        <div className="font-semibold text-center">Forklifts</div>
                       </th>
                       <th className="p-2 whitespace-nowrap">
-                        <div className="font-semibold text-left">Forklifts</div>
+                        <div className="font-semibold text-center">Depots/Sites</div>
                       </th>
                       <th className="p-2 whitespace-nowrap">
-                        <div className="font-semibold text-left">Depots/Sites</div>
-                      </th>
-                      <th className="p-2 whitespace-nowrap">
-                        <div className="font-semibold text-right">Previous Purchase</div>
+                        <div className="font-semibold text-center">Previous Purchase</div>
                       </th>
                       <th className="p-2 whitespace-nowrap">
                         <div className="font-semibold text-center">Budget</div>
@@ -466,41 +446,41 @@ function FleetInformation() {
                           onClick={() => handleUserClick(person)}
                           className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
                         >
-                          <td className="p-2 whitespace-nowrap">
+                          {/* <td className="p-2 whitespace-nowrap">
                             <div className={`text-center ${rankClass}`}>{person.rank}</div>
-                          </td>
+                          </td> */}
                           <td className="p-2 whitespace-nowrap">
                             <div className="flex items-center">
                               {/* First initial avatar */}
                               <div className={`w-8 h-8 mr-2 flex-shrink-0 rounded-full ${bgColorClass} flex items-center justify-center text-white font-medium`}>
                                 {firstInitial}
                               </div>
-                              <div className="font-medium text-gray-800 dark:text-gray-100">{person.name}</div>
+                              <div className="text-center font-medium text-gray-800 dark:text-gray-100">{person?.name || 'N/A'}</div>
                             </div>
                           </td>
                           <td className="p-2 whitespace-nowrap">
-                            <div className="text-right font-medium text-green-600 dark:text-green-400">
-                              {formatCurrency(person.open_value)}
+                            <div className="text-center font-medium text-gray-800 dark:text-gray-100">
+                              {person.custom_fields?.contract_end_date || 'N/A'}
                             </div>
                           </td>
                           <td className="p-2 whitespace-nowrap">
-                            <div className="text-center font-medium text-gray-800 dark:text-gray-200">{person.open_count}</div>
+                            <div className="text-center font-medium text-gray-800 dark:text-gray-200">{person.custom_fields?.current_supplier || 'N/A'}</div>
                           </td>
                           <td className="p-2 whitespace-nowrap">
-                            <div className="text-right font-medium text-green-600 dark:text-green-400">
-                              {formatCurrency(person.closed_value)}
+                            <div className="text-center font-medium text-gray-800 dark:text-gray-100">
+                              {person.custom_fields?.how_many_forklifts_or_mhe_do_they_have || 'N/A'}
                             </div>
                           </td>
                           <td className="p-2 whitespace-nowrap">
-                            <div className="text-center font-medium text-gray-800 dark:text-gray-200">{person.closed_count}</div>
+                            <div className="text-center font-medium text-gray-800 dark:text-gray-200">{person.custom_fields?.how_many_depotssites_do_they_have || 'N/A'}</div>
                           </td>
                           <td className="p-2 whitespace-nowrap">
-                            <div className="text-right font-medium text-green-600 dark:text-green-400">
-                              {formatCurrency(person.closedValue)}
+                            <div className="text-center font-medium text-gray-800 dark:text-gray-100">
+                              {person.custom_fields?.how_have_they_purchased_previously || 'N/A'}
                             </div>
                           </td>
                           <td className="p-2 whitespace-nowrap">
-                            <div className="text-center font-medium text-gray-800 dark:text-gray-200">{person.deals}</div>
+                            <div className="text-center font-medium text-green-600 dark:text-green-400">{person.custom_fields?.budget_with_existing_supplier || 'N/A'}</div>
                           </td>
                         </tr>
                       );

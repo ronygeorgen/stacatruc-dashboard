@@ -417,7 +417,7 @@ const handleUpdateChange = (dates) => {
             <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0 z-10">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-[160px] whitespace-nowrap">
-                  Company Name
+                  Sales Rep
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-[160px] whitespace-nowrap">
                   Customer Name
@@ -476,6 +476,7 @@ const handleUpdateChange = (dates) => {
             {/* Right table header */}
             <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0 z-10">
               <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[250px] whitespace-nowrap">Company Name</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[250px] whitespace-nowrap">Contact Details</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[200px] whitespace-nowrap">Pipeline</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[200px] whitespace-nowrap">Next Step</th>
@@ -675,6 +676,11 @@ const handleUpdateChange = (dates) => {
                       className={rowBg}
                       style={{ height: rowHeights[index] ? `${rowHeights[index]}px` : 'auto' }}
                     >
+                      <td className="px-4 py-3 w-[100px]">
+                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-500/20 text-green-700 dark:text-green-300">
+                          {opportunity.contact?.company_name || 'N/A'}
+                        </span>
+                      </td>
                       <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[180px]">
                         <div>
                           <div>{contactDetails.email}</div>
@@ -727,6 +733,30 @@ const handleUpdateChange = (dates) => {
                       </td>
                       <td className="px-4 py-3 text-sm font-medium text-green-600 dark:text-green-400 w-[120px]">
                         {formatCurrency(opportunity.opp_value)}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
+                        {(opportunity.custom_fields?.make || 'N/A')}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
+                        {(opportunity.custom_fields?.machinery_model || 'N/A')}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
+                        {(opportunity.custom_fields?.equipcat || 'N/A')}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
+                        {(opportunity.custom_fields?.new || 'N/A')}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
+                        {(opportunity.custom_fields?.used || 'N/A')}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium text-green-600 dark:text-green-400 w-[120px]">
+                        {(opportunity.custom_fields?.base_value || 'N/A')}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium text-green-600 dark:text-green-400 w-[120px]">
+                        {(opportunity.custom_fields?.retail_ready || 'N/A')}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
+                        {(opportunity.custom_fields?.fleet_number || 'N/A')}
                       </td>
                     </tr>
                   );
