@@ -16,7 +16,15 @@ export const downloadAsCSV = async (opportunities, selectedProbability, axiosIns
     'Expected Delivary Date',
     'Created Date',
     'Updated Date',
-    'Amount'
+    'Amount',
+    'Make',
+    'Machinery Mode',
+    'EquipCat',
+    'New',
+    'Used',
+    'Base Value',
+    'Retail Ready',
+    'Fleet number'
   ];
   
   // If opportunities are directly provided, use them
@@ -52,7 +60,15 @@ export const downloadAsCSV = async (opportunities, selectedProbability, axiosIns
       opp.custom_fields.estimated_delivery_date ? new Date(opp.custom_fields.estimated_delivery_date).toLocaleDateString() : 'N/A',
       opp.created_at ? new Date(opp.created_at).toLocaleDateString() : 'N/A',
       opp.updated_at ? new Date(opp.updated_at).toLocaleDateString() : 'N/A',
-      opp.opp_value || '£0.00'
+      opp.opp_value || '£0.00',
+      opp.custom_fields?.make || 'N/A',
+      opp.custom_fields?.machinery_model || 'N/A',
+      opp.custom_fields?.equipcat || 'N/A',
+      opp.custom_fields?.new || 'N/A',
+      opp.custom_fields?.used || 'N/A',
+      opp.custom_fields?.base_value || 'N/A',
+      opp.custom_fields?.retail_ready || 'N/A',
+      opp.custom_fields?.fleet_number || 'N/A',
     ].join(',');
   });
   
