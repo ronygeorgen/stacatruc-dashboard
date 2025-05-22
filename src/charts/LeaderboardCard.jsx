@@ -378,7 +378,7 @@ function LeaderboardCard() {
   }, [fetchLeaderboardData]);
 
   // Handle user row click
-  const handleUserClick = (user) => {
+  const handleUserClick = (user) => {    
     setSelectedUser(user);
     setModalOpen(true);
     fetchUserOpportunities(user, 1); // Reset to first page when opening modal

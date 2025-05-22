@@ -239,7 +239,7 @@ function FleetInformation() {
       
       let url = '/opportunities/';
       let params = {
-        assigned_to: user.id,
+        assigned_to: user.assigned_to.id,
         page: page,
         page_size: modalPageSize
       };
@@ -361,6 +361,8 @@ function FleetInformation() {
 
   // Handle user row click
   const handleUserClick = (user) => {
+    console.log('selected user====', user.ghl_id);
+
     setSelectedUser(user);
     setModalOpen(true);
     fetchUserOpportunities(user, 1); // Reset to first page when opening modal
@@ -374,7 +376,7 @@ function FleetInformation() {
   // Calculate total number of pages for pagination
   const totalPages = Math.ceil(allLeaderboardData.length / pageSize);
 
-  console.log(leaderboardData, 'leaderborddata')
+  console.log('leaderborddata',leaderboardData)
 
   return (
     <>
@@ -383,7 +385,7 @@ function FleetInformation() {
           <h2 className="font-semibold text-gray-800 dark:text-gray-100">Fleet Information</h2>
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center">
             <span className="mr-1">{periodLabel || "All Time"}</span>
-            <span className="ml-2">Total: {formatCurrency(totalClosedValue)}</span>
+            {/* <span className="ml-2">Total: {formatCurrency(totalClosedValue)}</span> */}
           </div>
         </header>
         
@@ -437,12 +439,14 @@ function FleetInformation() {
                       else if (person.rank === 3) rankClass = "text-amber-700 font-semibold";
                       
                       // Get first initial for avatar
-                      const firstInitial = person.name ? person.name.charAt(0) : '?';
+                      const firstInitial = person.assigned_to?.first_name ? person.assigned_to.first_name.charAt(0) : '?';
                       const bgColorClass = getColorForLetter(firstInitial);
                       
                       return (
                         <tr 
-                          key={person.id} 
+                          key={person.ghl_id} 
+                        
+                          
                           onClick={() => handleUserClick(person)}
                           className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
                         >
@@ -455,7 +459,7 @@ function FleetInformation() {
                               <div className={`w-8 h-8 mr-2 flex-shrink-0 rounded-full ${bgColorClass} flex items-center justify-center text-white font-medium`}>
                                 {firstInitial}
                               </div>
-                              <div className="text-center font-medium text-gray-800 dark:text-gray-100">{person?.name || 'N/A'}</div>
+                              <div className="text-center font-medium text-gray-800 dark:text-gray-100">{person?.assigned_to?.first_name} {person?.assigned_to?.last_name}</div>
                             </div>
                           </td>
                           <td className="p-2 whitespace-nowrap">
