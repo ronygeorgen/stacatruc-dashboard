@@ -29,6 +29,13 @@ export const contactsAPI = {
       
       let url = "/contacts/?";
       let paramCount = 0;
+
+      // Add search query if it exists
+      if (filters.searchQuery) {
+        url += `search=${encodeURIComponent(filters.searchQuery)}`;
+        paramCount++;
+      }
+      
       
       // Add pipeline filters
       if (filters.pipelines && filters.pipelines.length > 0) {

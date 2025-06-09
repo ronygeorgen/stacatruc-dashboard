@@ -120,16 +120,17 @@ function DropdownFilters() {
         }))
     : [];
 
-  // const handleSearchOpportunityOwner = (query) => {
-  //     dispatch(fetchOpportunityOwners(query));
-  // };
-  // const handleSearchOpportunityOwner = (query) => {
-  //   if (!GlobalPipelines || GlobalPipelines.length === 0) {
-  //     dispatch(fetchOpportunityOwners(query));
-  //   } else {
-  //     dispatch(fetchOpportunityOwnersByPipelines(query,GlobalPipelines));
-  //   }
-  // };
+const handleSearchOpportunityOwner = (query) => {
+  const currentFilters = {
+    pipelines: selectedFilters.pipelines,
+    stageNames: selectedFilters.stageNames,
+    assignedUsers: selectedFilters.assignedUsers,
+    opportunitySources: selectedFilters.opportunitySources,
+    searchQuery: query // Make sure this is included
+  };
+  
+  dispatch(fetchOpportunityOwnersByFilters(currentFilters));
+};
 
    // Handler for pipeline filter changes - now updates both pipeline stages and Redux filter store
   const handlePipelineFilterApply = (selectedPipelineIds) => {
@@ -388,8 +389,8 @@ function DropdownFilters() {
         ref={opportunityOwnerFilterRef}
         title="Opportunity Owner" 
         filterOptions={opportunityOwnerToUse} 
-        // searchable
-        // onSearch={handleSearchOpportunityOwner}
+        searchable
+        onSearch={handleSearchOpportunityOwner}
         onApplyFilters={handleOpportunityOwnerFilterApply}
         align="right"
       />

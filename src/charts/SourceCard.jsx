@@ -169,9 +169,13 @@ function SourceCard() {
       
       const response = await axiosInstance.get(url, { params });
       setDashboardData(response.data);
+
+      const filteredOppSources = response.data.opp_source?.filter(
+        source => source.source !== "Referral"
+      ) || [];
       
       // Transform the source data to match the expected format and ensure source is a string
-      const transformedSourceData = response.data.opp_source.map((source, index) => ({
+      const transformedSourceData = filteredOppSources.map((source, index) => ({
         id: index,
         name: String(source.source || ''), // Ensure source is always a string
         value: source.total_value || 0,
@@ -180,6 +184,7 @@ function SourceCard() {
       }));
       
       setSourceData(transformedSourceData);
+      
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {

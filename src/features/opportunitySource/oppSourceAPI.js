@@ -1,30 +1,60 @@
 import { axiosInstance } from "../../services/api";
 
 export const oppSourceAPI = {
-  getAllOppSources: () => axiosInstance.get("/opportunity_dash"), 
+  getAllOppSources: () => 
+    axiosInstance.get("/opportunity_dash").then(response => {
+      if (response.data?.opp_source) {
+        // Filter out "Referral" but keep "Referral From B2B"
+        response.data.opp_source = response.data.opp_source.filter(
+          source => source.source !== "Referral"
+        );
+      }
+      return response;
+    }),
 
   getOppSourcesByPipelines: (pipelineIds) => {
     // If no pipeline IDs are selected, return all pipeline stages
     if (!pipelineIds || pipelineIds.length === 0) {
-      return axiosInstance.get("/opportunity_dash");
+      return axiosInstance.get("/opportunity_dash").then(response => {
+        if (response.data?.opp_source) {
+          response.data.opp_source = response.data.opp_source.filter(
+            source => source.source !== "Referral"
+          );
+        }
+        return response;
+      });
     }
     
     // Create URL with multiple pipeline parameters
     let url = "/opportunity_dash?";
     pipelineIds.forEach((id, index) => {
-      // Add & between parameters, but not for the first one
       if (index > 0) url += "&";
       url += `pipeline=${id}`;
     });
     
-    return axiosInstance.get(url);
-
+    return axiosInstance.get(url).then(response => {
+      if (response.data?.opp_source) {
+        response.data.opp_source = response.data.opp_source.filter(
+          source => source.source !== "Referral"
+        );
+      }
+      return response;
+    });
   },
 
   // New method for filtering by multiple parameters
   getOppSourcesByFilters: (filters) => {
+    const processResponse = (response) => {
+    if (response.data?.opp_source) {
+      response.data.opp_source = response.data.opp_source.filter(
+        source => source.source !== "Referral"
+      );
+    }
+    return response;
+  };
+
     if (!filters || Object.values(filters).every(arr => !arr || arr.length === 0)) {
-      return axiosInstance.get("/opportunity_dash");
+      return axiosInstance.get("/opportunity_dash").then(processResponse);
     }
     
     let url = "/opportunity_dash?";
@@ -69,6 +99,6 @@ export const oppSourceAPI = {
       });
     }
     
-    return axiosInstance.get(url);
+    return axiosInstance.get(url).then(processResponse);
   }
 };

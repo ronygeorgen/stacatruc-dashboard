@@ -416,13 +416,13 @@ const handleUpdateChange = (dates) => {
             {/* Fixed table header */}
             <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0 z-10">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-[160px] whitespace-nowrap">
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-[160px] whitespace-nowrap">
                   Sales Rep
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-[160px] whitespace-nowrap">
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-[160px] whitespace-nowrap">
                   Customer Name
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-[180px] whitespace-nowrap">
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider w-[180px] whitespace-nowrap">
                   Opportunity Name
                 </th>
               </tr>
@@ -450,13 +450,13 @@ const handleUpdateChange = (dates) => {
                       className={rowBg}
                       style={{ height: rowHeights[index] ? `${rowHeights[index]}px` : 'auto' }}
                     >
-                      <td className={`px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[160px]`}>
+                      <td className={`text-center px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[160px]`}>
                         {opportunity.assigned_to?.first_name || 'N/A'} {opportunity.assigned_to?.last_name || ''}
                       </td>
-                      <td className={`px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[160px]`}>
+                      <td className={`text-center px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[160px]`}>
                         {getFullName(opportunity.contact)}
                       </td>
-                      <td className={`px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[180px]`}>
+                      <td className={`text-center px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[180px]`}>
                         {opportunity.name || 'N/A'}
                       </td>
                     </tr>
@@ -476,15 +476,15 @@ const handleUpdateChange = (dates) => {
             {/* Right table header */}
             <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0 z-10">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[250px] whitespace-nowrap">Company Name</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[250px] whitespace-nowrap">Contact Details</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[200px] whitespace-nowrap">Pipeline</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[200px] whitespace-nowrap">Next Step</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[200px] whitespace-nowrap">Closing Probability</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Stage</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[150px] whitespace-nowrap">Status</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[100px] whitespace-nowrap">Age (days)</th>
-                <th className="relative px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-[200px] whitespace-nowrap">
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[250px] whitespace-nowrap">Company Name</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[350px] whitespace-nowrap">Contact Details</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[200px] whitespace-nowrap">Pipeline</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[200px] whitespace-nowrap">Next Step</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[200px] whitespace-nowrap">Closing Probability</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Stage</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[150px] whitespace-nowrap">Status</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[100px] whitespace-nowrap">Age (days)</th>
+                <th className="relative px-4 py-3 text-center text-xs font-medium uppercase tracking-wider w-[200px] whitespace-nowrap">
                   <div className="flex items-center">
                     <span className={`cursor-pointer ${getActiveFilterClasses('estimatedClosing')}`} onClick={toggleEstimatedClosingDatePicker}>
                       Estimated Closing Date {estimatedClosingStartDate && estimatedClosingEndDate && '🔍'}
@@ -523,7 +523,7 @@ const handleUpdateChange = (dates) => {
                     </div>
                   )}
                 </th>
-                <th className="relative px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-[200px] whitespace-nowrap">
+                <th className="relative px-4 py-3 text-center text-xs font-medium uppercase tracking-wider w-[220px] whitespace-nowrap">
                     <div className="flex items-center">
                       <span className={`cursor-pointer ${getActiveFilterClasses('estimatedDelivery')}`} onClick={toggleEstimatedDeliveryDatePicker}>
                         Estimated Delivery Date {estimatedDeliveryStartDate && estimatedDeliveryEndDate && '🔍'}
@@ -562,7 +562,7 @@ const handleUpdateChange = (dates) => {
                       </div>
                     )}
                   </th>
-                <th className="relative px-4 py-3 text-left text-xs font-medium uppercase tracking-wider w-[120px] whitespace-nowrap">
+                <th className="relative px-4 py-3 text-center text-xs font-medium uppercase tracking-wider w-[140px] whitespace-nowrap">
                   <div className="flex items-center">
                     <span className={`cursor-pointer ${getActiveFilterClasses('created')}`} onClick={toggleDatePicker}>
                       Created Date {startDate && endDate && '🔍'}
@@ -601,10 +601,10 @@ const handleUpdateChange = (dates) => {
                     </div>
                   )}
                 </th>
-                <th className="relative px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">
+                <th className="relative px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[140px] whitespace-nowrap">
                   <div className="flex items-center">
                       <span className={`cursor-pointer ${getActiveFilterClasses('updated-date')}`} onClick={toggleUpdateDatePicker}>
-                        Updated Date {updateStartDate && updateEndDate && '🔍'}
+                        Last Contacted {updateStartDate && updateEndDate && '🔍'}
                       </span>
                     </div>
                     {showUpdateDatePicker  && (
@@ -641,15 +641,15 @@ const handleUpdateChange = (dates) => {
                     )}
 
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Amount</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Make</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Machinery Model</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">EquipCat</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">New</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Used</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Base Value</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Retail Ready</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Fleet number</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500  dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Amount</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Make</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[180px] whitespace-nowrap">Machinery Model</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">EquipCat</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">New</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Used</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Base Value</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Retail Ready</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-[120px] whitespace-nowrap">Fleet number</th>
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -676,86 +676,86 @@ const handleUpdateChange = (dates) => {
                       className={rowBg}
                       style={{ height: rowHeights[index] ? `${rowHeights[index]}px` : 'auto' }}
                     >
-                      <td className="px-4 py-3 w-[100px]">
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-500/20 text-green-700 dark:text-green-300">
+                      <td className="text-center px-4 py-3 w-[100px]">
+                        <span className="text-center px-2 py-1 text-xs font-medium rounded-full bg-green-500/20 text-green-700 dark:text-green-300">
                           {opportunity.contact?.company_name || 'N/A'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[180px]">
+                      <td className="text-center px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[180px]">
                         <div>
                           <div>{contactDetails.email}</div>
                           <div>{contactDetails.phone}</div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 w-[100px]">
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-500/20 text-green-700 dark:text-green-300">
+                      <td className="text-center px-4 py-3 w-[100px]">
+                        <span className="text-center px-2 py-1 text-xs font-medium rounded-full bg-green-500/20 text-green-700 dark:text-green-300">
                           {opportunity.pipeline?.name || 'N/A'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 w-[100px]">
-                        <span className="px-2 py-1 text-xs font-medium rounded-full  text-gray-900 dark:text-gray-100">
+                      <td className="text-center px-4 py-3 w-[100px]">
+                        <span className="text-center px-2 py-1 text-xs font-medium rounded-full  text-gray-900 dark:text-gray-100">
                           {opportunity.next_step?.name || 'N/A'}
                         </span>
                       </td> 
-                      <td className="px-4 py-3 w-[100px]">
+                      <td className="text-center px-4 py-3 w-[100px]">
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${getProbabilityBgColor(opportunity.custom_fields?.chances_of_closing_the_deal)}`}>
                           {formatProbability(opportunity.custom_fields?.chances_of_closing_the_deal) || 'N/A'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
+                      <td className="text-center px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
                         {opportunity.stage.name || 'N/A'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[150px]">
-                        <div className="flex items-center">
-                          <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-medium px-2 py-1 rounded">
+                      <td className=" px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[150px]">
+                        <div className="flex justify-center">
+                          <span className="text-center bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-medium px-2 py-1 rounded">
                             {opportunity.status || 'N/A'}
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[100px]">
+                      <td className="text-center px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[100px]">
                         {calculateAge(opportunity.created_at)}
                       </td>
 
                       {/* new columns */}
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
+                      <td className="text-center px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
                         {formatDate(opportunity.custom_fields.estimated_closing_date)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
+                      <td className="text-center px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
                         {formatDate(opportunity.custom_fields.estimated_delivery_date)}
                       </td>
 
                       
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
+                      <td className="text-center px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
                         {formatDate(opportunity.created_at)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
+                      <td className="text-center px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
                         {formatDate(opportunity.updated_at)}
                       </td>
-                      <td className="px-4 py-3 text-sm font-medium text-green-600 dark:text-green-400 w-[120px]">
+                      <td className="text-center px-4 py-3 text-sm font-medium text-green-600 dark:text-green-400 w-[120px]">
                         {formatCurrency(opportunity.opp_value)}
                       </td>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
+                      <td className="text-center px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
                         {(opportunity.custom_fields?.make || 'N/A')}
                       </td>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
+                      <td className="text-center px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
                         {(opportunity.custom_fields?.machinery_model || 'N/A')}
                       </td>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
+                      <td className="text-center px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
                         {(opportunity.custom_fields?.equipcat || 'N/A')}
                       </td>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
+                      <td className="text-center px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
                         {(opportunity.custom_fields?.new || 'N/A')}
                       </td>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
+                      <td className="text-center px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
                         {(opportunity.custom_fields?.used || 'N/A')}
                       </td>
-                      <td className="px-4 py-3 text-sm font-medium text-green-600 dark:text-green-400 w-[120px]">
+                      <td className="text-center px-4 py-3 text-sm font-medium text-green-600 dark:text-green-400 w-[120px]">
                         {(opportunity.custom_fields?.base_value || 'N/A')}
                       </td>
-                      <td className="px-4 py-3 text-sm font-medium text-green-600 dark:text-green-400 w-[120px]">
+                      <td className="text-center px-4 py-3 text-sm font-medium text-green-600 dark:text-green-400 w-[120px]">
                         {(opportunity.custom_fields?.retail_ready || 'N/A')}
                       </td>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
+                      <td className="text-center px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 w-[120px]">
                         {(opportunity.custom_fields?.fleet_number || 'N/A')}
                       </td>
                     </tr>
