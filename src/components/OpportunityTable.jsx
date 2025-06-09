@@ -15,6 +15,7 @@ function OpportunityTable({
   onEstimatedDeliveryDateFilterChange,
   onUpdateFilterChange,
   onDownloadCSV,
+  showDownloadCSV = false, 
 }) {
   const fixedTableRef = useRef(null);
   const scrollableTableRef = useRef(null);
@@ -298,6 +299,7 @@ const handleUpdateChange = (dates) => {
         <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
           Opportunities ({totalCount || opportunities.length})
         </div>
+        {showDownloadCSV && (
         <div className="flex items-center space-x-4">
           {/* Download button */}
           <button
@@ -311,6 +313,7 @@ const handleUpdateChange = (dates) => {
             Download CSV
           </button>
         </div>
+        )}
         {/* Pagination controls */}
         <div className="flex items-center space-x-1">
           <button
@@ -703,12 +706,12 @@ const handleUpdateChange = (dates) => {
                         </span>
                       </td>
                       <td className="text-center px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[120px]">
-                        {opportunity.stage.name || 'N/A'}
+                        {opportunity.stage?.name || 'N/A'}
                       </td>
                       <td className=" px-4 py-3 text-sm text-gray-900 dark:text-gray-100 w-[150px]">
                         <div className="flex justify-center">
                           <span className="text-center bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-medium px-2 py-1 rounded">
-                            {opportunity.status || 'N/A'}
+                            {opportunity?.status || 'N/A'}
                           </span>
                         </div>
                       </td>

@@ -487,6 +487,7 @@ const handleDateFilterChange = useCallback((startDate, endDate) => {
           onEstimatedDeliveryDateFilterChange={handleEstimatedDeliveryDateFilterChange}
           onUpdateFilterChange={handleUpdateDateFilterChange}
           onDownloadCSV={handleDownloadCSV}
+          showDownloadCSV={true}
         />
       </CardDetailModal>
     </div>

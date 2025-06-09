@@ -346,6 +346,7 @@ function DashboardCard01() {
           totalCount={totalCount}
           onPageChange={handlePageChange}
           loading={loading}
+          showDownloadCSV={false}
         />
       </CardDetailModal>
     </>
